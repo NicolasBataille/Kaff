@@ -1,0 +1,110 @@
+name: Kaff
+options:
+  bundleIdPrefix: fr.batum
+  deploymentTarget:
+    watchOS: "26.0"
+  xcodeVersion: "26.6"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+configFiles:
+  Debug: Config/Local.xcconfig
+  Release: Config/Local.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.1.0
+
+packages:
+  KaffCore:
+    path: Packages/KaffCore
+
+targets:
+  Kaff Watch App:
+    type: application
+    platform: watchOS
+    sources:
+      - path: Kaff Watch App
+        excludes: ["**/*.entitlements"]
+    dependencies:
+      - package: KaffCore
+      - target: KaffComplication
+        embed: true
+    entitlements:
+      path: Kaff Watch App/Kaff.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        com.apple.security.application-groups: [group.fr.batum.kaff]
+    info:
+      path: Kaff Watch App/Info.plist
+      properties:
+        CFBundleDisplayName: Kaff
+        WKApplication: true
+        WKWatchOnly: true
+        NSHealthShareUsageDescription: Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.
+        NSHealthUpdateUsageDescription: Kaff enregistre les doses de caféine que vous loguez.
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        CFBundleURLTypes:
+          - CFBundleURLName: fr.batum.kaff
+            CFBundleURLSchemes: [kaff]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  KaffComplication:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: KaffComplication
+        excludes: ["**/*.entitlements"]
+    dependencies:
+      - package: KaffCore
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    entitlements:
+      path: KaffComplication/KaffComplication.entitlements
+      properties:
+        com.apple.security.application-groups: [group.fr.batum.kaff]
+    info:
+      path: KaffComplication/Info.plist
+      properties:
+        CFBundleDisplayName: Kaff
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp.complication
+
+  KaffTests:
+    type: bundle.unit-test
+    platform: watchOS
+    sources: [KaffTests]
+    dependencies:
+      - target: Kaff Watch App
+      - package: KaffCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  Kaff Watch App:
+    build:
+      targets:
+        Kaff Watch App: all
+        KaffComplication: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets: [Kaff Watch App, KaffComplication]
+      targets: [KaffTests]

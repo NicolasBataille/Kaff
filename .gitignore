@@ -21,3 +21,6 @@ playground.xcworkspace
 
 # Tooling
 .osgrep/
+
+# Local config (Team ID)
+Config/Local.xcconfig

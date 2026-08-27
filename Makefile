@@ -1,6 +1,9 @@
 SIM ?= Apple Watch Series 11 (46mm)
+OS ?= 26.5
+# Deux simulateurs portent le même nom (watchOS 26.4 et 26.5) : xcodebuild refuse un nom ambigu, on résout l'UDID.
+SIM_ID ?= $(shell xcrun simctl list devices available | sed -n '/^-- watchOS $(OS) --$$/,/^-- /p' | grep -F "$(SIM)" | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')
 SCHEME = Kaff Watch App
-DEST = platform=watchOS Simulator,name=$(SIM)
+DEST = platform=watchOS Simulator,id=$(SIM_ID)
 DERIVED = build
 APP = $(DERIVED)/Build/Products/Debug-watchsimulator/Kaff Watch App.app
 BUNDLE_ID = fr.batum.kaff.watchkitapp
@@ -22,10 +25,10 @@ test: generate
 	  -derivedDataPath $(DERIVED) -quiet -enableCodeCoverage YES test
 
 run: build
-	xcrun simctl boot "$(SIM)" 2>/dev/null || true
+	xcrun simctl boot "$(SIM_ID)" 2>/dev/null || true
 	open -a Simulator
-	xcrun simctl install "$(SIM)" "$(APP)"
-	xcrun simctl launch "$(SIM)" $(BUNDLE_ID)
+	xcrun simctl install "$(SIM_ID)" "$(APP)"
+	xcrun simctl launch "$(SIM_ID)" $(BUNDLE_ID)
 
 clean:
 	rm -rf $(DERIVED) Kaff.xcodeproj Packages/KaffCore/.build
