@@ -885,7 +885,7 @@ git commit -m "feat(core): M1.3 Bateman pharmacokinetic model"
 - Create: `Packages/KaffCore/Tests/KaffCoreTests/Support/TestClock.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/CaffeineDayTests.swift`
 
-- [ ] **Step 1 : support de test + tests**
+- [x] **Step 1 : support de test + tests**
 
 `Tests/KaffCoreTests/Support/TestClock.swift` :
 ```swift
@@ -940,9 +940,9 @@ private let day = CaffeineDay(calendar: TestClock.calendar)
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 ```swift
 import Foundation
@@ -979,9 +979,9 @@ public struct CaffeineDay: Sendable {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
@@ -995,7 +995,7 @@ git commit -m "feat(core): M1.4 caffeine day boundaries and next bedtime"
 - Create: `Packages/KaffCore/Sources/KaffCore/Assessment/LevelAssessor.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/LevelAssessorTests.swift`
 
-- [ ] **Step 1 : tests** (profil par défaut : 70 kg → limite ponctuelle 200 mg, 400 mg/jour, 50 mg au coucher 23:00, t½ 5 h)
+- [x] **Step 1 : tests** (profil par défaut : 70 kg → limite ponctuelle 200 mg, 400 mg/jour, 50 mg au coucher 23:00, t½ 5 h)
 
 ```swift
 import Foundation
@@ -1087,9 +1087,9 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `Assessment/LevelAssessment.swift` :
 ```swift
@@ -1188,9 +1188,9 @@ public struct LevelAssessor: Sendable {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
@@ -1204,7 +1204,7 @@ git commit -m "feat(core): M1.5 level assessor (peak, daily, bedtime, sleep-read
 - Create: `Packages/KaffCore/Sources/KaffCore/Timeline/TimelineBuilder.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/TimelineBuilderTests.swift`
 
-- [ ] **Step 1 : tests**
+- [x] **Step 1 : tests**
 
 ```swift
 import Foundation
@@ -1248,9 +1248,9 @@ private let builder = TimelineBuilder(assessor: LevelAssessor(profile: .default,
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `Timeline/TimelinePoint.swift` :
 ```swift
@@ -1321,9 +1321,9 @@ public struct TimelineBuilder: Sendable {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
@@ -1340,7 +1340,7 @@ git commit -m "feat(core): M1.6 timeline builder with threshold transitions"
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/CacheStoreTests.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/ProfileStoreTests.swift`
 
-- [ ] **Step 1 : tests**
+- [x] **Step 1 : tests**
 
 `CacheStoreTests.swift` :
 ```swift
@@ -1413,9 +1413,9 @@ private func freshDefaults() -> UserDefaults {
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `Persistence/AppGroup.swift` :
 ```swift
@@ -1514,14 +1514,14 @@ public struct ProfileStore: Sendable {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : couverture**
+- [x] **Step 5 : couverture**
 
 Run: `cd Packages/KaffCore && swift test --enable-code-coverage && xcrun llvm-cov report .build/debug/KaffCorePackageTests.xctest/Contents/MacOS/KaffCorePackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex='Tests|\.build' | tail -3`
 Expected: ligne `TOTAL` avec `Lines` ≥ 90 %. Sinon ajouter les tests manquants avant de continuer.
 
-- [ ] **Step 6 : commit**
+- [x] **Step 6 : commit**
 
 ```bash
 git add Packages
