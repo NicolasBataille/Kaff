@@ -227,7 +227,6 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     CODE_SIGN_STYLE: Automatic
     ENABLE_USER_SCRIPT_SANDBOXING: YES
-    GENERATE_INFOPLIST_FILE: YES
     CURRENT_PROJECT_VERSION: 1
     MARKETING_VERSION: 0.1.0
 
@@ -269,7 +268,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp: YES
 
   KaffComplication:
     type: app-extension
@@ -742,10 +740,11 @@ public enum DrinkCatalog {
             if counts[id] == nil { order.append(id) }
             counts[id, default: 0] += 1
         }
-        return order
-            .sorted { (counts[$0]!, order.firstIndex(of: $1)!) > (counts[$1]!, order.firstIndex(of: $0)!) }
-            .prefix(limit)
-            .map { $0 }
+        let ranked = order.sorted { a, b in
+            if counts[a]! != counts[b]! { return counts[a]! > counts[b]! }
+            return order.firstIndex(of: a)! < order.firstIndex(of: b)!
+        }
+        return Array(ranked.prefix(limit))
     }
 }
 ```
@@ -1037,8 +1036,8 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
 @Test func dailyTotalCountsSinceFourAM() {
     let now = TestClock.date(20)
     let doses = [
-        CaffeineDose(date: TestClock.date(day: 9, 23), milligrams: 100),  // veille, hors journée
-        CaffeineDose(date: TestClock.date(2), milligrams: 50),            // 02:00 → journée de la veille
+        CaffeineDose(date: TestClock.date(day: 9, 23), milligrams: 20),   // veille, hors journée
+        CaffeineDose(date: TestClock.date(2), milligrams: 20),            // 02:00 → journée de la veille
         CaffeineDose(date: TestClock.date(8), milligrams: 140),
         CaffeineDose(date: TestClock.date(10), milligrams: 140),
         CaffeineDose(date: TestClock.date(12), milligrams: 140),
@@ -1047,8 +1046,8 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     let a = assessor { $0.bedtimeLimitMg = 100 }.assess(doses: doses, at: now)
     #expect(a.dailyTotalMg == 420)
     #expect(a.dailyStatus == .high)
-    #expect(a.peakStatus == .ok)                 // ≈ 108 mg / 200
-    #expect(a.bedtimeStatus == .elevated)        // ≈ 71 mg / 100
+    #expect(a.peakStatus == .ok)                 // ≈ 114 mg / 200 = 0,57
+    #expect(a.bedtimeStatus == .elevated)        // ≈ 74 mg / 100
     #expect(a.reason == .daily)
 }
 
@@ -1313,14 +1312,11 @@ public struct TimelineBuilder: Sendable {
         return Array(Set(grid + transitions)).sorted()
     }
 
+    /// Comparaison de tuples : fournie par la bibliothèque standard, ne pas redéfinir `!=`.
     private func signature(doses: [CaffeineDose], at date: Date) -> (LevelStatus, Bool) {
         let a = assessor.assess(doses: doses, at: date)
         return (a.status, a.isSleepReady)
     }
-}
-
-private func != (lhs: (LevelStatus, Bool), rhs: (LevelStatus, Bool)) -> Bool {
-    lhs.0 != rhs.0 || lhs.1 != rhs.1
 }
 ```
 
