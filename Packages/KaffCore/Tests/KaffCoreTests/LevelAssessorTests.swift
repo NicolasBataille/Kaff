@@ -86,6 +86,24 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(a.reason == .peak)
 }
 
+@Test func bedtimeTakesPriorityOverDailyWhenPeakIsNotHigh() {
+    // 40 mg à 21:30 fait déjà passer peakStatus à .elevated (ratio ≈ 0,59 sous 0,6 avec 35 mg,
+    // mais 0,617 avec 40 mg) : on baisse la dernière dose à 35 mg pour garder peakStatus == .ok,
+    // avec dailyStatus et bedtimeStatus tous deux .high — vérifié par calcul direct avec le modèle.
+    let now = TestClock.date(22)
+    let doses = [
+        CaffeineDose(date: TestClock.date(8), milligrams: 140),
+        CaffeineDose(date: TestClock.date(10), milligrams: 140),
+        CaffeineDose(date: TestClock.date(12), milligrams: 140),
+        CaffeineDose(date: TestClock.date(21, 30), milligrams: 35),
+    ]
+    let a = assessor().assess(doses: doses, at: now)
+    #expect(a.peakStatus == .ok)
+    #expect(a.dailyStatus == .high)
+    #expect(a.bedtimeStatus == .high)
+    #expect(a.reason == .bedtime)
+}
+
 @Test func zeroBedtimeLimitDisablesCheckInsteadOfDividingByZero() {
     // Profil construit directement (sans `clamped()`) pour simuler des données corrompues.
     let corrupted = UserProfile(

@@ -7,6 +7,7 @@ public struct LevelAssessor: Sendable {
     public static let elevatedDailyFraction = 0.75
     public static let elevatedBedtimeFraction = 0.6
     /// Horizon de recherche de `sleepReadyAt`.
+    /// Source: borne de recherche généreuse, pas une constante physiologique ; au-delà on retourne la borne.
     static let sleepSearchHorizonHours = 72.0
 
     public let profile: UserProfile
@@ -54,6 +55,7 @@ public struct LevelAssessor: Sendable {
         guard model.amount(doses: doses, at: start) >= limit else { return start }
         var low = start
         var high = start.addingTimeInterval(Self.sleepSearchHorizonHours * 3600)
+        // Plafond d'horizon, pas une vraie estimation : le niveau n'est pas redescendu en 72 h.
         guard model.amount(doses: doses, at: high) < limit else { return high }
         while high.timeIntervalSince(low) > 60 {
             let mid = low.addingTimeInterval(high.timeIntervalSince(low) / 2)

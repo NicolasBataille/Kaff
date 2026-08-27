@@ -1,9 +1,5 @@
 import Foundation
 
-public enum LevelReason: Hashable, Sendable {
-    case none, peak, daily, bedtime
-}
-
 /// Résultat d'une évaluation à un instant donné.
 public struct LevelAssessment: Hashable, Sendable {
     public let now: Date
