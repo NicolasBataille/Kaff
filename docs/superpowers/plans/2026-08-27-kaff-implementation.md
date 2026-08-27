@@ -801,9 +801,10 @@ private let model = PharmacokineticModel(halfLifeHours: 5)
     #expect(abs(model.amount(dose: 100, hoursSince: model.timeToPeakHours) - 90.3) < 0.5)
 }
 
-@Test func lateDecayMatchesPureElimination() {
-    // À 10 h, 100·e^(−ln2·10/5) = 25 mg ; l'absorption est terminée depuis longtemps.
-    #expect(abs(model.amount(dose: 100, hoursSince: 10) - 25.0) < 0.3)
+@Test func lateDecayFollowsEliminationWithBatemanPrefactor() {
+    // Asymptote = D·ka/(ka−ke)·e^(−ke·t) : le préfacteur 1,0285 ne disparaît pas.
+    // À 10 h : 100 × 1,0285 × e^(−ln2·10/5) = 25,7 mg (et non 25,0).
+    #expect(abs(model.amount(dose: 100, hoursSince: 10) - 25.7) < 0.2)
 }
 
 @Test func halfLifeChangesElimination() {

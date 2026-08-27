@@ -111,7 +111,7 @@ Plusieurs doses se superposent (PK linéaire) : `A_total(t) = Σ A_i(t − t_i)`
 Vérification indépendante des constantes (à reprendre dans les tests) :
 - `tmax = ln(ka/ke) / (ka − ke)`. Avec `t½ = 5 h` → `ke = 0,1386` → `tmax ≈ 0,74 h ≈ 44 min`.
 - Au pic, `A(tmax) ≈ 0,90 · D`.
-- Pour `t ≫ tmax`, la courbe rejoint `D · e^(−ke·t)` à < 1 % près (ex. à 10 h : ≈ 25 % de D).
+- Pour `t ≫ tmax`, la courbe suit l'asymptote `1,0285 · D · e^(−ke·t)` (le préfacteur `ka/(ka−ke)` persiste ; ex. à 10 h : ≈ 25,7 % de D, pas 25 %).
 
 **Références à confirmer à l'implémentation** (ordres de grandeur issus de la
 littérature, à sourcer dans le code) : demi-vie 1,5–9,5 h (médiane ~5 h),
