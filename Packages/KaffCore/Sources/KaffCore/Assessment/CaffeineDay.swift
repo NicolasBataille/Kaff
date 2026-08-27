@@ -25,8 +25,9 @@ public struct CaffeineDay: Sendable {
         let nowRel = (nowMinutes - dayStart + 1440) % 1440
         let bedRel = (bedtime.minutesOfDay - dayStart + 1440) % 1440
         guard nowRel < bedRel else { return now }
-        let target = now.addingTimeInterval(Double(bedRel - nowRel) * 60)
-        let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: target)
-        return calendar.date(from: comps)!
+        return calendar.nextDate(
+            after: now,
+            matching: DateComponents(hour: bedtime.hour, minute: bedtime.minute),
+            matchingPolicy: .nextTimePreservingSmallerComponents)!
     }
 }
