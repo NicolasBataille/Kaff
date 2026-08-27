@@ -10,7 +10,6 @@ build/
 *.dSYM
 .build/
 .swiftpm/
-Packages/
 *.hmap
 *.xccheckout
 *.moved-aside
