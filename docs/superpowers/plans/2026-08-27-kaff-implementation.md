@@ -1543,7 +1543,7 @@ Mettre à jour `docs/ROADMAP.md` : M1 ✅ (noter la couverture obtenue dans le j
 
 Pas de test unitaire direct de `HealthKitStore` (HealthKit n'est pas mockable) : il est vérifié sur simulateur à la Task M2.3 et couvert par un protocole pour le reste.
 
-- [ ] **Step 1 : protocole**
+- [x] **Step 1 : protocole**
 
 `Services/HealthStore.swift` :
 ```swift
@@ -1564,7 +1564,7 @@ protocol HealthStore: Sendable {
 }
 ```
 
-- [ ] **Step 2 : implémentation HealthKit**
+- [x] **Step 2 : implémentation HealthKit**
 
 `Services/HealthKitStore.swift` :
 ```swift
@@ -1640,7 +1640,7 @@ final class HealthKitStore: HealthStore, @unchecked Sendable {
 }
 ```
 
-- [ ] **Step 3 : rechargement du widget**
+- [x] **Step 3 : rechargement du widget**
 
 `Services/WidgetReloader.swift` :
 ```swift
@@ -1658,9 +1658,9 @@ struct WidgetCenterReloader: WidgetReloader {
 }
 ```
 
-- [ ] **Step 4 : `make build` → OK**
+- [x] **Step 4 : `make build` → OK**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add "Kaff Watch App/Services"
@@ -1677,7 +1677,7 @@ git commit -m "feat(app): M2.1 HealthStore protocol, HealthKit implementation, w
 - Create: `KaffTests/AppModelTests.swift`
 - Delete: `KaffTests/SmokeTests.swift`
 
-- [ ] **Step 1 : mocks et tests**
+- [x] **Step 1 : mocks et tests**
 
 `KaffTests/Mocks/MockHealthStore.swift` :
 ```swift
@@ -1825,9 +1825,9 @@ struct AppModelTests {
 }
 ```
 
-- [ ] **Step 2 : `make test` → échec de compilation**
+- [x] **Step 2 : `make test` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `App/Route.swift` :
 ```swift
@@ -1987,9 +1987,9 @@ final class AppModel {
 }
 ```
 
-- [ ] **Step 4 : `make test` → `** TEST SUCCEEDED **`, 7 tests**
+- [x] **Step 4 : `make test` → `** TEST SUCCEEDED **`, 7 tests**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add "Kaff Watch App/App" KaffTests
@@ -2001,7 +2001,7 @@ git commit -m "feat(app): M2.2 AppModel orchestration with tests"
 **Files:**
 - Modify: `Kaff Watch App/App/KaffApp.swift`
 
-- [ ] **Step 1 : brancher `AppModel` et un écran de debug temporaire**
+- [x] **Step 1 : brancher `AppModel` et un écran de debug temporaire**
 
 ```swift
 import KaffCore
@@ -2030,11 +2030,11 @@ struct KaffApp: App {
 }
 ```
 
-- [ ] **Step 2 : `make run`** — accepter la demande d'autorisation Santé sur le simulateur ; appuyer sur « +63 mg » ; relancer l'app.
+- [x] **Step 2 : `make run`** — accepter la demande d'autorisation Santé sur le simulateur ; appuyer sur « +63 mg » ; relancer l'app.
 Expected: « Auth: authorized », « Doses: 1 » persiste après relance, le nombre de mg monte puis redescend.
 Si `AppGroup.defaults` est `nil` (visible en ajoutant un `print`), l'entitlement App Groups n'est pas embarqué : vérifier `project.yml`.
 
-- [ ] **Step 3 : commit**
+- [x] **Step 3 : commit**
 
 ```bash
 git add "Kaff Watch App/App/KaffApp.swift"
