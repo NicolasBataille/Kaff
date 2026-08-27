@@ -33,10 +33,16 @@ public struct LevelAssessor: Sendable {
             bedtime: bedtime,
             projectedBedtimeMg: projected,
             sleepReadyAt: sleepReadyDate(doses: past, from: now),
-            peakStatus: LevelStatus(ratio: current / profile.singleDoseLimitMg, elevatedAt: Self.elevatedPeakFraction),
-            dailyStatus: LevelStatus(ratio: dailyTotal / profile.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
-            bedtimeStatus: LevelStatus(ratio: projected / profile.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)
+            peakStatus: Self.status(current, limit: profile.singleDoseLimitMg, elevatedAt: Self.elevatedPeakFraction),
+            dailyStatus: Self.status(dailyTotal, limit: profile.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
+            bedtimeStatus: Self.status(projected, limit: profile.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)
         )
+    }
+
+    /// Une limite ≤ 0 (profil corrompu) désactive la vérification plutôt que de diviser par zéro.
+    private static func status(_ value: Double, limit: Double, elevatedAt: Double) -> LevelStatus {
+        guard limit > 0 else { return .ok }
+        return LevelStatus(ratio: value / limit, elevatedAt: elevatedAt)
     }
 
     /// Après le dernier pic la courbe est strictement décroissante : recherche par dichotomie à la minute près.

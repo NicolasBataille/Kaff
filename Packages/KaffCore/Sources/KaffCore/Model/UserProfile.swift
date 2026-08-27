@@ -49,8 +49,11 @@ public struct UserProfile: Hashable, Codable, Sendable {
         public static let weightKg = 30.0...250.0
         public static let halfLifeHours = 2.0...10.0
         public static let dailyLimitMg = 50.0...1000.0
-        public static let bedtimeLimitMg = 0.0...300.0
+        /// Source: revue de code M1 — 0 mg est inatteignable avec une décroissance exponentielle.
+        public static let bedtimeLimitMg = 10.0...300.0
         public static let doseMg = 0.0...1000.0
+        public static let singleDoseMgPerKg = 1.0...10.0
+        public static let singleDoseCapMg = 50.0...1000.0
     }
 
     /// Copie dont chaque champ est ramené dans ses bornes.
@@ -61,6 +64,8 @@ public struct UserProfile: Hashable, Codable, Sendable {
         c.halfLifeHours = min(max(halfLifeHours, Bounds.halfLifeHours.lowerBound), Bounds.halfLifeHours.upperBound)
         c.dailyLimitMg = min(max(dailyLimitMg, Bounds.dailyLimitMg.lowerBound), Bounds.dailyLimitMg.upperBound)
         c.bedtimeLimitMg = min(max(bedtimeLimitMg, Bounds.bedtimeLimitMg.lowerBound), Bounds.bedtimeLimitMg.upperBound)
+        c.singleDoseMgPerKg = min(max(singleDoseMgPerKg, Bounds.singleDoseMgPerKg.lowerBound), Bounds.singleDoseMgPerKg.upperBound)
+        c.singleDoseCapMg = min(max(singleDoseCapMg, Bounds.singleDoseCapMg.lowerBound), Bounds.singleDoseCapMg.upperBound)
         return c
     }
 }

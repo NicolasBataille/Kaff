@@ -36,6 +36,17 @@ import Testing
     #expect(c.halfLifeHours == UserProfile.Bounds.halfLifeHours.upperBound)
 }
 
+@Test func clampCoversDoseConstantsAndBedtimeFloor() {
+    var p = UserProfile.default
+    p.bedtimeLimitMg = 0
+    p.singleDoseMgPerKg = 0
+    p.singleDoseCapMg = 5
+    let c = p.clamped()
+    #expect(c.bedtimeLimitMg == UserProfile.Bounds.bedtimeLimitMg.lowerBound)
+    #expect(c.singleDoseMgPerKg == UserProfile.Bounds.singleDoseMgPerKg.lowerBound)
+    #expect(c.singleDoseCapMg == UserProfile.Bounds.singleDoseCapMg.lowerBound)
+}
+
 @Test func levelStatusFromRatio() {
     #expect(LevelStatus(ratio: 0.2, elevatedAt: 0.6) == .ok)
     #expect(LevelStatus(ratio: 0.6, elevatedAt: 0.6) == .elevated)

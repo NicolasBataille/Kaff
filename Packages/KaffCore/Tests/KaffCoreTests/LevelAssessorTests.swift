@@ -85,3 +85,19 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(a.peakStatus == .high && a.bedtimeStatus == .high)
     #expect(a.reason == .peak)
 }
+
+@Test func zeroBedtimeLimitDisablesCheckInsteadOfDividingByZero() {
+    // Profil construit directement (sans `clamped()`) pour simuler des données corrompues.
+    let corrupted = UserProfile(
+        halfLifeHours: 5,
+        bedtime: ClockTime(hour: 23, minute: 0),
+        dailyLimitMg: 400,
+        bedtimeLimitMg: 0,
+        singleDoseMgPerKg: 3,
+        singleDoseCapMg: 200)
+    let now = TestClock.date(20)
+    let a = LevelAssessor(profile: corrupted, calendar: TestClock.calendar)
+        .assess(doses: [CaffeineDose(date: TestClock.date(19), milligrams: 200)], at: now)
+    #expect(a.bedtimeStatus == .ok)
+    #expect(!a.projectedBedtimeMg.isNaN)
+}
