@@ -49,7 +49,6 @@ targets:
         WKWatchOnly: true
         NSHealthShareUsageDescription: Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.
         NSHealthUpdateUsageDescription: Kaff enregistre les doses de caféine que vous loguez.
-        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         CFBundleURLTypes:
           - CFBundleURLName: fr.batum.kaff
             CFBundleURLSchemes: [kaff]

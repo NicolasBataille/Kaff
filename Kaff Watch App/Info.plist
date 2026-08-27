@@ -35,10 +35,6 @@
 	<string>Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Kaff enregistre les doses de caféine que vous loguez.</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKWatchOnly</key>
