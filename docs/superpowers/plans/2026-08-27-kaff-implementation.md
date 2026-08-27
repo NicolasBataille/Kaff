@@ -109,7 +109,7 @@ Responsabilités : voir spec §3.1. Règle : un type public par fichier, fichier
 - Create: `Packages/KaffCore/Tests/KaffCoreTests/SmokeTests.swift`
 - Create: `Makefile`
 
-- [ ] **Step 1 : Package.swift**
+- [x] **Step 1 : Package.swift**
 
 ```swift
 // swift-tools-version: 6.0
@@ -126,7 +126,7 @@ let package = Package(
 )
 ```
 
-- [ ] **Step 2 : source et test de fumée**
+- [x] **Step 2 : source et test de fumée**
 
 `Sources/KaffCore/KaffCore.swift` :
 ```swift
@@ -146,7 +146,7 @@ import Testing
 }
 ```
 
-- [ ] **Step 3 : Makefile**
+- [x] **Step 3 : Makefile**
 
 ```make
 SIM ?= Apple Watch Series 11 (46mm)
@@ -183,12 +183,12 @@ clean:
 ```
 (Les retraits des recettes sont des **tabulations**.)
 
-- [ ] **Step 4 : vérifier**
+- [x] **Step 4 : vérifier**
 
 Run: `make test-core`
 Expected: `Test run with 1 test passed after …`
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages Makefile
@@ -205,7 +205,7 @@ git commit -m "chore: M0.1 KaffCore package + Makefile"
 - Create: `KaffTests/SmokeTests.swift`
 - Modify: `.gitignore` (ajouter `Config/Local.xcconfig`)
 
-- [ ] **Step 1 : project.yml**
+- [x] **Step 1 : project.yml**
 
 ```yaml
 name: Kaff
@@ -319,7 +319,7 @@ schemes:
       targets: [KaffTests]
 ```
 
-- [ ] **Step 2 : xcconfig**
+- [x] **Step 2 : xcconfig**
 
 `Config/Local.xcconfig.example` :
 ```
@@ -329,7 +329,7 @@ DEVELOPMENT_TEAM = XXXXXXXXXX
 Run: `cp Config/Local.xcconfig.example Config/Local.xcconfig` puis renseigner le Team ID réel.
 Ajouter `Config/Local.xcconfig` à `.gitignore`.
 
-- [ ] **Step 3 : app SwiftUI minimale**
+- [x] **Step 3 : app SwiftUI minimale**
 
 `Kaff Watch App/App/KaffApp.swift` :
 ```swift
@@ -351,7 +351,7 @@ struct KaffApp: App {
 ```
 Ajouter dans le même catalogue un `AccentColor.colorset` (couleur `#C8792B`, orange café) et un `AppIcon.appiconset` vide (Contents.json `{ "images": [ { "idiom": "universal", "platform": "watchos", "size": "1024x1024" } ], "info": { "author": "xcode", "version": 1 } }`).
 
-- [ ] **Step 4 : widget minimal**
+- [x] **Step 4 : widget minimal**
 
 `KaffComplication/KaffComplicationBundle.swift` :
 ```swift
@@ -386,7 +386,7 @@ struct PlaceholderWidget: Widget {
 }
 ```
 
-- [ ] **Step 5 : test de fumée de la cible app**
+- [x] **Step 5 : test de fumée de la cible app**
 
 `KaffTests/SmokeTests.swift` :
 ```swift
@@ -398,7 +398,7 @@ import KaffCore
 }
 ```
 
-- [ ] **Step 6 : générer et builder**
+- [x] **Step 6 : générer et builder**
 
 Run: `make build`
 Expected: aucune erreur. Si `xcodebuild` échoue sur `WKApplication`/`WKWatchOnly`, vérifier que les clés sont bien dans `Kaff Watch App/Info.plist` généré ; si l'embed du widget échoue, vérifier `embed: true` et que le bundle id du widget est préfixé par celui de l'app.
@@ -411,7 +411,7 @@ Expected: `** TEST SUCCEEDED **` (1 test dans KaffTests).
 
 Vérification widget : dans le simulateur, appui long sur le cadran → Modifier → Complications → « Kaff » apparaît avec ☕.
 
-- [ ] **Step 7 : commit**
+- [x] **Step 7 : commit**
 
 ```bash
 git add project.yml Config/Local.xcconfig.example .gitignore "Kaff Watch App" KaffComplication KaffTests
