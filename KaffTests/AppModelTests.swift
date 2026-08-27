@@ -18,7 +18,8 @@ struct AppModelTests {
 
     func makeModel() -> AppModel {
         AppModel(health: health, profileStore: ProfileStore(defaults: defaults),
-                 cacheStore: CacheStore(defaults: defaults), widgets: widgets, now: { now })
+                 cacheStore: CacheStore(defaults: defaults), widgets: widgets,
+                 now: { now }, authorizationRetryDelay: .zero)
     }
 
     @Test func startLoadsDosesAndWeight() async {
@@ -38,16 +39,37 @@ struct AppModelTests {
         #expect(model.authorization == .denied)
     }
 
+    @Test func startRetriesAuthorizationStatusBeforeDenying() async {
+        health.authorizedAfterChecks = 2
+        let model = makeModel()
+        await model.start()
+        #expect(model.authorization == .authorized)
+    }
+
+    @Test func refreshPublishesDosesEvenIfWeightReadFails() async throws {
+        health.stored = [CaffeineDose(date: now.addingTimeInterval(-3600), milligrams: 63)]
+        health.bodyMassError = NSError(domain: "test", code: 2)
+        let model = makeModel()
+        await model.start()
+        #expect(model.doses.count == 1)
+        let cache = try #require(CacheStore(defaults: defaults).read())
+        #expect(cache.doses.count == 1)
+        #expect(widgets.reloadCount >= 1)
+        #expect(model.lastError != nil)
+    }
+
     @Test func logSavesWritesCacheAndReloadsWidgets() async throws {
         let model = makeModel()
         await model.start()
         let espresso = DrinkCatalog.drink(id: "espresso", custom: [])!
+        let before = widgets.reloadCount
         await model.log(milligrams: 126, drink: espresso, volumeML: 60)
         #expect(health.savedIDs.count == 1)
         #expect(model.doses.last?.drinkID == "espresso")
+        #expect(model.doses.last?.id == health.savedIDs.first)
         let cache = try #require(CacheStore(defaults: defaults).read())
         #expect(cache.doses.count == 1)
-        #expect(widgets.reloadCount >= 1)
+        #expect(widgets.reloadCount == before + 1)
         #expect(model.lastError == nil)
     }
 
@@ -58,6 +80,19 @@ struct AppModelTests {
         await model.log(milligrams: 50, drink: nil, volumeML: nil)
         #expect(model.doses.isEmpty)
         #expect(model.lastError != nil)
+    }
+
+    @Test func deleteAfterFailedLogClearsError() async {
+        let dose = CaffeineDose(date: now.addingTimeInterval(-600), milligrams: 95)
+        health.stored = [dose]
+        health.saveError = NSError(domain: "test", code: 1)
+        let model = makeModel()
+        await model.start()
+        await model.log(milligrams: 50, drink: nil, volumeML: nil)
+        #expect(model.lastError != nil)
+        health.saveError = nil
+        await model.delete(dose)
+        #expect(model.lastError == nil)
     }
 
     @Test func deleteRemovesDoseAndPublishes() async {
@@ -77,10 +112,11 @@ struct AppModelTests {
         await model.start()
         var p = model.profile
         p.halfLifeHours = 7
+        let before = widgets.reloadCount
         await model.update(profile: p)
         #expect(ProfileStore(defaults: defaults).loadProfile().halfLifeHours == 7)
         #expect(model.assessment().now == now)
-        #expect(widgets.reloadCount >= 1)
+        #expect(widgets.reloadCount == before + 1)
     }
 
     @Test func favoritesComeFromLoggedDrinks() async {

@@ -25,6 +25,7 @@ Légende : ⬜ à faire · 🟨 en cours · ✅ terminé · ⛔ bloqué
 | 2026-08-27 | M1 terminé : KaffCore complet, 38 tests, couverture lignes 99,2 %. |
 | 2026-08-27 | Revue M1 : correction DST de `nextBedtime`, limites nulles neutralisées, `LevelReason` isolé, `sleepReadyAt` précalculé dans la timeline. |
 | 2026-08-28 | M2 terminé : `HealthStore` (protocole + HealthKit), `WidgetReloader`, `AppModel` @Observable (7 tests verts). Round-trip HealthKit vérifié sur Series 11 (46mm) : autorisation, dose 63 mg écrite/relue après relance, snapshot présent dans le conteneur `group.fr.batum.kaff`. Notable : juste après la feuille d'autorisation, `authorizationStatus` renvoie encore `.sharingDenied` (l'app affiche « denied » jusqu'à la relance) — à traiter dans l'écran d'autorisation M3.1. |
+| 2026-08-28 | Revue M2 : état d'erreur, publication robuste, sondage du statut Santé, tests renforcés. |
 
 ## Backlog (hors v1, à ne pas commencer sans décision)
 

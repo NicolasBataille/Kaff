@@ -3,11 +3,14 @@ import SwiftUI
 
 @main
 struct KaffApp: App {
-    @State private var model = AppModel(
-        health: HealthKitStore(),
-        profileStore: ProfileStore(defaults: AppGroup.defaults ?? .standard),
-        cacheStore: CacheStore(defaults: AppGroup.defaults ?? .standard),
-        widgets: WidgetCenterReloader())
+    @State private var model: AppModel = {
+        let defaults = SharedDefaults.resolve()
+        return AppModel(
+            health: HealthKitStore(),
+            profileStore: ProfileStore(defaults: defaults),
+            cacheStore: CacheStore(defaults: defaults),
+            widgets: WidgetCenterReloader())
+    }()
 
     var body: some Scene {
         WindowGroup {
