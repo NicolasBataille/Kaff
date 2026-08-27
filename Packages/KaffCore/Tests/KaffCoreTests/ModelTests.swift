@@ -1,0 +1,54 @@
+import Foundation
+import Testing
+@testable import KaffCore
+
+@Test func drinkScalesMilligramsLinearly() {
+    let espresso = Drink(id: "espresso", name: "Espresso", milligrams: 63, volumeML: 30, symbol: "cup.and.saucer.fill")
+    #expect(espresso.milligrams(forVolumeML: 60) == 126)
+    #expect(espresso.milligrams(forVolumeML: 0) == 0)
+}
+
+@Test func weightPrefersManualThenHealthKitThenFallback() {
+    var p = UserProfile.default
+    #expect(p.weightKg == UserProfile.fallbackWeightKg && p.isWeightEstimated)
+    p.healthKitWeightKg = 80
+    #expect(p.weightKg == 80 && !p.isWeightEstimated)
+    p.manualWeightKg = 75
+    #expect(p.weightKg == 75)
+}
+
+@Test func singleDoseLimitIsCappedAt200() {
+    var p = UserProfile.default
+    p.manualWeightKg = 60
+    #expect(p.singleDoseLimitMg == 180)
+    p.manualWeightKg = 90
+    #expect(p.singleDoseLimitMg == 200)
+}
+
+@Test func profileClampsOutOfRangeValues() {
+    var p = UserProfile.default
+    p.manualWeightKg = 10
+    p.healthKitWeightKg = 900
+    p.halfLifeHours = 40
+    let c = p.clamped()
+    #expect(c.manualWeightKg == UserProfile.Bounds.weightKg.lowerBound)
+    #expect(c.healthKitWeightKg == UserProfile.Bounds.weightKg.upperBound)
+    #expect(c.halfLifeHours == UserProfile.Bounds.halfLifeHours.upperBound)
+}
+
+@Test func levelStatusFromRatio() {
+    #expect(LevelStatus(ratio: 0.2, elevatedAt: 0.6) == .ok)
+    #expect(LevelStatus(ratio: 0.6, elevatedAt: 0.6) == .elevated)
+    #expect(LevelStatus(ratio: 1.0, elevatedAt: 0.6) == .high)
+    #expect(LevelStatus.high > LevelStatus.elevated && LevelStatus.elevated > LevelStatus.ok)
+}
+
+@Test func clockTimeMinutesOfDay() {
+    #expect(ClockTime(hour: 23, minute: 30).minutesOfDay == 1410)
+}
+
+@Test func doseIsCodableRoundTrip() throws {
+    let d = CaffeineDose(id: UUID(), date: Date(timeIntervalSince1970: 1_000), milligrams: 63, drinkID: "espresso", volumeML: 30)
+    let data = try JSONEncoder().encode(d)
+    #expect(try JSONDecoder().decode(CaffeineDose.self, from: data) == d)
+}
