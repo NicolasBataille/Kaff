@@ -32,6 +32,11 @@ private let model = PharmacokineticModel(halfLifeHours: 5)
     #expect(fast.amount(dose: 100, hoursSince: 10) < model.amount(dose: 100, hoursSince: 10))
 }
 
+@Test func veryLateAmountDecaysToZeroWithoutNaN() {
+    let late = model.amount(dose: 100, hoursSince: 1000)
+    #expect(late >= 0 && late < 1e-6 && !late.isNaN)
+}
+
 @Test func dosesSuperpose() {
     let t0 = Date(timeIntervalSince1970: 0)
     let doses = [

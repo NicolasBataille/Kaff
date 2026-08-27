@@ -9,6 +9,7 @@ public struct PharmacokineticModel: Hashable, Sendable {
 
     public let halfLifeHours: Double
 
+    /// Invariant : `halfLifeHours` > 0 et ≠ ln2/ka (≈ 0,139 h) ; garanti par `UserProfile.Bounds.halfLifeHours` (2–10 h).
     public init(halfLifeHours: Double) {
         self.halfLifeHours = halfLifeHours
     }
