@@ -10,7 +10,7 @@ Légende : ⬜ à faire · 🟨 en cours · ✅ terminé · ⛔ bloqué
 | Jalon | Contenu | Critère de sortie | Statut | Mis à jour |
 |---|---|---|---|---|
 | M0 — Fondations | git, XcodeGen, cibles Watch App + widget, App Group, entitlements HealthKit, package `KaffCore` vide, script `make test` | `xcodegen generate` puis build + lancement de l'app vide et du widget vide sur le simulateur Series 11 ; `swift test` vert sur `KaffCore` | ✅ | 2026-08-27 |
-| M1 — KaffCore | Modèles, catalogue, modèle PK (Bateman), `LevelAssessor`, `TimelineBuilder`, conversions | Tests unitaires verts, couverture `KaffCore` ≥ 90 % | ⬜ | 2026-08-27 |
+| M1 — KaffCore | Modèles, catalogue, modèle PK (Bateman), `LevelAssessor`, `TimelineBuilder`, conversions | Tests unitaires verts, couverture `KaffCore` ≥ 90 % | 🟨 | 2026-08-27 |
 | M2 — Services | `HealthStore` (protocole + HealthKit), `CacheStore`, `ProfileStore`, autorisation, lecture `bodyMass` | Round-trip d'une dose écrite/lue dans HealthKit sur simulateur ; tests stores verts | ⬜ | 2026-08-27 |
 | M3 — App Watch | Home (niveau live, statut, courbe), QuickLog boisson/mg, Historique, Réglages, écran autorisation | Parcours complet sur simulateur : loguer, voir le niveau décroître, supprimer, régler ; captures dans `docs/screenshots/` | ⬜ | 2026-08-27 |
 | M4 — Complication | Extension WidgetKit 4 familles, timeline précalculée avec croisements de seuils, deep link `kaff://log` | Complication ajoutée à un cadran simulateur, valeur qui décroît sans ouvrir l'app, tap → QuickLog | ⬜ | 2026-08-27 |

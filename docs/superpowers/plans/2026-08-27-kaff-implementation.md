@@ -435,7 +435,7 @@ Mettre à jour `docs/ROADMAP.md` : M0 ✅.
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/ModelTests.swift`
 - Delete: `Packages/KaffCore/Tests/KaffCoreTests/SmokeTests.swift`
 
-- [ ] **Step 1 : tests**
+- [x] **Step 1 : tests**
 
 ```swift
 import Foundation
@@ -494,9 +494,9 @@ import Testing
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation (types absents)**
+- [x] **Step 2 : `make test-core` → échec de compilation (types absents)**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `Model/CaffeineDose.swift` :
 ```swift
@@ -657,9 +657,9 @@ public enum LevelStatus: Int, Comparable, Codable, Sendable, CaseIterable {
 
 Supprimer `Tests/KaffCoreTests/SmokeTests.swift` (remplacé) et garder `KaffCore.version`.
 
-- [ ] **Step 4 : `make test-core` → 7 tests verts**
+- [x] **Step 4 : `make test-core` → 7 tests verts**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
@@ -673,7 +673,7 @@ git commit -m "feat(core): M1.1 base models (dose, drink, profile, status)"
 - Create: `Packages/KaffCore/Sources/KaffCore/Catalog/DrinkEquivalence.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/DrinkCatalogTests.swift`
 
-- [ ] **Step 1 : tests**
+- [x] **Step 1 : tests**
 
 ```swift
 import Testing
@@ -705,9 +705,9 @@ import Testing
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `Catalog/DrinkCatalog.swift` :
 ```swift
@@ -760,9 +760,9 @@ public enum DrinkEquivalence {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
@@ -775,7 +775,7 @@ git commit -m "feat(core): M1.2 drink catalog and equivalences"
 - Create: `Packages/KaffCore/Sources/KaffCore/Pharmacokinetics/PharmacokineticModel.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/PharmacokineticModelTests.swift`
 
-- [ ] **Step 1 : tests** (valeurs de référence dérivées indépendamment dans la spec §4)
+- [x] **Step 1 : tests** (valeurs de référence dérivées indépendamment dans la spec §4)
 
 ```swift
 import Foundation
@@ -824,9 +824,9 @@ private let model = PharmacokineticModel(halfLifeHours: 5)
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 ```swift
 import Foundation
@@ -869,9 +869,9 @@ public struct PharmacokineticModel: Hashable, Sendable {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
