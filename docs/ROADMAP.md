@@ -23,6 +23,7 @@ Légende : ⬜ à faire · 🟨 en cours · ✅ terminé · ⛔ bloqué
 | 2026-08-27 | Cadrage validé : watch-only, HealthKit source de vérité, modèle Bateman, WidgetKit précalculé. Spec + plan rédigés. |
 | 2026-08-27 | M0 terminé : package `KaffCore` + Makefile, projet XcodeGen (app Watch, extension WidgetKit embarquée, cible de tests), build/run/test verts sur Series 11 (46mm). Notables : `.gitignore` ignorait `Packages/` (ligne retirée) ; deux simulateurs portent le même nom (26.4/26.5) donc le Makefile résout l'UDID (`OS ?= 26.5`) ; `KaffTests` a besoin de `GENERATE_INFOPLIST_FILE: YES` ; vérification visuelle de la complication sur cadran non faite (seul `PlugIns/KaffComplication.appex` vérifié). |
 | 2026-08-27 | M1 terminé : KaffCore complet, 38 tests, couverture lignes 99,2 %. |
+| 2026-08-27 | Revue M1 : correction DST de `nextBedtime`, limites nulles neutralisées, `LevelReason` isolé, `sleepReadyAt` précalculé dans la timeline. |
 
 ## Backlog (hors v1, à ne pas commencer sans décision)
 
