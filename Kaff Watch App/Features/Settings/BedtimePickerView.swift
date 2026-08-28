@@ -1,7 +1,7 @@
 import KaffCore
 import SwiftUI
 
-/// Heure de coucher réglée à la couronne : crans de 5 min, boucle sur 24 h, sauvegarde immédiate.
+/// Heure de coucher réglée à la couronne : crans de 5 min, boucle sur 24 h, sauvegarde différée (`DebouncedSaver`).
 struct BedtimePickerView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -10,6 +10,7 @@ struct BedtimePickerView: View {
     /// Position en crans de `stepMinutes` depuis minuit.
     @State private var steps = 0.0
     @State private var isLoaded = false
+    @State private var saver = DebouncedSaver()
 
     private static let stepMinutes = 5.0
     private static let stepsPerDay = 24 * 60 / stepMinutes
@@ -49,12 +50,13 @@ struct BedtimePickerView: View {
             isLoaded = true
             dialFocused = true
         }
-        .onDisappear { dialFocused = false }
+        .onDisappear {
+            dialFocused = false
+            saver.flush()
+        }
         .onChange(of: clock) { _, new in
-            guard isLoaded, new != model.profile.bedtime else { return }
-            var profile = model.profile
-            profile.bedtime = new
-            Task { await model.update(profile: profile) }
+            guard isLoaded else { return }
+            saver.schedule { await save(new) }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Heure de coucher")
@@ -66,5 +68,12 @@ struct BedtimePickerView: View {
             @unknown default: break
             }
         }
+    }
+
+    private func save(_ bedtime: ClockTime) async {
+        guard bedtime != model.profile.bedtime else { return }
+        var profile = model.profile
+        profile.bedtime = bedtime
+        await model.update(profile: profile)
     }
 }

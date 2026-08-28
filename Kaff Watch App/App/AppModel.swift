@@ -71,6 +71,20 @@ final class AppModel {
             .chartPoints(doses: doses(adding: milligrams), from: start, hours: hours, stepMinutes: stepMinutes)
     }
 
+    // MARK: Historique (pur)
+
+    /// Doses des `days` dernières journées caféine (04:00 → 04:00, aujourd'hui compris), groupées par journée :
+    /// sections et doses les plus récentes en tête. Même découpage que le cumul de la carte du jour.
+    func historySections(days: Int = 7) -> [HistorySection] {
+        let day = assessor.day
+        let todayStart = day.start(containing: now())
+        guard days > 0, let cutoff = calendar.date(byAdding: .day, value: -(days - 1), to: todayStart) else { return [] }
+        let grouped = Dictionary(grouping: doses.filter { $0.date >= cutoff }) { day.start(containing: $0.date) }
+        return grouped.keys.sorted(by: >).map { start in
+            HistorySection(dayStart: start, doses: (grouped[start] ?? []).sorted { $0.date > $1.date })
+        }
+    }
+
     // MARK: Aperçu d'impact (pur)
 
     /// Pas d'échantillonnage pour `peak(afterAdding:)`.

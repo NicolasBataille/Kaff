@@ -27,7 +27,8 @@ struct RootView: View {
             }
         }
         .onOpenURL { url in
-            if url.scheme == "kaff", url.host == "log" { model.path = [.logDrink] }
+            guard url.scheme == "kaff", url.host == "log", model.authorization == .authorized else { return }
+            model.path = [.logDrink]
         }
         .alert("Erreur", isPresented: Binding(get: { model.lastError != nil },
                                               set: { if !$0 { model.clearError() } })) {

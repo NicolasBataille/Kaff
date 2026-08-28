@@ -39,13 +39,7 @@ struct DrinkCardView: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            ZStack {
-                Circle().fill(Theme.accent.opacity(0.2))
-                Image(systemName: drink.isCustom ? "mug.fill" : drink.symbol)
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(Theme.accent)
-            }
-            .frame(width: 44, height: 44)
+            DrinkSymbolDisc(drink: drink, size: 44)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
                     Text(drink.name)

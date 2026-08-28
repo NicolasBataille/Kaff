@@ -1,31 +1,27 @@
 import KaffCore
 import SwiftUI
 
-/// Historique 7 jours (page verticale sous Home) : carte du jour, sections par jour, suppression par glissement.
+/// Historique 7 journées caféine (page verticale sous Home) : carte du jour, sections par journée (04:00 → 04:00,
+/// `AppModel.historySections`), suppression par glissement.
 struct HistoryView: View {
     @Environment(AppModel.self) private var model
     @State private var deleteCount = 0
 
     static let days = 7
 
-    private struct DaySection: Identifiable {
-        let day: Date
-        let doses: [CaffeineDose]
-        var id: Date { day }
-    }
-
-    private var sections: [DaySection] {
-        let calendar = Calendar.current
-        let cutoff = calendar.date(byAdding: .day, value: -Self.days, to: .now) ?? .now
-        let grouped = Dictionary(grouping: model.doses.filter { $0.date >= cutoff }) { calendar.startOfDay(for: $0.date) }
-        return grouped.keys.sorted(by: >).map { day in
-            DaySection(day: day, doses: (grouped[day] ?? []).sorted { $0.date > $1.date })
-        }
-    }
-
     var body: some View {
+        // `.everyMinute` : les titres « Aujourd'hui » / « Hier » basculent à 04:00 sans relancer la page.
+        TimelineView(.everyMinute) { context in
+            content(now: context.date)
+        }
+        .navigationTitle("Historique")
+        .sensoryFeedback(.impact(weight: .light), trigger: deleteCount)
+    }
+
+    private func content(now: Date) -> some View {
         let assessment = model.assessment()
-        List {
+        let sections = model.historySections(days: Self.days)
+        return List {
             Section {
                 DailySummaryCard(totalMg: assessment.dailyTotalMg, limitMg: model.profile.dailyLimitMg,
                                  status: assessment.dailyStatus)
@@ -39,7 +35,7 @@ struct HistoryView: View {
                     .listRowBackground(Color.clear)
             }
             ForEach(sections) { section in
-                Section(Self.title(for: section.day)) {
+                Section(title(for: section, now: now)) {
                     ForEach(section.doses) { dose in
                         DoseRow(dose: dose, drink: model.drink(for: dose))
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -55,15 +51,15 @@ struct HistoryView: View {
             }
         }
         .animation(.default, value: model.doses)
-        .navigationTitle("Historique")
-        .sensoryFeedback(.impact(weight: .light), trigger: deleteCount)
     }
 
-    private static func title(for day: Date) -> String {
-        let calendar = Calendar.current
-        if calendar.isDateInToday(day) { return "Aujourd'hui" }
-        if calendar.isDateInYesterday(day) { return "Hier" }
-        return Formatters.day(day)
+    /// « Aujourd'hui » / « Hier » selon la journée caféine courante, sinon « jeudi 28 ».
+    private func title(for section: HistorySection, now: Date) -> String {
+        let day = model.assessor.day
+        let todayStart = day.start(containing: now)
+        if section.dayStart == todayStart { return "Aujourd'hui" }
+        if section.dayStart == day.start(containing: todayStart.addingTimeInterval(-1)) { return "Hier" }
+        return Formatters.day(section.dayStart)
     }
 }
 
@@ -76,13 +72,7 @@ private struct DoseRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            ZStack {
-                Circle().fill(Theme.accent.opacity(0.2))
-                Image(systemName: drink.map { $0.isCustom ? "mug.fill" : $0.symbol } ?? "number")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Theme.accent)
-            }
-            .frame(width: 24, height: 24)
+            DrinkSymbolDisc(drink: drink, size: 24)
             VStack(alignment: .leading, spacing: 1) {
                 Text(drink?.name ?? "Manuel")
                     .font(.footnote)

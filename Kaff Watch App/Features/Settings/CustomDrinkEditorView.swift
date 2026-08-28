@@ -65,9 +65,6 @@ private struct CustomDrinkForm: View {
     @State private var milligrams = Theme.Dial.defaultMilligrams
     @State private var volumeML = 250.0
 
-    private static let milligramsRange = 1.0...500.0
-    private static let milligramsStep = 5.0
-
     private var trimmedName: String { name.trimmingCharacters(in: .whitespaces) }
 
     var body: some View {
@@ -75,7 +72,7 @@ private struct CustomDrinkForm: View {
             TextField("Nom", text: $name)
             NavigationLink {
                 ValueDialView(title: "Caféine", symbol: "cup.and.saucer.fill", tint: Theme.accent, value: $milligrams,
-                              range: Self.milligramsRange, step: Self.milligramsStep, format: Formatters.mg)
+                              range: Theme.Dial.milligramsRange, step: Theme.Dial.milligramsStep, format: Formatters.mg)
             } label: {
                 LabeledContent("Caféine") {
                     Text(Formatters.mg(milligrams)).monospacedDigit().foregroundStyle(Theme.accent)

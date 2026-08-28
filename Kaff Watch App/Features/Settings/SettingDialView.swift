@@ -89,16 +89,14 @@ enum SettingKey: Hashable, CaseIterable {
     }
 }
 
-/// Cadran d'un réglage du profil : `ValueDialView` + sauvegarde immédiate (debounce) dans `AppModel`.
+/// Cadran d'un réglage du profil : `ValueDialView` + sauvegarde différée (`DebouncedSaver`) dans `AppModel`.
 struct SettingDialView: View {
     let key: SettingKey
 
     @Environment(AppModel.self) private var model
     @State private var value = 0.0
     @State private var isLoaded = false
-    @State private var saveTask: Task<Void, Never>?
-
-    private static let saveDelay: Duration = .milliseconds(250)
+    @State private var saver = DebouncedSaver()
 
     var body: some View {
         ValueDialView(title: key.title, symbol: key.symbol, tint: key.tint, value: $value,
@@ -109,28 +107,14 @@ struct SettingDialView: View {
             value = key.value(in: model.profile)
             isLoaded = true
         }
-        .onDisappear(perform: flush)
-        .onChange(of: value) { _, _ in scheduleSave() }
-    }
-
-    private func scheduleSave() {
-        guard isLoaded else { return }
-        saveTask?.cancel()
-        saveTask = Task {
-            try? await Task.sleep(for: Self.saveDelay)
-            guard !Task.isCancelled else { return }
-            await save()
+        .onDisappear { saver.flush() }
+        .onChange(of: value) { _, new in
+            guard isLoaded else { return }
+            saver.schedule { await save(new) }
         }
     }
 
-    private func flush() {
-        saveTask?.cancel()
-        saveTask = nil
-        guard isLoaded else { return }
-        Task { await save() }
-    }
-
-    private func save() async {
+    private func save(_ value: Double) async {
         guard key.value(in: model.profile) != value else { return }
         await model.update(profile: key.apply(value, to: model.profile))
     }

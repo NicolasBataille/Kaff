@@ -10,6 +10,8 @@ struct DrinkAmountView: View {
     let drink: Drink
     /// Volume en crans de `Theme.Dial.volumeStep` (1 unité = 1 cran haptique).
     @State private var volumeUnits: Double
+    /// Aperçu recalculé à chaque cran (pas à chaque rendu), comme la courbe de Home.
+    @State private var preview: ImpactPreviewData?
 
     init(drink: Drink) {
         self.drink = drink
@@ -22,12 +24,14 @@ struct DrinkAmountView: View {
     private var unitRange: ClosedRange<Double> {
         (Theme.Dial.volumeRange.lowerBound / Theme.Dial.volumeStep)...(Theme.Dial.volumeRange.upperBound / Theme.Dial.volumeStep)
     }
+    /// Disque du symbole, de la hauteur de la ligne « ≈ 63 mg ».
+    private static let symbolSize = 20.0
 
     var body: some View {
         ScrollView {
             VStack(spacing: 3) {
                 dial
-                ImpactPreviewView(data: ImpactPreviewData(model: model, adding: milligrams))
+                if let preview { ImpactPreviewView(data: preview) }
                 AddDoseButton {
                     await model.log(milligrams: milligrams, drink: drink, volumeML: volumeML)
                     return model.lastError == nil
@@ -39,12 +43,13 @@ struct DrinkAmountView: View {
             .padding(.horizontal, 2)
         }
         .navigationTitle(drink.name)
+        .onChange(of: milligrams, initial: true) { _, mg in preview = ImpactPreviewData(model: model, adding: mg) }
         .onAppear { dialFocused = true }
         // Sans cela, la couronne reste attachée au cadran disparu et ne défile plus Home après le retour.
         .onDisappear { dialFocused = false }
     }
 
-    /// Volume héros + « ≈ 63 mg » sur une ligne (le nom de la boisson est le titre de navigation).
+    /// Volume héros + symbole de la boisson et « ≈ 63 mg » sur une ligne (le nom est le titre de navigation).
     private var dial: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
@@ -57,11 +62,14 @@ struct DrinkAmountView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 4)
-            Text("≈ \(Formatters.mg(milligrams))")
-                .font(.footnote.weight(.semibold))
-                .monospacedDigit()
-                .foregroundStyle(Theme.accent)
-                .contentTransition(.numericText(value: milligrams))
+            HStack(spacing: 4) {
+                DrinkSymbolDisc(drink: drink, size: Self.symbolSize)
+                Text("≈ \(Formatters.mg(milligrams))")
+                    .font(.footnote.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.accent)
+                    .contentTransition(.numericText(value: milligrams))
+            }
         }
         .lineLimit(1)
         .minimumScaleFactor(Theme.Typography.heroMinimumScale)

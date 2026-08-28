@@ -22,9 +22,9 @@ enum Formatters {
         String(format: "%02d:%02d", clock.hour, clock.minute)
     }
 
-    /// « Jeu 28 » pour les sections d'historique.
+    /// « jeudi 28 » pour les sections d'historique.
     static func day(_ date: Date) -> String {
-        date.formatted(.dateTime.weekday(.abbreviated).day())
+        date.formatted(.dateTime.weekday(.wide).day())
     }
 
     /// Surtitre du scrubber : « il y a 3 h » / « dans 45 min » / « maintenant ».

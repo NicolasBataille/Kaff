@@ -2,14 +2,17 @@ import SwiftUI
 
 /// Bouton « Ajouter » : se transforme en coche avec haptique `.success`, puis `onSuccess` après un court délai ;
 /// en cas d'échec, haptique `.error` et bouton de nouveau actif (l'alerte est gérée par `RootView`).
+/// L'échec a son propre déclencheur (`failureCount`) : `phase` revient à `.idle` dans la même transaction,
+/// et SwiftUI ne verrait aucun changement.
 struct AddDoseButton: View {
-    enum Phase: Equatable { case idle, saving, done, failed }
+    enum Phase: Equatable { case idle, saving, done }
 
     /// Exécute l'enregistrement ; renvoie `true` en cas de succès.
     let action: () async -> Bool
     let onSuccess: () -> Void
 
     @State private var phase: Phase = .idle
+    @State private var failureCount = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var isDone: Bool { phase == .done }
@@ -25,16 +28,12 @@ struct AddDoseButton: View {
         .tint(tint)
         .disabled(phase != .idle)
         .animation(Motion.snap(reduceMotion: reduceMotion), value: phase)
-        .sensoryFeedback(.success, trigger: phase, condition: Self.became(.done))
-        .sensoryFeedback(.error, trigger: phase, condition: Self.became(.failed))
+        .sensoryFeedback(.success, trigger: phase) { _, new in new == .done }
+        .sensoryFeedback(.error, trigger: failureCount)
         .accessibilityLabel(isDone ? "Dose ajoutée" : "Ajouter la dose")
     }
 
     private var tint: Color { isDone ? Theme.Status.ok : Theme.accent }
-
-    private static func became(_ target: Phase) -> (Phase, Phase) -> Bool {
-        { _, new in new == target }
-    }
 
     private var label: some View {
         Label(isDone ? "Ajouté" : "Ajouter", systemImage: isDone ? "checkmark" : "plus")
@@ -47,7 +46,7 @@ struct AddDoseButton: View {
     private func run() async {
         phase = .saving
         guard await action() else {
-            phase = .failed
+            failureCount += 1
             phase = .idle
             return
         }

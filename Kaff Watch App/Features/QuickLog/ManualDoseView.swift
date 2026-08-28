@@ -10,6 +10,8 @@ struct ManualDoseView: View {
 
     /// Dose en crans de `Theme.Dial.milligramsStep` (1 unité = 1 cran haptique).
     @State private var mgUnits = Theme.Dial.defaultMilligrams / Theme.Dial.milligramsStep
+    /// Aperçu recalculé à chaque cran (pas à chaque rendu), comme la courbe de Home.
+    @State private var preview: ImpactPreviewData?
 
     /// Arrondi au cran : la couronne livre des valeurs intermédiaires pendant la rotation.
     private var milligrams: Double { mgUnits.rounded() * Theme.Dial.milligramsStep }
@@ -29,7 +31,7 @@ struct ManualDoseView: View {
                     dial
                     equivalence
                 }
-                ImpactPreviewView(data: ImpactPreviewData(model: model, adding: milligrams))
+                if let preview { ImpactPreviewView(data: preview) }
                 AddDoseButton {
                     await model.log(milligrams: milligrams, drink: nil, volumeML: nil)
                     return model.lastError == nil
@@ -41,6 +43,7 @@ struct ManualDoseView: View {
             .padding(.horizontal, 2)
         }
         .navigationTitle("Dose")
+        .onChange(of: milligrams, initial: true) { _, mg in preview = ImpactPreviewData(model: model, adding: mg) }
         .onAppear { dialFocused = true }
         // Sans cela, la couronne reste attachée au cadran disparu et ne défile plus Home après le retour.
         .onDisappear { dialFocused = false }
