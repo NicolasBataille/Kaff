@@ -7,4 +7,9 @@ enum Route: Hashable {
     case amount(Drink)
     case logManual
     case settings
+    case customDrinks
+    /// Heure de coucher (cadran couronne).
+    case bedtime
+    /// Réglage numérique (cadran couronne).
+    case setting(SettingKey)
 }

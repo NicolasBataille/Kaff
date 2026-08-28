@@ -16,7 +16,8 @@ struct DrinkAmountView: View {
         _volumeUnits = State(initialValue: (drink.volumeML / Theme.Dial.volumeStep).rounded())
     }
 
-    private var volumeML: Double { volumeUnits * Theme.Dial.volumeStep }
+    /// Arrondi au cran : la couronne livre des valeurs intermédiaires pendant la rotation.
+    private var volumeML: Double { volumeUnits.rounded() * Theme.Dial.volumeStep }
     private var milligrams: Double { drink.milligrams(forVolumeML: volumeML) }
     private var unitRange: ClosedRange<Double> {
         (Theme.Dial.volumeRange.lowerBound / Theme.Dial.volumeStep)...(Theme.Dial.volumeRange.upperBound / Theme.Dial.volumeStep)

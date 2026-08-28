@@ -58,6 +58,9 @@ struct RootView: View {
         case .amount(let drink): DrinkAmountView(drink: drink)
         case .logManual: ManualDoseView()
         case .settings: SettingsView()
+        case .customDrinks: CustomDrinkEditorView()
+        case .bedtime: BedtimePickerView()
+        case .setting(let key): SettingDialView(key: key)
         }
     }
 }

@@ -11,7 +11,8 @@ struct ManualDoseView: View {
     /// Dose en crans de `Theme.Dial.milligramsStep` (1 unité = 1 cran haptique).
     @State private var mgUnits = Theme.Dial.defaultMilligrams / Theme.Dial.milligramsStep
 
-    private var milligrams: Double { mgUnits * Theme.Dial.milligramsStep }
+    /// Arrondi au cran : la couronne livre des valeurs intermédiaires pendant la rotation.
+    private var milligrams: Double { mgUnits.rounded() * Theme.Dial.milligramsStep }
     private var unitRange: ClosedRange<Double> {
         (Theme.Dial.milligramsRange.lowerBound / Theme.Dial.milligramsStep)...(Theme.Dial.milligramsRange.upperBound / Theme.Dial.milligramsStep)
     }

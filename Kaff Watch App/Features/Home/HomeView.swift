@@ -279,7 +279,8 @@ struct HomeView: View {
 
     // MARK: Scrub
 
-    private var scrubOffsetMinutes: Double { scrubSteps * Theme.Scrub.stepMinutes }
+    /// Arrondi au cran : la couronne livre des valeurs intermédiaires pendant la rotation.
+    private var scrubOffsetMinutes: Double { scrubSteps.rounded() * Theme.Scrub.stepMinutes }
     private func scrubDate(_ now: Date) -> Date { now.addingTimeInterval(scrubOffsetMinutes * 60) }
 
     private func toggleScrub() {

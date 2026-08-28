@@ -1,4 +1,5 @@
 import Foundation
+import KaffCore
 
 /// Mise en forme des valeurs affichées (français, chiffres en `monospacedDigit` côté vue).
 enum Formatters {
@@ -13,6 +14,11 @@ enum Formatters {
     static func kg(_ value: Double) -> String { "\(Int(value.rounded())) kg" }
     static func hours(_ value: Double) -> String { "\(count(value)) h" }
     static func minutes(_ value: Double) -> String { "\(Int(value.rounded())) min" }
+
+    /// « 23:00 » pour une heure de la journée.
+    static func time(_ clock: ClockTime) -> String {
+        String(format: "%02d:%02d", clock.hour, clock.minute)
+    }
 
     /// « Jeu 28 » pour les sections d'historique.
     static func day(_ date: Date) -> String {
