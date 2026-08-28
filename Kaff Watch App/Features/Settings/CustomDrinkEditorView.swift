@@ -25,6 +25,8 @@ struct CustomDrinkEditorView: View {
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(drink.name), \(drink.portionLabel)")
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
                         deleteCount += 1

@@ -64,6 +64,7 @@ struct HistoryView: View {
 }
 
 /// Ligne : symbole dans un petit disque, nom sur l'heure, mg à droite (tient sur 42 mm sans troncature).
+/// Aux tailles d'accessibilité, les mg passent sous l'heure : la colonne des mg coupait le nom (« Es-presso », 42 mm AX5).
 private struct DoseRow: View {
     let dose: CaffeineDose
     let drink: Drink?
@@ -71,12 +72,13 @@ private struct DoseRow: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
+        let stacked = dynamicTypeSize.isAccessibilitySize
         HStack(spacing: 8) {
             DrinkSymbolDisc(drink: drink, size: 24)
             VStack(alignment: .leading, spacing: 1) {
                 Text(drink?.name ?? "Manuel")
                     .font(.footnote)
-                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                    .lineLimit(stacked ? 2 : 1)
                     .minimumScaleFactor(0.8)
                 Text(Formatters.time(dose.date))
                     .font(.caption2)
@@ -84,15 +86,23 @@ private struct DoseRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .fixedSize()
+                if stacked { milligrams }
             }
-            Spacer(minLength: 4)
-            Text(Formatters.mg(dose.milligrams))
-                .font(.footnote.weight(.semibold))
-                .monospacedDigit()
-                .lineLimit(1)
-                .fixedSize()
+            if !stacked {
+                Spacer(minLength: 4)
+                milligrams
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(Formatters.time(dose.date)), \(drink?.name ?? "dose manuelle"), \(Formatters.mg(dose.milligrams))")
+    }
+
+    private var milligrams: some View {
+        Text(Formatters.mg(dose.milligrams))
+            .font(.footnote.weight(.semibold))
+            .monospacedDigit()
+            .lineLimit(1)
+            .fixedSize()
     }
 }

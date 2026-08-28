@@ -219,8 +219,10 @@ struct HomeView: View {
                 .contentTransition(.numericText())
         }
         .font(.footnote)
-        .lineLimit(1)
+        // Aux tailles d'accessibilité, « OK pour dormir maintenant » ne tient pas sur une ligne (vérifié 42 mm, AX5).
+        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
         .minimumScaleFactor(0.8)
+        .multilineTextAlignment(.center)
         .animation(Motion.colour(reduceMotion: reduceMotion), value: assessment.sleepReadyAt)
         .accessibilityElement(children: .combine)
     }
