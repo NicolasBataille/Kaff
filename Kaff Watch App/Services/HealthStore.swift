@@ -13,3 +13,9 @@ protocol HealthStore: Sendable {
     func delete(doseID: UUID) async throws
     func latestBodyMassKg() async throws -> Double?
 }
+
+/// Erreurs métier du magasin Santé, distinguées des erreurs techniques de HealthKit.
+enum HealthStoreError: Error {
+    /// HealthKit refuse la suppression d'un échantillon écrit par une autre app (`errorAuthorizationDenied`).
+    case notOwnedByKaff
+}

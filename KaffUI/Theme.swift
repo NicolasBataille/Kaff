@@ -79,6 +79,13 @@ enum Theme {
 
     /// Délai entre la coche de confirmation et le retour à Home.
     static let confirmationDelay: Duration = .milliseconds(350)
+
+    enum Limits {
+        /// Longueur maximale du nom d'une boisson personnalisée.
+        /// Source: revue sécurité M5.4 — borne la saisie libre persistée dans l'App Group ; « Cappuccino décaféiné »
+        /// tient en 21 caractères, 40 laisse de la marge sans déborder une ligne du carrousel.
+        static let customDrinkNameMax = 40
+    }
 }
 
 /// Durées et courbes d'animation (§2 et §5). `reduceMotion` remplace les springs par des ease courts (§6).

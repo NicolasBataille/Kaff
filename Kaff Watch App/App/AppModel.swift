@@ -181,6 +181,8 @@ final class AppModel {
             try await health.delete(doseID: dose.id)
             doses.removeAll { $0.id == dose.id }
             publish()
+        } catch HealthStoreError.notOwnedByKaff {
+            report("Cette dose n'a pas été ajoutée par Kaff", HealthStoreError.notOwnedByKaff)
         } catch {
             report("Suppression impossible", error)
         }

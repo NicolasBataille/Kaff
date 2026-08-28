@@ -68,10 +68,14 @@ private struct CustomDrinkForm: View {
     @State private var volumeML = 250.0
 
     private var trimmedName: String { name.trimmingCharacters(in: .whitespaces) }
+    /// Saisie tronquée à `Theme.Limits.customDrinkNameMax` caractères.
+    private var cappedName: Binding<String> {
+        Binding(get: { name }, set: { name = String($0.prefix(Theme.Limits.customDrinkNameMax)) })
+    }
 
     var body: some View {
         Form {
-            TextField("Nom", text: $name)
+            TextField("Nom", text: cappedName)
             NavigationLink {
                 ValueDialView(title: "Caféine", symbol: "cup.and.saucer.fill", tint: Theme.accent, value: $milligrams,
                               range: Theme.Dial.milligramsRange, step: Theme.Dial.milligramsStep, format: Formatters.mg)

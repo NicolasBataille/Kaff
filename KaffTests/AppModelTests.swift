@@ -107,6 +107,28 @@ struct AppModelTests {
         #expect(widgets.reloadCount == before + 1)
     }
 
+    @Test func deleteForeignSampleReportsDedicatedMessage() async {
+        let dose = CaffeineDose(date: now.addingTimeInterval(-600), milligrams: 95)
+        health.stored = [dose]
+        health.deleteError = HealthStoreError.notOwnedByKaff
+        let model = makeModel()
+        await model.start()
+        await model.delete(dose)
+        #expect(model.lastError == "Cette dose n'a pas été ajoutée par Kaff")
+        #expect(model.doses.count == 1)
+    }
+
+    @Test func deleteFailureReportsGenericMessage() async {
+        let dose = CaffeineDose(date: now.addingTimeInterval(-600), milligrams: 95)
+        health.stored = [dose]
+        health.deleteError = NSError(domain: "test", code: 4)
+        let model = makeModel()
+        await model.start()
+        await model.delete(dose)
+        #expect(model.lastError == "Suppression impossible")
+        #expect(model.doses.count == 1)
+    }
+
     @Test func updateProfilePersistsAndReloads() async {
         let model = makeModel()
         await model.start()

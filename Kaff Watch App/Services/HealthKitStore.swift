@@ -48,7 +48,12 @@ final class HealthKitStore: HealthStore, @unchecked Sendable {
             predicates: [.quantitySample(type: caffeineType, predicate: HKQuery.predicateForObject(with: doseID))],
             sortDescriptors: [])
         guard let sample = try await descriptor.result(for: store).first else { return }
-        try await store.delete(sample)
+        do {
+            try await store.delete(sample)
+        } catch let error as HKError where error.code == .errorAuthorizationDenied {
+            // Une app ne peut supprimer que ses propres échantillons : une dose venue d'ailleurs est refusée ainsi.
+            throw HealthStoreError.notOwnedByKaff
+        }
     }
 
     func latestBodyMassKg() async throws -> Double? {
