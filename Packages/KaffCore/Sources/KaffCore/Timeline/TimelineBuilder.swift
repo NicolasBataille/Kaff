@@ -50,7 +50,7 @@ public struct TimelineBuilder: Sendable {
         // dans `sleepReadyDate`) mais sans refaire une recherche complète à chaque minute.
         let lastPeak = past.map(\.date).max()
             .map { $0.addingTimeInterval(assessor.model.timeToPeakHours * 3600) }
-        let bedtimeLimitMg = assessor.profile.bedtimeLimitMg
+        let bedtimeLimitMg = assessor.limits.bedtimeLimitMg
         // Contexte calendrier (04:00, coucher) calculé une fois puis rafraîchi aux seules bornes de validité :
         // le balayage minute ne touche plus `Calendar` (revue M4 : ≈ 1 440 requêtes calendrier par timeline sinon).
         var context = assessor.dayContext(at: now)

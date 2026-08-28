@@ -217,7 +217,7 @@ final class AppModel {
     /// Écrit le snapshot (fenêtre `cacheWindowHours`) et demande le rechargement des complications.
     private func publish() {
         let cutoff = now().addingTimeInterval(-Self.cacheWindowHours(halfLifeHours: profile.halfLifeHours) * 3600)
-        let snapshot = CacheSnapshot(doses: doses.filter { $0.date >= cutoff }, profile: profile, updatedAt: now())
+        let snapshot = CacheSnapshot(doses: doses.filter { $0.date >= cutoff }, limits: assessor.limits, updatedAt: now())
         do { try cacheStore.write(snapshot) } catch { report("Écriture du cache impossible", error) }
         widgets.reloadAll()
     }

@@ -12,7 +12,7 @@ import Testing
 
 @Test func snapshotGivesGridAndTransitions() {
     let now = TestClock.date(8)
-    let snapshot = CacheSnapshot(doses: [CaffeineDose(date: now, milligrams: 250)], profile: .default, updatedAt: now)
+    let snapshot = CacheSnapshot(doses: [CaffeineDose(date: now, milligrams: 250)], limits: AssessmentLimits(profile: .default), updatedAt: now)
     let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
     #expect(entries.count > 49)
     #expect(entries.first?.date == now)
@@ -25,7 +25,7 @@ import Testing
 @Test func sparklineStartsAtEntryAndFollowsTheCurve() {
     let now = TestClock.date(8)
     let doses = [CaffeineDose(date: now, milligrams: 250)]
-    let snapshot = CacheSnapshot(doses: doses, profile: .default, updatedAt: now)
+    let snapshot = CacheSnapshot(doses: doses, limits: AssessmentLimits(profile: .default), updatedAt: now)
     let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
     #expect(entries.allSatisfy { $0.sparkline.count == WidgetTimelinePlanner.sparklineSamples })
     // Premier échantillon = niveau de l'entrée ; les suivants suivent le modèle PK pas à pas.
@@ -44,7 +44,7 @@ import Testing
 @Test func firstEntryEqualsFirstOfEntries() {
     let now = TestClock.date(8)
     let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120), CaffeineDose(date: now, milligrams: 250)]
-    let snapshot = CacheSnapshot(doses: doses, profile: .default, updatedAt: now)
+    let snapshot = CacheSnapshot(doses: doses, limits: AssessmentLimits(profile: .default), updatedAt: now)
     let first = WidgetTimelinePlanner.firstEntry(snapshot: snapshot, now: now, calendar: TestClock.calendar)
     #expect(first == WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar).first)
     #expect(first.hasData && first.date == now && first.sparkline.count == WidgetTimelinePlanner.sparklineSamples)

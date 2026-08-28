@@ -37,7 +37,7 @@ extension CaffeineEntry {
     static func sample(hoursAgo: Double = 1, milligrams: Double = 180) -> CaffeineEntry {
         let now = Date.now
         let snapshot = CacheSnapshot(doses: [CaffeineDose(date: now.addingTimeInterval(-hoursAgo * 3600), milligrams: milligrams)],
-                                     profile: .default, updatedAt: now)
+                                     limits: AssessmentLimits(profile: .default), updatedAt: now)
         return CaffeineEntry(data: WidgetTimelinePlanner.entries(snapshot: snapshot, now: now).first!)
     }
 

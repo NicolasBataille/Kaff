@@ -23,7 +23,7 @@ struct WidgetGalleryView: View {
         let now = Date.now
         func synthetic(_ mg: Double, hoursAgo: Double) -> WidgetEntryData {
             let s = CacheSnapshot(doses: [CaffeineDose(date: now.addingTimeInterval(-hoursAgo * 3600), milligrams: mg)],
-                                  profile: snapshot?.profile ?? .default, updatedAt: now)
+                                  limits: snapshot?.limits ?? AssessmentLimits(profile: .default), updatedAt: now)
             return WidgetTimelinePlanner.entries(snapshot: s, now: now).first!
         }
         entries = [live.first ?? .empty(at: now), synthetic(160, hoursAgo: 1), synthetic(320, hoursAgo: 0.75), .empty(at: now)]

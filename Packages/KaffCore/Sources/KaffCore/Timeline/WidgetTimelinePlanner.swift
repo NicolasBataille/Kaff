@@ -9,7 +9,7 @@ public enum WidgetTimelinePlanner {
 
     public static func entries(snapshot: CacheSnapshot?, now: Date, calendar: Calendar = .current) -> [WidgetEntryData] {
         guard let snapshot else { return [.empty(at: now)] }
-        let assessor = LevelAssessor(profile: snapshot.profile, calendar: calendar)
+        let assessor = LevelAssessor(limits: snapshot.limits, calendar: calendar)
         // Même hypothèse que `widgetEntryDates` : seules les doses connues à `now` comptent sur tout l'horizon.
         let doses = snapshot.doses.filter { $0.date <= now }
         let dates = TimelineBuilder(assessor: assessor).widgetEntryDates(doses: doses, from: now)
@@ -20,14 +20,14 @@ public enum WidgetTimelinePlanner {
     /// Strictement égale à `entries(snapshot:now:calendar:).first`.
     public static func firstEntry(snapshot: CacheSnapshot?, now: Date, calendar: Calendar = .current) -> WidgetEntryData {
         guard let snapshot else { return .empty(at: now) }
-        let assessor = LevelAssessor(profile: snapshot.profile, calendar: calendar)
+        let assessor = LevelAssessor(limits: snapshot.limits, calendar: calendar)
         return entry(at: now, doses: snapshot.doses.filter { $0.date <= now }, assessor: assessor)
     }
 
     private static func entry(at date: Date, doses: [CaffeineDose], assessor: LevelAssessor) -> WidgetEntryData {
         let a = assessor.assess(doses: doses, at: date)
         return WidgetEntryData(date: date, milligrams: a.currentMg, status: a.status,
-                               limitMg: assessor.profile.singleDoseLimitMg,
+                               limitMg: assessor.limits.singleDoseLimitMg,
                                sleepReadyAt: a.sleepReadyAt, isSleepReady: a.isSleepReady, hasData: true,
                                sparkline: sparkline(doses: doses, from: date, model: assessor.model))
     }

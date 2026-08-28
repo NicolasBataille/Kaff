@@ -10,14 +10,18 @@ public struct LevelAssessor: Sendable {
     /// Source: borne de recherche généreuse, pas une constante physiologique ; au-delà on retourne la borne.
     static let sleepSearchHorizonHours = 72.0
 
-    public let profile: UserProfile
+    public let limits: AssessmentLimits
     public let model: PharmacokineticModel
     public let day: CaffeineDay
 
-    public init(profile: UserProfile, calendar: Calendar = .current) {
-        self.profile = profile
-        self.model = PharmacokineticModel(halfLifeHours: profile.halfLifeHours)
+    public init(limits: AssessmentLimits, calendar: Calendar = .current) {
+        self.limits = limits
+        self.model = PharmacokineticModel(halfLifeHours: limits.halfLifeHours)
         self.day = CaffeineDay(calendar: calendar)
+    }
+
+    public init(profile: UserProfile, calendar: Calendar = .current) {
+        self.init(limits: AssessmentLimits(profile: profile), calendar: calendar)
     }
 
     public func assess(doses: [CaffeineDose], at now: Date) -> LevelAssessment {
@@ -55,7 +59,7 @@ public struct LevelAssessor: Sendable {
 
     public func dayContext(at date: Date) -> DayContext {
         let nextStart = day.nextStart(after: date)
-        let next = day.nextBedtime(profile.bedtime, after: date)
+        let next = day.nextBedtime(limits.bedtime, after: date)
         let bedtime: Date? = next > date ? next : nil
         return DayContext(dayStart: day.start(containing: date), bedtime: bedtime,
                           validUntil: bedtime.map { min($0, nextStart) } ?? nextStart)
@@ -82,7 +86,7 @@ public struct LevelAssessor: Sendable {
     }
 
     private func checks(doses: [CaffeineDose], at now: Date) -> Checks {
-        checks(doses: doses, at: now, dayStart: day.start(containing: now), bedtime: day.nextBedtime(profile.bedtime, after: now))
+        checks(doses: doses, at: now, dayStart: day.start(containing: now), bedtime: day.nextBedtime(limits.bedtime, after: now))
     }
 
     /// Cœur unique des formules, calendrier déjà résolu (`bedtime == now` quand le coucher est passé).
@@ -97,9 +101,9 @@ public struct LevelAssessor: Sendable {
             dailyTotalMg: dailyTotal,
             bedtime: bedtime,
             projectedBedtimeMg: projected,
-            peakStatus: Self.status(current, limit: profile.singleDoseLimitMg, elevatedAt: Self.elevatedPeakFraction),
-            dailyStatus: Self.status(dailyTotal, limit: profile.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
-            bedtimeStatus: Self.status(projected, limit: profile.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)
+            peakStatus: Self.status(current, limit: limits.singleDoseLimitMg, elevatedAt: Self.elevatedPeakFraction),
+            dailyStatus: Self.status(dailyTotal, limit: limits.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
+            bedtimeStatus: Self.status(projected, limit: limits.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)
         )
     }
 
@@ -111,7 +115,7 @@ public struct LevelAssessor: Sendable {
 
     /// Après le dernier pic la courbe est strictement décroissante : recherche par dichotomie à la minute près.
     public func sleepReadyDate(doses: [CaffeineDose], from now: Date) -> Date {
-        let limit = profile.bedtimeLimitMg
+        let limit = limits.bedtimeLimitMg
         guard let lastDose = doses.map(\.date).max() else { return now }
         let lastPeak = lastDose.addingTimeInterval(model.timeToPeakHours * 3600)
         let start = max(now, lastPeak)

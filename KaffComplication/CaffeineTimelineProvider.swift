@@ -22,7 +22,7 @@ struct CaffeineTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> CaffeineEntry {
         let now = Date.now
         let sample = CacheSnapshot(doses: [CaffeineDose(date: now.addingTimeInterval(-45 * 60), milligrams: 130)],
-                                   profile: .default, updatedAt: now)
+                                   limits: AssessmentLimits(profile: .default), updatedAt: now)
         return CaffeineEntry(data: WidgetTimelinePlanner.firstEntry(snapshot: sample, now: now))
     }
 
