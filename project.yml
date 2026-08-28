@@ -31,6 +31,8 @@ targets:
     sources:
       - path: Kaff Watch App
         excludes: ["**/*.entitlements"]
+      # Jetons, anneau, libellés de statut, formats : compilés dans l'app ET la complication (pas de framework).
+      - path: KaffUI
     dependencies:
       - package: KaffCore
       - target: KaffComplication
@@ -64,6 +66,7 @@ targets:
     sources:
       - path: KaffComplication
         excludes: ["**/*.entitlements"]
+      - path: KaffUI
     dependencies:
       - package: KaffCore
       - sdk: WidgetKit.framework
