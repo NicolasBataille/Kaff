@@ -10,6 +10,7 @@ struct HomeView: View {
     @Environment(\.isLuminanceReduced) private var isLuminanceReduced
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.zoomNamespace) private var zoom
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Namespace private var morph
 
     @State private var hasAppeared = false
@@ -23,7 +24,7 @@ struct HomeView: View {
 
     private static let emptyWindowHours = 24.0
     /// Délai de grâce après l'entrée en mode scrub (avant la première rotation).
-    private static let scrubEntryGrace: Duration = .milliseconds(2500)
+    private static let scrubEntryGrace: Duration = .seconds(3)
     private static let topAnchor = "top"
 
     private var ringSize: Double { min(WKInterfaceDevice.current().screenBounds.width * 0.62, 132) }
@@ -148,21 +149,28 @@ struct HomeView: View {
         .accessibilityHint(isEmpty ? "" : "Touchez pour explorer la courbe avec la couronne")
     }
 
-    /// Disposition compacte du mode scrub, sur une ligne : mini-anneau, nombre à l'instant visé, statut projeté.
+    /// Disposition compacte du mode scrub : mini-anneau, nombre à l'instant visé, statut projeté
+    /// (sur une ligne ; la pastille passe dessous aux tailles de texte d'accessibilité).
     private func compactHero(_ assessment: LevelAssessment, tint: Color) -> some View {
-        HStack(spacing: 8) {
-            ring(mg: assessment.currentMg, tint: tint, lineWidth: Theme.Ring.lineWidth * 0.5)
-                .frame(width: miniRingSize, height: miniRingSize)
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                heroNumber(assessment.currentMg, font: Theme.Typography.heroCompact)
-                Text("mg")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+        let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                                                         : AnyLayout(HStackLayout(spacing: 8))
+        return layout {
+            HStack(spacing: 8) {
+                ring(mg: assessment.currentMg, tint: tint, lineWidth: Theme.Ring.lineWidth * 0.5)
+                    .frame(width: miniRingSize, height: miniRingSize)
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    heroNumber(assessment.currentMg, font: Theme.Typography.heroCompact)
+                    Text("mg")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize()
+                }
+                .layoutPriority(1)
             }
             Spacer(minLength: 4)
             StatusPillView(status: assessment.status) { showStatusDetail = true }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture { toggleScrub() }
         .accessibilityElement(children: .ignore)
@@ -241,17 +249,20 @@ struct HomeView: View {
                 Label("Poids estimé (\(Formatters.kg(model.profile.weightKg)))", systemImage: "scalemass")
                     .font(.caption2)
                     .foregroundStyle(Theme.Status.elevated)
-                    .lineLimit(1)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     .minimumScaleFactor(0.8)
+                    .multilineTextAlignment(.center)
             }
             .buttonStyle(.plain)
             .accessibilityHint("Ouvre les réglages")
         }
     }
 
+    /// Deux capsules côte à côte ; empilées aux tailles de texte d'accessibilité (sinon « Boisson » tronque).
     private var actions: some View {
         GlassEffectContainer(spacing: 8) {
-            HStack(spacing: 8) {
+            let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
+            layout {
                 NavigationLink(value: Route.logDrink) {
                     Label("Boisson", systemImage: "cup.and.saucer.fill")
                         .font(.caption.weight(.semibold))
@@ -289,9 +300,11 @@ struct HomeView: View {
 
     private func enterScrub() {
         withAnimation(snap) { isScrubbing = true }
-        // Le focus ne peut être pris qu'une fois la vue devenue focalisable (transaction suivante).
+        // Le focus ne peut être pris qu'une fois la vue devenue focalisable (transaction suivante) :
+        // un court délai est plus fiable qu'un simple `yield` (observé sur Ultra 3).
         Task { @MainActor in
-            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(60))
+            guard isScrubbing else { return }
             scrubFocused = true
         }
         scheduleScrubExit(after: Self.scrubEntryGrace)

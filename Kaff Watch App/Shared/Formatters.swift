@@ -11,6 +11,8 @@ enum Formatters {
         date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
     }
     static func count(_ value: Double) -> String { value.formatted(.number.precision(.fractionLength(0...1))) }
+    /// Pluriel basé sur la valeur affichée par `count` (1,98 s'affiche « 2 » → pluriel).
+    static func isPlural(_ value: Double) -> Bool { (value * 10).rounded() / 10 >= 2 }
     static func kg(_ value: Double) -> String { "\(Int(value.rounded())) kg" }
     static func hours(_ value: Double) -> String { "\(count(value)) h" }
     static func minutes(_ value: Double) -> String { "\(Int(value.rounded())) min" }

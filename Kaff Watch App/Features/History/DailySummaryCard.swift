@@ -8,10 +8,14 @@ struct DailySummaryCard: View {
     let status: LevelStatus
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
+            // Libellé et valeur côte à côte ; empilés aux tailles d'accessibilité.
+            let layout = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
+                                                             : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
+            layout {
                 Text("Aujourd'hui")
                     .font(.caption)
                     .foregroundStyle(.secondary)

@@ -35,6 +35,8 @@ struct DrinkCardView: View {
     let drink: Drink
     let isFavorite: Bool
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
         HStack(spacing: 10) {
             ZStack {
@@ -50,7 +52,8 @@ struct DrinkCardView: View {
                         .font(.headline)
                         .lineLimit(2)
                         .minimumScaleFactor(0.8)
-                    if isFavorite {
+                    // Étoile masquée aux tailles d'accessibilité (le nom a besoin de toute la largeur ; les favoris restent en tête).
+                    if isFavorite, !dynamicTypeSize.isAccessibilitySize {
                         Image(systemName: "star.fill")
                             .font(.caption2)
                             .foregroundStyle(Theme.accent.opacity(0.8))

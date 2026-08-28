@@ -87,7 +87,7 @@ struct ManualDoseView: View {
         let cups = Int(espressoCount.rounded())
         let shown = min(cups, Theme.Dial.maxCups)
         return VStack(alignment: .leading, spacing: 3) {
-            Text("≈ \(Formatters.count(espressoCount)) espresso\(espressoCount >= 2 ? "s" : "")")
+            Text("≈ \(Formatters.count(espressoCount)) espresso\(Formatters.isPlural(espressoCount) ? "s" : "")")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()

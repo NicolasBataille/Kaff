@@ -33,6 +33,7 @@ struct ImpactPreviewView: View {
     let data: ImpactPreviewData
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var yMax: Double { max((data.after.map(\.milligrams).max() ?? 0) * 1.2, data.limitMg / 2, 1) }
     private var isHigh: Bool { data.status == .high }
@@ -45,7 +46,7 @@ struct ImpactPreviewView: View {
                 .font(.caption2)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                 .minimumScaleFactor(0.75)
                 .contentTransition(.numericText())
             // Ligne réservée (hauteur fixe) pour que le bouton Ajouter ne bouge pas quand l'alerte apparaît.

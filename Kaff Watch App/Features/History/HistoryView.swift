@@ -67,19 +67,15 @@ struct HistoryView: View {
     }
 }
 
-/// Ligne : heure, symbole dans un petit disque, nom, mg.
+/// Ligne : symbole dans un petit disque, nom sur l'heure, mg à droite (tient sur 42 mm sans troncature).
 private struct DoseRow: View {
     let dose: CaffeineDose
     let drink: Drink?
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
         HStack(spacing: 8) {
-            Text(Formatters.time(dose.date))
-                .font(.caption2)
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .fixedSize()
             ZStack {
                 Circle().fill(Theme.accent.opacity(0.2))
                 Image(systemName: drink.map { $0.isCustom ? "mug.fill" : $0.symbol } ?? "number")
@@ -87,11 +83,18 @@ private struct DoseRow: View {
                     .foregroundStyle(Theme.accent)
             }
             .frame(width: 24, height: 24)
-            Text(drink?.name ?? "Manuel")
-                .font(.footnote)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .truncationMode(.tail)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(drink?.name ?? "Manuel")
+                    .font(.footnote)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                    .minimumScaleFactor(0.8)
+                Text(Formatters.time(dose.date))
+                    .font(.caption2)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
             Spacer(minLength: 4)
             Text(Formatters.mg(dose.milligrams))
                 .font(.footnote.weight(.semibold))
