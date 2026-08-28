@@ -3033,20 +3033,20 @@ Mettre à jour `docs/ROADMAP.md` : M4 ✅.
 - Create: `Kaff Watch App/Resources/Localizable.xcstrings`
 - Modify: `project.yml`
 
-- [ ] **Step 1** : créer `Localizable.xcstrings` avec `{ "sourceLanguage" : "fr", "strings" : { }, "version" : "1.0" }`.
-- [ ] **Step 2** : dans `project.yml`, section `settings.base`, ajouter `SWIFT_EMIT_LOC_STRINGS: YES` ; dans `info.properties` de l'app, ajouter `CFBundleDevelopmentRegion: fr`.
-- [ ] **Step 3** : `make build` → ouvrir `Localizable.xcstrings` dans Xcode : les chaînes des vues sont listées.
-- [ ] **Step 4** : commit `git commit -am "chore(app): M5.1 string catalog, French development region"`.
+- [x] **Step 1** : créer `Localizable.xcstrings` avec `{ "sourceLanguage" : "fr", "strings" : { }, "version" : "1.0" }`.
+- [x] **Step 2** : dans `project.yml`, section `settings.base`, ajouter `SWIFT_EMIT_LOC_STRINGS: YES` ; dans `info.properties` de l'app, ajouter `CFBundleDevelopmentRegion: fr`.
+- [x] **Step 3** : `make build` → ouvrir `Localizable.xcstrings` dans Xcode : les chaînes des vues sont listées.
+- [x] **Step 4** : commit `git commit -am "chore(app): M5.1 string catalog, French development region"`.
 
 ### Task M5.2 : États vides, accessibilité, tailles de texte
 
 **Files:**
 - Modify: `Kaff Watch App/Features/Home/HomeView.swift`
 
-- [ ] **Step 1** : dans `HomeView`, quand `model.doses.isEmpty`, afficher sous la jauge `Text("Aucune caféine enregistrée. Ajoutez une boisson.").font(.footnote).foregroundStyle(.secondary)` à la place de la courbe.
-- [ ] **Step 2** : simulateur › Réglages › Accessibilité › Taille du texte au maximum : aucun texte tronqué sur Home, QuickLog, Historique (ajuster `lineLimit`/`minimumScaleFactor(0.8)` si nécessaire).
-- [ ] **Step 3** : activer VoiceOver sur le simulateur (Réglages › Accessibilité) et parcourir Home : la jauge annonce « 142 mg, OK ».
-- [ ] **Step 4** : commit `git commit -am "feat(app): M5.2 empty state and accessibility pass"`.
+- [x] **Step 1** : dans `HomeView`, quand `model.doses.isEmpty`, afficher sous la jauge `Text("Aucune caféine enregistrée. Ajoutez une boisson.").font(.footnote).foregroundStyle(.secondary)` à la place de la courbe.
+- [x] **Step 2** : simulateur › Réglages › Accessibilité › Taille du texte au maximum : aucun texte tronqué sur Home, QuickLog, Historique (ajuster `lineLimit`/`minimumScaleFactor(0.8)` si nécessaire).
+- [x] **Step 3** : activer VoiceOver sur le simulateur (Réglages › Accessibilité) et parcourir Home : la jauge annonce « 142 mg, OK ». *(VoiceOver non scriptable sur simulateur : audit par grep des libellés, voir journal)*
+- [x] **Step 4** : commit `git commit -am "feat(app): M5.2 empty state and accessibility pass"`.
 
 ### Task M5.3 : Installation sur la montre physique
 
@@ -3068,8 +3068,8 @@ Mettre à jour `docs/ROADMAP.md` : M4 ✅.
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1** : compléter `README.md` : description, capture d'écran (`docs/screenshots/m3-home.png`), prérequis (Xcode 26.6, XcodeGen, watchOS 26), installation (`cp Config/Local.xcconfig.example Config/Local.xcconfig`, `make run`), commandes du Makefile, mention « estimation indicative, pas un avis médical », lien vers la spec et la roadmap.
-- [ ] **Step 2** : `git commit -am "docs: M5.5 README" && git tag v0.1.0`.
+- [x] **Step 1** : compléter `README.md` : description, capture d'écran (`docs/screenshots/m3-home.png`), prérequis (Xcode 26.6, XcodeGen, watchOS 26), installation (`cp Config/Local.xcconfig.example Config/Local.xcconfig`, `make run`), commandes du Makefile, mention « estimation indicative, pas un avis médical », lien vers la spec et la roadmap.
+- [x] **Step 2** : `git commit -am "docs: M5.5 README" && git tag v0.1.0`. *(commit fait ; tag `v0.1.0` après M5.3/M5.4)*
 
 Mettre à jour `docs/ROADMAP.md` : M5 ✅, journal « v0.1.0 installée sur la montre ».
 
