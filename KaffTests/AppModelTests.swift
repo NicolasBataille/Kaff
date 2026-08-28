@@ -127,4 +127,54 @@ struct AppModelTests {
         await model.start()
         #expect(model.favoriteDrinks.map(\.id) == ["espresso", "tea-black"])
     }
+
+    @Test func startReportsUnavailableWhenHealthDataUnavailable() async {
+        health.isAvailable = false
+        health.stored = [CaffeineDose(date: now.addingTimeInterval(-3600), milligrams: 63)]
+        let model = makeModel()
+        await model.start()
+        #expect(model.authorization == .unavailable)
+        #expect(model.doses.isEmpty)
+        #expect(widgets.reloadCount == 0)
+        #expect(model.lastError == nil)
+    }
+
+    @Test func startSurvivesAuthorizationRequestError() async {
+        health.authorizationError = NSError(domain: "test", code: 3)
+        health.isWriteAuthorized = false
+        let denied = makeModel()
+        await denied.start()
+        #expect(denied.lastError != nil)
+        #expect(denied.authorization == .denied)
+        // L'échec de la demande n'empêche pas de constater une autorisation déjà accordée.
+        health.isWriteAuthorized = true
+        health.stored = [CaffeineDose(date: now.addingTimeInterval(-3600), milligrams: 63)]
+        let granted = makeModel()
+        await granted.start()
+        #expect(granted.authorization == .authorized)
+        #expect(granted.doses.count == 1)
+    }
+
+    @Test func saveCustomDrinkPersistsAndReplacesSameID() async {
+        let model = makeModel()
+        let first = Drink(id: "custom-1", name: "Maté", milligrams: 80, volumeML: 250, symbol: "mug.fill", isCustom: true)
+        let renamed = Drink(id: "custom-1", name: "Maté fort", milligrams: 120, volumeML: 250, symbol: "mug.fill", isCustom: true)
+        await model.save(customDrink: first)
+        await model.save(customDrink: renamed)
+        #expect(model.customDrinks.count == 1)
+        #expect(model.customDrinks.first?.name == "Maté fort")
+        #expect(ProfileStore(defaults: defaults).loadCustomDrinks() == model.customDrinks)
+        #expect(model.allDrinks.contains { $0.id == "custom-1" })
+        #expect(model.lastError == nil)
+    }
+
+    @Test func deleteCustomDrinkRemovesIt() async {
+        let model = makeModel()
+        let drink = Drink(id: "custom-2", name: "Guarana", milligrams: 60, volumeML: 200, symbol: "mug.fill", isCustom: true)
+        await model.save(customDrink: drink)
+        await model.deleteCustomDrink(id: drink.id)
+        #expect(model.customDrinks.isEmpty)
+        #expect(ProfileStore(defaults: defaults).loadCustomDrinks().isEmpty)
+        #expect(model.lastError == nil)
+    }
 }

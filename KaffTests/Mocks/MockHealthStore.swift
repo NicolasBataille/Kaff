@@ -9,6 +9,8 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
     var bodyMassKg: Double? = 72
     var bodyMassError: Error?
     var saveError: Error?
+    var deleteError: Error?
+    var authorizationError: Error?
     var savedIDs: [UUID] = []
     var deletedIDs: [UUID] = []
 
@@ -26,7 +28,9 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
         set { writeAuthorized = newValue }
     }
 
-    func requestAuthorization() async throws {}
+    func requestAuthorization() async throws {
+        if let authorizationError { throw authorizationError }
+    }
 
     func doses(from start: Date, to end: Date) async throws -> [CaffeineDose] {
         stored.filter { $0.date >= start && $0.date <= end }
@@ -43,6 +47,7 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
     }
 
     func delete(doseID: UUID) async throws {
+        if let deleteError { throw deleteError }
         stored.removeAll { $0.id == doseID }
         deletedIDs.append(doseID)
     }
