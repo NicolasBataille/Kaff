@@ -4,6 +4,8 @@ options:
   deploymentTarget:
     watchOS: "26.0"
   xcodeVersion: "26.6"
+  # Langue de développement du projet = langue source du catalogue Localizable.xcstrings (M5.1).
+  developmentLanguage: fr
   createIntermediateGroups: true
   generateEmptyDirectories: true
 
@@ -19,6 +21,8 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     CURRENT_PROJECT_VERSION: 1
     MARKETING_VERSION: 0.1.0
+    # Extraction des chaînes SwiftUI vers Localizable.xcstrings (M5.1).
+    SWIFT_EMIT_LOC_STRINGS: YES
 
 packages:
   KaffCore:
@@ -48,6 +52,7 @@ targets:
     info:
       path: Kaff Watch App/Info.plist
       properties:
+        CFBundleDevelopmentRegion: fr
         CFBundleDisplayName: Kaff
         WKApplication: true
         WKWatchOnly: true
@@ -84,6 +89,7 @@ targets:
     info:
       path: KaffComplication/Info.plist
       properties:
+        CFBundleDevelopmentRegion: fr
         CFBundleDisplayName: Kaff
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension

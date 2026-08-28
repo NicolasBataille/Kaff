@@ -1,0 +1,356 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "" : {
+
+    },
+    "· %@" : {
+
+    },
+    "/ %@" : {
+
+    },
+    "%@ : %@ milligrammes, %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ : %2$@ milligrammes, %3$@"
+          }
+        }
+      }
+    },
+    "%@ : %@ sur %@, %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ : %2$@ sur %3$@, %4$@"
+          }
+        }
+      }
+    },
+    "%@ · %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@ / %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ %@ · %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "%@ milligrammes, %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ milligrammes, %2$@"
+          }
+        }
+      }
+    },
+    "%@, %@ pour une dose unique" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@ pour une dose unique"
+          }
+        }
+      }
+    },
+    "%@, %@, %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, %3$@"
+          }
+        }
+      }
+    },
+    "%@, %@%@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@%3$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
+    "%lld %@, soit %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@, soit %3$@"
+          }
+        }
+      }
+    },
+    "+%lld" : {
+
+    },
+    "≈ %@" : {
+
+    },
+    "≈ %@ espresso%@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "≈ %1$@ espresso%2$@"
+          }
+        }
+      }
+    },
+    "Accès Santé requis" : {
+
+    },
+    "Affiche le détail des trois vérifications" : {
+
+    },
+    "Ajouté" : {
+
+    },
+    "Ajouter" : {
+
+    },
+    "Ajouter la dose" : {
+
+    },
+    "Ajouter une boisson" : {
+
+    },
+    "Ajouter une dose en milligrammes" : {
+
+    },
+    "Annuler" : {
+
+    },
+    "Aucune boisson personnalisée." : {
+
+    },
+    "Aucune caféine" : {
+
+    },
+    "Aucune caféine dans le sang." : {
+
+    },
+    "Aucune donnée" : {
+
+    },
+    "Aucune dose sur 7 jours." : {
+
+    },
+    "Aujourd'hui" : {
+
+    },
+    "Aujourd'hui : %@ sur %@, %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Aujourd'hui : %1$@ sur %2$@, %3$@"
+          }
+        }
+      }
+    },
+    "Autorisez l'écriture de « Caféine » : Réglages › Santé › Apps › Kaff." : {
+
+    },
+    "Boisson" : {
+
+    },
+    "Boissons" : {
+
+    },
+    "Boissons personnalisées" : {
+
+    },
+    "Caféine" : {
+
+    },
+    "Coucher" : {
+
+    },
+    "Courbe de caféine, 12 heures passées et 6 heures projetées" : {
+
+    },
+    "Curseur" : {
+
+    },
+    "Dose" : {
+
+    },
+    "Dose ajoutée" : {
+
+    },
+    "Enregistrer" : {
+
+    },
+    "Environ %@ espressos" : {
+
+    },
+    "Erreur" : {
+
+    },
+    "Fermer" : {
+
+    },
+    "Heure" : {
+
+    },
+    "Heure de coucher" : {
+
+    },
+    "Historique" : {
+
+    },
+    "Kaff" : {
+
+    },
+    "Kaff enregistre vos doses de caféine dans Santé." : {
+
+    },
+    "Limite" : {
+
+    },
+    "Limite à cette heure : %@." : {
+
+    },
+    "Limites" : {
+
+    },
+    "Maintenant" : {
+
+    },
+    "mg" : {
+
+    },
+    "Modèle" : {
+
+    },
+    "Nom" : {
+
+    },
+    "Nouvelle" : {
+
+    },
+    "Nouvelle boisson" : {
+
+    },
+    "OK" : {
+
+    },
+    "OK pour dormir à %@" : {
+
+    },
+    "OK pour dormir maintenant" : {
+
+    },
+    "Ouvre les réglages" : {
+
+    },
+    "Pas" : {
+
+    },
+    "Pic" : {
+
+    },
+    "Pic %@ à %@ · coucher %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Pic %1$@ à %2$@ · coucher %3$@"
+          }
+        }
+      }
+    },
+    "Poids" : {
+
+    },
+    "Poids estimé (%@)" : {
+
+    },
+    "Réessayer" : {
+
+    },
+    "Réglages" : {
+
+    },
+    "Saisir manuellement" : {
+
+    },
+    "Santé" : {
+
+    },
+    "Santé indisponible" : {
+
+    },
+    "Série" : {
+
+    },
+    "Sommeil" : {
+
+    },
+    "Statut" : {
+
+    },
+    "Statut : %@" : {
+
+    },
+    "Supprimer" : {
+
+    },
+    "Touchez pour explorer la courbe avec la couronne" : {
+
+    },
+    "Tournez la couronne pour explorer, touchez pour quitter" : {
+
+    },
+    "Volume" : {
+
+    },
+    "Volume de %@" : {
+
+    }
+  },
+  "version" : "1.0"
+}
