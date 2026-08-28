@@ -4,6 +4,7 @@ import Foundation
 public struct CacheSnapshot: Hashable, Codable, Sendable {
     public let doses: [CaffeineDose]
     public let profile: UserProfile
+    /// Non lu en v1 ; réservé à un indicateur d'obsolescence (backlog).
     public let updatedAt: Date
 
     public init(doses: [CaffeineDose], profile: UserProfile, updatedAt: Date) {

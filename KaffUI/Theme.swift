@@ -11,8 +11,9 @@ enum Theme {
 
     /// Tout ce qui parle de coucher / sommeil.
     static let sleep = Color.indigo
-    /// Café, boutons principaux, courbe passée (AccentColor = #C8792B).
-    static let accent = Color.accentColor
+    /// Café, boutons principaux, courbe passée.
+    // Source: AccentColor #C8792B (asset absent de l'extension)
+    static let accent = Color(red: 0xC8 / 255, green: 0x79 / 255, blue: 0x2B / 255)
     /// Anneau vide / état sans caféine.
     static let idle = Color.gray
     /// Glow radial derrière l'anneau (§2 : opacité 0,18).
