@@ -78,6 +78,7 @@ final class AppModel {
     /// (observé sur simulateur en M2.3) : on relit le statut quelques fois avant de conclure.
     private func pollWriteAuthorization() async -> Bool {
         for attempt in 1...Self.authorizationAttempts {
+            guard !Task.isCancelled else { return false }
             if health.isWriteAuthorized { return true }
             if attempt < Self.authorizationAttempts { try? await Task.sleep(for: authorizationRetryDelay) }
         }

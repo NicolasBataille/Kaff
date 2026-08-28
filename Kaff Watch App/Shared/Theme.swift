@@ -1,0 +1,87 @@
+import SwiftUI
+
+/// Jetons visuels (docs/design/ui-direction.md §2). Toute couleur ou dimension de l'UI vient d'ici.
+enum Theme {
+    /// Couleurs de statut (anneau, pastille, textes de statut).
+    enum Status {
+        static let ok = Color.mint
+        static let elevated = Color.orange
+        static let high = Color.red
+    }
+
+    /// Tout ce qui parle de coucher / sommeil.
+    static let sleep = Color.indigo
+    /// Café, boutons principaux, courbe passée (AccentColor = #C8792B).
+    static let accent = Color.accentColor
+    /// Anneau vide / état sans caféine.
+    static let idle = Color.gray
+    /// Glow radial derrière l'anneau (§2 : opacité 0,18).
+    static let glowOpacity = 0.18
+
+    enum Ring {
+        /// Arc style anneaux Activité : 300°, ouverture centrée en bas.
+        static let sweepDegrees = 300.0
+        static let lineWidth = 9.0
+        /// Seconde couche fine pour le dépassement de la limite.
+        static let overflowLineWidth = 3.0
+        static let trackOpacity = 0.16
+    }
+
+    enum Typography {
+        /// Nombre héros (mg sur Home, mg sur le cadran manuel).
+        static let hero = Font.system(size: 44, weight: .bold, design: .rounded)
+        static let heroCompact = Font.system(size: 34, weight: .bold, design: .rounded)
+        static let dial = Font.system(size: 40, weight: .bold, design: .rounded)
+        static let heroMinimumScale = 0.8
+    }
+
+    enum Chart {
+        static let restingHeight = 64.0
+        static let scrubbingHeight = 96.0
+        static let previewHeight = 56.0
+        static let pastHours = 12.0
+        static let futureHours = 6.0
+        static let stepMinutes = 10
+        static let previewHours = 6.0
+    }
+
+    enum Scrub {
+        /// Bornes du scrubber couronne (minutes autour de « maintenant »).
+        static let minMinutes = -Chart.pastHours * 60
+        static let maxMinutes = Chart.futureHours * 60
+        static let stepMinutes = 15.0
+        /// Sortie automatique du mode scrub après inactivité.
+        static let idleExit: Duration = .milliseconds(1200)
+    }
+
+    enum Dial {
+        static let volumeRange = 10.0...1000.0
+        static let volumeStep = 10.0
+        static let milligramsRange = 5.0...1000.0
+        static let milligramsStep = 5.0
+        static let defaultMilligrams = 80.0
+        /// Tasses affichées au maximum sous le cadran mg (au-delà : « +n »).
+        static let maxCups = 5
+    }
+
+    /// Délai entre la coche de confirmation et le retour à Home.
+    static let confirmationDelay: Duration = .milliseconds(350)
+}
+
+/// Durées et courbes d'animation (§2 et §5). `reduceMotion` remplace les springs par des ease courts (§6).
+enum Motion {
+    static let quick = 0.18
+    static let colourDuration = 0.4
+
+    static func snap(reduceMotion: Bool = false) -> Animation {
+        reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.45, bounce: 0.25)
+    }
+
+    static func crown(reduceMotion: Bool = false) -> Animation {
+        reduceMotion ? .easeInOut(duration: 0.1) : .smooth(duration: quick)
+    }
+
+    static func colour(reduceMotion: Bool = false) -> Animation {
+        reduceMotion ? .easeInOut(duration: 0.2) : .smooth(duration: colourDuration)
+    }
+}
