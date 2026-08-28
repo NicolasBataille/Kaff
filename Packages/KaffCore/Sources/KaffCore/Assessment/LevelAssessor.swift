@@ -21,19 +21,53 @@ public struct LevelAssessor: Sendable {
     }
 
     public func assess(doses: [CaffeineDose], at now: Date) -> LevelAssessment {
+        let c = checks(doses: doses, at: now)
+        return LevelAssessment(
+            now: now,
+            currentMg: c.currentMg,
+            dailyTotalMg: c.dailyTotalMg,
+            bedtime: c.bedtime,
+            projectedBedtimeMg: c.projectedBedtimeMg,
+            sleepReadyAt: sleepReadyDate(doses: c.past, from: now),
+            peakStatus: c.peakStatus,
+            dailyStatus: c.dailyStatus,
+            bedtimeStatus: c.bedtimeStatus
+        )
+    }
+
+    /// Statut global seul, sans la recherche de `sleepReadyAt` (≈ 13 évaluations du modèle économisées) :
+    /// pour l'échantillonnage dense de `TimelineBuilder`. Strictement égal à `assess(doses:at:).status`.
+    public func status(doses: [CaffeineDose], at now: Date) -> LevelStatus {
+        checks(doses: doses, at: now).status
+    }
+
+    /// Les trois vérifications de la spec §5 à un instant — seule source des formules, partagée par `assess` et `status`.
+    private struct Checks {
+        let past: [CaffeineDose]
+        let currentMg: Double
+        let dailyTotalMg: Double
+        let bedtime: Date
+        let projectedBedtimeMg: Double
+        let peakStatus: LevelStatus
+        let dailyStatus: LevelStatus
+        let bedtimeStatus: LevelStatus
+
+        var status: LevelStatus { max(peakStatus, max(dailyStatus, bedtimeStatus)) }
+    }
+
+    private func checks(doses: [CaffeineDose], at now: Date) -> Checks {
         let past = doses.filter { $0.date <= now }
         let current = model.amount(doses: past, at: now)
         let dayStart = day.start(containing: now)
         let dailyTotal = past.filter { $0.date >= dayStart }.reduce(0) { $0 + $1.milligrams }
         let bedtime = day.nextBedtime(profile.bedtime, after: now)
         let projected = model.amount(doses: past, at: bedtime)
-        return LevelAssessment(
-            now: now,
+        return Checks(
+            past: past,
             currentMg: current,
             dailyTotalMg: dailyTotal,
             bedtime: bedtime,
             projectedBedtimeMg: projected,
-            sleepReadyAt: sleepReadyDate(doses: past, from: now),
             peakStatus: Self.status(current, limit: profile.singleDoseLimitMg, elevatedAt: Self.elevatedPeakFraction),
             dailyStatus: Self.status(dailyTotal, limit: profile.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
             bedtimeStatus: Self.status(projected, limit: profile.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)

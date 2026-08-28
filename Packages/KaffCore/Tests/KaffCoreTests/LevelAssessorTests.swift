@@ -119,3 +119,28 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(a.bedtimeStatus == .ok)
     #expect(!a.projectedBedtimeMg.isNaN)
 }
+
+@Test func cheapStatusMatchesFullAssessment() {
+    let doses = [
+        CaffeineDose(date: TestClock.date(8), milligrams: 140),
+        CaffeineDose(date: TestClock.date(12), milligrams: 140),
+        CaffeineDose(date: TestClock.date(19), milligrams: 200),
+        CaffeineDose(date: TestClock.date(day: 11, 9), milligrams: 999),      // futur pour la plupart des instants
+    ]
+    let instants = [
+        TestClock.date(7),                 // avant toute dose
+        TestClock.date(8, 30),             // près du pic
+        TestClock.date(12, 45),
+        TestClock.date(20),                // projection coucher haute
+        TestClock.date(23, 30),            // après le coucher
+        TestClock.date(day: 11, 3),        // avant 04:00 : journée de la veille
+        TestClock.date(day: 11, 10),       // la dose « future » est passée
+    ]
+    for profileTweak in [{ (_: inout UserProfile) in }, { $0.bedtimeLimitMg = 100 }, { $0.dailyLimitMg = 300 }] {
+        let a = assessor(profileTweak)
+        for at in instants {
+            #expect(a.status(doses: doses, at: at) == a.assess(doses: doses, at: at).status, "\(at)")
+        }
+        #expect(a.status(doses: [], at: TestClock.date(10)) == .ok)
+    }
+}

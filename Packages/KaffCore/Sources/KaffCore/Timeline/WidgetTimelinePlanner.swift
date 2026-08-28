@@ -10,13 +10,15 @@ public enum WidgetTimelinePlanner {
     public static func entries(snapshot: CacheSnapshot?, now: Date, calendar: Calendar = .current) -> [WidgetEntryData] {
         guard let snapshot else { return [.empty(at: now)] }
         let assessor = LevelAssessor(profile: snapshot.profile, calendar: calendar)
-        let dates = TimelineBuilder(assessor: assessor).widgetEntryDates(doses: snapshot.doses, from: now)
+        // Même hypothèse que `widgetEntryDates` : seules les doses connues à `now` comptent sur tout l'horizon.
+        let doses = snapshot.doses.filter { $0.date <= now }
+        let dates = TimelineBuilder(assessor: assessor).widgetEntryDates(doses: doses, from: now)
         return dates.map { date in
-            let a = assessor.assess(doses: snapshot.doses, at: date)
+            let a = assessor.assess(doses: doses, at: date)
             return WidgetEntryData(date: date, milligrams: a.currentMg, status: a.status,
                                    limitMg: snapshot.profile.singleDoseLimitMg,
                                    sleepReadyAt: a.sleepReadyAt, isSleepReady: a.isSleepReady, hasData: true,
-                                   sparkline: sparkline(doses: snapshot.doses, from: date, model: assessor.model))
+                                   sparkline: sparkline(doses: doses, from: date, model: assessor.model))
         }
     }
 
