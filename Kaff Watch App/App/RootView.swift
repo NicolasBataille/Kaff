@@ -55,6 +55,7 @@ struct RootView: View {
     @ViewBuilder private func destination(for route: Route) -> some View {
         switch route {
         case .logDrink: DrinkPickerView()
+        case .amount(let drink): DrinkAmountView(drink: drink)
         case .logManual: ManualDoseView()
         case .settings: SettingsView()
         }

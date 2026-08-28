@@ -85,11 +85,17 @@ final class AppModel {
     }
 
     /// Instant et valeur du niveau maximal dans les 3 h après l'ajout hypothétique de `milligrams` à `now()`.
+    /// Échantillonne la quantité seule (pas d'évaluation complète par point : appelé à chaque cran de couronne).
     func peak(afterAdding milligrams: Double) -> (date: Date, mg: Double) {
-        let points = chartPoints(from: now(), hours: Self.peakSearchHours,
-                                 stepMinutes: Self.peakSampleStepMinutes, adding: milligrams)
-        let best = points.max { $0.milligrams < $1.milligrams } ?? TimelinePoint(date: now(), milligrams: 0, status: .ok)
-        return (best.date, best.milligrams)
+        let start = now()
+        let all = doses(adding: milligrams)
+        let pk = assessor.model
+        let step = TimeInterval(Self.peakSampleStepMinutes * 60)
+        let samples = stride(from: 0.0, through: Self.peakSearchHours * 3600, by: step).map { offset in
+            let date = start.addingTimeInterval(offset)
+            return (date: date, mg: pk.amount(doses: all, at: date))
+        }
+        return samples.max { $0.mg < $1.mg } ?? (start, 0)
     }
 
     private func doses(adding milligrams: Double) -> [CaffeineDose] {

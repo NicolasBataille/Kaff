@@ -31,12 +31,18 @@ extension LevelStatus {
 }
 
 extension LevelReason {
-    var label: String {
-        switch self {
-        case .none: "Niveau correct"
-        case .peak: "Pic trop haut"
-        case .daily: "Cumul du jour dépassé"
-        case .bedtime: "Trop pour bien dormir"
+    var label: String { label(for: .high) }
+
+    /// Libellé nuancé selon la gravité : « Pic élevé » (elevated) vs « Pic trop haut » (high).
+    func label(for status: LevelStatus) -> String {
+        switch (self, status) {
+        case (.none, _), (_, .ok): "Niveau correct"
+        case (.peak, .elevated): "Pic élevé"
+        case (.peak, .high): "Pic trop haut"
+        case (.daily, .elevated): "Cumul du jour élevé"
+        case (.daily, .high): "Cumul du jour dépassé"
+        case (.bedtime, .elevated): "Risque pour le sommeil"
+        case (.bedtime, .high): "Trop pour bien dormir"
         }
     }
 }

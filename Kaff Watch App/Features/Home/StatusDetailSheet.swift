@@ -31,7 +31,7 @@ struct StatusDetailSheet: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
                     Image(systemName: assessment.status.symbol)
-                    Text(assessment.reason.label)
+                    Text(assessment.reason.label(for: assessment.status))
                 }
                 .font(.headline)
                 .foregroundStyle(assessment.status.color)

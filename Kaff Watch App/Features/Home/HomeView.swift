@@ -93,6 +93,10 @@ struct HomeView: View {
             .onChange(of: isScrubbing) { _, scrubbing in
                 if scrubbing { withAnimation(snap) { proxy.scrollTo(Self.topAnchor, anchor: .top) } }
             }
+            // Retour d'un ajout / suppression : remonter pour voir le nombre compter et l'anneau se remplir.
+            .onChange(of: model.doses.count) { _, _ in
+                withAnimation(snap) { proxy.scrollTo(Self.topAnchor, anchor: .top) }
+            }
         }
         .onChange(of: ChartKey(now: now, doses: model.doses, profile: model.profile), initial: true) { _, key in
             points = model.chartPoints(from: key.now.addingTimeInterval(-Theme.Chart.pastHours * 3600),

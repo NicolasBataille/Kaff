@@ -31,14 +31,15 @@ enum Theme {
         /// Nombre héros (mg sur Home, mg sur le cadran manuel).
         static let hero = Font.system(size: 44, weight: .bold, design: .rounded)
         static let heroCompact = Font.system(size: 34, weight: .bold, design: .rounded)
-        static let dial = Font.system(size: 40, weight: .bold, design: .rounded)
+        static let dial = Font.system(size: 36, weight: .bold, design: .rounded)
+        static let dialInRing = Font.system(size: 28, weight: .bold, design: .rounded)
         static let heroMinimumScale = 0.8
     }
 
     enum Chart {
         static let restingHeight = 64.0
         static let scrubbingHeight = 96.0
-        static let previewHeight = 56.0
+        static let previewHeight = 40.0
         static let pastHours = 12.0
         static let futureHours = 6.0
         static let stepMinutes = 10
