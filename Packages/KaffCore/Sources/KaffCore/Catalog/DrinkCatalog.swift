@@ -10,7 +10,7 @@ public enum DrinkCatalog {
         Drink(id: "tea-black", name: "Thé noir", milligrams: 47, volumeML: 240, symbol: "leaf.fill"),                   // Source: USDA 20 mg/100 g
         Drink(id: "tea-green", name: "Thé vert", milligrams: 28, volumeML: 240, symbol: "leaf.fill"),                   // Source: USDA 12 mg/100 g
         Drink(id: "mate", name: "Maté", milligrams: 85, volumeML: 240, symbol: "leaf.fill"),                            // Source: EFSA 2015, ~35 mg/100 ml
-        Drink(id: "cola", name: "Cola", milligrams: 34, volumeML: 355, symbol: "takeoutbag.and.cup.and.straw.fill"),    // Source: USDA 9,7 mg/100 g
+        Drink(id: "cola", name: "Cola", milligrams: 32, volumeML: 330, symbol: "takeoutbag.and.cup.and.straw.fill"),    // Source: USDA 9,7 mg/100 g ; canette 33 cl
         Drink(id: "energy", name: "Boisson énergisante", milligrams: 80, volumeML: 250, symbol: "bolt.fill"),           // Source: EFSA 2015, 32 mg/100 ml
         Drink(id: "dark-chocolate", name: "Chocolat noir", milligrams: 12, volumeML: 30, symbol: "square.fill"),        // Source: USDA ~43 mg/100 g ; volumeML = grammes ici
     ]
