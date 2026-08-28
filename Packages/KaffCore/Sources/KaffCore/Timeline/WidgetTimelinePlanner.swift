@@ -13,13 +13,23 @@ public enum WidgetTimelinePlanner {
         // Même hypothèse que `widgetEntryDates` : seules les doses connues à `now` comptent sur tout l'horizon.
         let doses = snapshot.doses.filter { $0.date <= now }
         let dates = TimelineBuilder(assessor: assessor).widgetEntryDates(doses: doses, from: now)
-        return dates.map { date in
-            let a = assessor.assess(doses: doses, at: date)
-            return WidgetEntryData(date: date, milligrams: a.currentMg, status: a.status,
-                                   limitMg: snapshot.profile.singleDoseLimitMg,
-                                   sleepReadyAt: a.sleepReadyAt, isSleepReady: a.isSleepReady, hasData: true,
-                                   sparkline: sparkline(doses: doses, from: date, model: assessor.model))
-        }
+        return dates.map { entry(at: $0, doses: doses, assessor: assessor) }
+    }
+
+    /// L'entrée à `now` seule (une évaluation + sparkline, sans balayage 12 h) : placeholder et snapshot du widget.
+    /// Strictement égale à `entries(snapshot:now:calendar:).first`.
+    public static func firstEntry(snapshot: CacheSnapshot?, now: Date, calendar: Calendar = .current) -> WidgetEntryData {
+        guard let snapshot else { return .empty(at: now) }
+        let assessor = LevelAssessor(profile: snapshot.profile, calendar: calendar)
+        return entry(at: now, doses: snapshot.doses.filter { $0.date <= now }, assessor: assessor)
+    }
+
+    private static func entry(at date: Date, doses: [CaffeineDose], assessor: LevelAssessor) -> WidgetEntryData {
+        let a = assessor.assess(doses: doses, at: date)
+        return WidgetEntryData(date: date, milligrams: a.currentMg, status: a.status,
+                               limitMg: assessor.profile.singleDoseLimitMg,
+                               sleepReadyAt: a.sleepReadyAt, isSleepReady: a.isSleepReady, hasData: true,
+                               sparkline: sparkline(doses: doses, from: date, model: assessor.model))
     }
 
     /// Niveaux bruts (sans évaluation de statut) : `amount` renvoie 0 pour une dose postérieure à l'instant échantillonné,

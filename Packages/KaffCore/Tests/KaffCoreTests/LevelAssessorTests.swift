@@ -144,3 +144,46 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
         #expect(a.status(doses: [], at: TestClock.date(10)) == .ok)
     }
 }
+
+@Test func contextStatusMatchesPerInstantStatusOverTwelveHourScans() {
+    let doses = [
+        CaffeineDose(date: TestClock.date(9), milligrams: 140),
+        CaffeineDose(date: TestClock.date(15), milligrams: 140),
+        CaffeineDose(date: TestClock.date(21, 30), milligrams: 80),
+    ]
+    let starts = [
+        TestClock.date(22, 30),            // franchit 23:00 (coucher) puis 04:00 (nouvelle journée)
+        TestClock.date(14),                // franchit 23:00 seulement
+        TestClock.date(day: 11, 1),        // nuit : coucher déjà passé, puis 04:00
+    ]
+    for profileTweak in [{ (_: inout UserProfile) in }, { $0.bedtime = ClockTime(hour: 1, minute: 30) }] {
+        let a = assessor(profileTweak)
+        for start in starts {
+            var context = a.dayContext(at: start)
+            #expect(context.dayStart <= start && start < context.validUntil)
+            var t = start
+            let end = start.addingTimeInterval(12 * 3600)
+            while t <= end {
+                if t >= context.validUntil { context = a.dayContext(at: t) }
+                #expect(a.status(doses: doses, at: t, context: context) == a.status(doses: doses, at: t), "\(t)")
+                t = t.addingTimeInterval(60)
+            }
+        }
+    }
+}
+
+@Test func dayContextBedtimeIsNilOncePassedAndValidUntilIsNextBoundary() {
+    let a = assessor()
+    let afternoon = a.dayContext(at: TestClock.date(14))
+    #expect(afternoon.dayStart == TestClock.date(4))
+    #expect(afternoon.bedtime == TestClock.date(23))
+    #expect(afternoon.validUntil == TestClock.date(23))
+    let night = a.dayContext(at: TestClock.date(23, 30))
+    #expect(night.dayStart == TestClock.date(4))
+    #expect(night.bedtime == nil)
+    #expect(night.validUntil == TestClock.date(day: 11, 4))
+    let early = a.dayContext(at: TestClock.date(day: 11, 2))
+    #expect(early.dayStart == TestClock.date(4))
+    #expect(early.bedtime == nil)
+    #expect(early.validUntil == TestClock.date(day: 11, 4))
+}

@@ -40,3 +40,15 @@ import Testing
     let last = entries.last!.sparkline
     #expect(zip(last, last.dropFirst()).allSatisfy { $0 > $1 })
 }
+
+@Test func firstEntryEqualsFirstOfEntries() {
+    let now = TestClock.date(8)
+    let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120), CaffeineDose(date: now, milligrams: 250)]
+    let snapshot = CacheSnapshot(doses: doses, profile: .default, updatedAt: now)
+    let first = WidgetTimelinePlanner.firstEntry(snapshot: snapshot, now: now, calendar: TestClock.calendar)
+    #expect(first == WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar).first)
+    #expect(first.hasData && first.date == now && first.sparkline.count == WidgetTimelinePlanner.sparklineSamples)
+    let empty = WidgetTimelinePlanner.firstEntry(snapshot: nil, now: now, calendar: TestClock.calendar)
+    #expect(empty == WidgetTimelinePlanner.entries(snapshot: nil, now: now, calendar: TestClock.calendar).first)
+    #expect(empty == .empty(at: now))
+}

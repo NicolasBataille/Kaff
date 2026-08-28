@@ -18,6 +18,11 @@ public struct CaffeineDay: Sendable {
         return calendar.date(bySettingHour: Self.startHour, minute: 0, second: 0, of: base)!
     }
 
+    /// Début (04:00) de la journée caféine suivant celle qui contient `date` : strictement après `date`.
+    public func nextStart(after date: Date) -> Date {
+        calendar.date(byAdding: .day, value: 1, to: start(containing: date))!
+    }
+
     /// Prochaine heure de coucher. Si elle est déjà passée dans la journée caféine courante, retourne `now`.
     public func nextBedtime(_ bedtime: ClockTime, after now: Date) -> Date {
         let nowMinutes = calendar.component(.hour, from: now) * 60 + calendar.component(.minute, from: now)

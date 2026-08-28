@@ -17,12 +17,15 @@ public struct TimelineBuilder: Sendable {
         precondition(stepMinutes > 0, "stepMinutes doit être > 0")
         let step = TimeInterval(stepMinutes * 60)
         let count = Int(hours * 3600 / step)
+        var context = assessor.dayContext(at: start)
         return (0...count).map { i in
             let date = start.addingTimeInterval(Double(i) * step)
+            context = refreshed(context, at: date)
             // Chemin sans `sleepReadyAt` : le graphique n'affiche que le niveau et le statut.
             // `amount` vaut 0 pour une dose postérieure à `date` : pas de filtrage nécessaire.
             let milligrams = assessor.model.amount(doses: doses, at: date)
-            return TimelinePoint(date: date, milligrams: milligrams, status: assessor.status(doses: doses, at: date))
+            return TimelinePoint(date: date, milligrams: milligrams,
+                                 status: assessor.status(doses: doses, at: date, context: context))
         }
     }
 
@@ -48,11 +51,15 @@ public struct TimelineBuilder: Sendable {
         let lastPeak = past.map(\.date).max()
             .map { $0.addingTimeInterval(assessor.model.timeToPeakHours * 3600) }
         let bedtimeLimitMg = assessor.profile.bedtimeLimitMg
+        // Contexte calendrier (04:00, coucher) calculé une fois puis rafraîchi aux seules bornes de validité :
+        // le balayage minute ne touche plus `Calendar` (revue M4 : ≈ 1 440 requêtes calendrier par timeline sinon).
+        var context = assessor.dayContext(at: now)
         var transitions: [Date] = []
-        var previous = signature(doses: past, at: now, lastPeak: lastPeak, bedtimeLimitMg: bedtimeLimitMg)
+        var previous = signature(doses: past, at: now, context: context, lastPeak: lastPeak, bedtimeLimitMg: bedtimeLimitMg)
         var t = now.addingTimeInterval(60)
         while t <= end {
-            let current = signature(doses: past, at: t, lastPeak: lastPeak, bedtimeLimitMg: bedtimeLimitMg)
+            context = refreshed(context, at: t)
+            let current = signature(doses: past, at: t, context: context, lastPeak: lastPeak, bedtimeLimitMg: bedtimeLimitMg)
             if current != previous { transitions.append(t) }
             previous = current
             t = t.addingTimeInterval(60)
@@ -60,12 +67,18 @@ public struct TimelineBuilder: Sendable {
         return Array(Set(grid + transitions)).sorted()
     }
 
+    /// Instants échantillonnés croissants : le contexte n'est recalculé qu'en franchissant `validUntil`.
+    private func refreshed(_ context: LevelAssessor.DayContext, at date: Date) -> LevelAssessor.DayContext {
+        date >= context.validUntil ? assessor.dayContext(at: date) : context
+    }
+
     /// Comparaison de tuples : fournie par la bibliothèque standard, ne pas redéfinir `!=`.
     /// `isSleepReady` : aucune dose (`lastPeak == nil`) → toujours prêt ; sinon prêt une fois le pic passé et
     /// le niveau courant sous la limite de coucher (équivalent exact du court-circuit de `sleepReadyDate`).
     /// `doses` ne contient que des doses ≤ `date` (filtrées dans `widgetEntryDates`) : pas de re-filtrage par point.
-    private func signature(doses: [CaffeineDose], at date: Date, lastPeak: Date?, bedtimeLimitMg: Double) -> (LevelStatus, Bool) {
-        let status = assessor.status(doses: doses, at: date)
+    private func signature(doses: [CaffeineDose], at date: Date, context: LevelAssessor.DayContext,
+                           lastPeak: Date?, bedtimeLimitMg: Double) -> (LevelStatus, Bool) {
+        let status = assessor.status(doses: doses, at: date, context: context)
         guard let lastPeak else { return (status, true) }
         let isSleepReady = date >= lastPeak && assessor.model.amount(doses: doses, at: date) < bedtimeLimitMg
         return (status, isSleepReady)

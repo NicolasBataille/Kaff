@@ -35,10 +35,36 @@ public struct LevelAssessor: Sendable {
         )
     }
 
-    /// Statut global seul, sans la recherche de `sleepReadyAt` (≈ 13 évaluations du modèle économisées) :
-    /// pour l'échantillonnage dense de `TimelineBuilder`. Strictement égal à `assess(doses:at:).status`.
+    /// Statut global seul, sans la recherche de `sleepReadyAt` (≈ 13 évaluations du modèle économisées).
+    /// Strictement égal à `assess(doses:at:).status`.
     public func status(doses: [CaffeineDose], at now: Date) -> LevelStatus {
         checks(doses: doses, at: now).status
+    }
+
+    /// Valeurs dérivées du calendrier, constantes sur un intervalle de la journée caféine : à calculer une fois
+    /// puis à réutiliser tant que l'instant échantillonné reste `< validUntil` (balayage minute de `TimelineBuilder`).
+    public struct DayContext: Hashable, Sendable {
+        /// Début (04:00) de la journée caféine.
+        public let dayStart: Date
+        /// Prochain coucher ; `nil` quand il est déjà passé dans la journée caféine → projection à l'instant lui-même
+        /// (sémantique de `CaffeineDay.nextBedtime`).
+        public let bedtime: Date?
+        /// Premier instant où le contexte cesse d'être valable : le coucher s'il est à venir, sinon le prochain 04:00.
+        public let validUntil: Date
+    }
+
+    public func dayContext(at date: Date) -> DayContext {
+        let nextStart = day.nextStart(after: date)
+        let next = day.nextBedtime(profile.bedtime, after: date)
+        let bedtime: Date? = next > date ? next : nil
+        return DayContext(dayStart: day.start(containing: date), bedtime: bedtime,
+                          validUntil: bedtime.map { min($0, nextStart) } ?? nextStart)
+    }
+
+    /// Même résultat que `status(doses:at:)` sans consulter le calendrier, pour un `now` dans
+    /// `[context.dayStart, context.validUntil)` — `context` doit venir de `dayContext(at:)` sur cet intervalle.
+    public func status(doses: [CaffeineDose], at now: Date, context: DayContext) -> LevelStatus {
+        checks(doses: doses, at: now, dayStart: context.dayStart, bedtime: context.bedtime ?? now).status
     }
 
     /// Les trois vérifications de la spec §5 à un instant — seule source des formules, partagée par `assess` et `status`.
@@ -56,11 +82,14 @@ public struct LevelAssessor: Sendable {
     }
 
     private func checks(doses: [CaffeineDose], at now: Date) -> Checks {
+        checks(doses: doses, at: now, dayStart: day.start(containing: now), bedtime: day.nextBedtime(profile.bedtime, after: now))
+    }
+
+    /// Cœur unique des formules, calendrier déjà résolu (`bedtime == now` quand le coucher est passé).
+    private func checks(doses: [CaffeineDose], at now: Date, dayStart: Date, bedtime: Date) -> Checks {
         let past = doses.filter { $0.date <= now }
         let current = model.amount(doses: past, at: now)
-        let dayStart = day.start(containing: now)
         let dailyTotal = past.filter { $0.date >= dayStart }.reduce(0) { $0 + $1.milligrams }
-        let bedtime = day.nextBedtime(profile.bedtime, after: now)
         let projected = model.amount(doses: past, at: bedtime)
         return Checks(
             past: past,
