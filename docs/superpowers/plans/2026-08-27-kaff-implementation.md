@@ -2058,7 +2058,7 @@ Pas de tests unitaires pour les vues (spec §10) : chaque tâche se termine par 
 - Create: `Kaff Watch App/Shared/Formatters.swift`
 - Create: `Kaff Watch App/Shared/LevelStatus+UI.swift`
 
-- [ ] **Step 1 : helpers**
+- [x] **Step 1 : helpers**
 
 `Shared/Formatters.swift` :
 ```swift
@@ -2107,7 +2107,7 @@ extension LevelReason {
 }
 ```
 
-- [ ] **Step 2 : racine et app**
+- [x] **Step 2 : racine et app**
 
 `App/RootView.swift` :
 ```swift
@@ -2200,11 +2200,11 @@ struct AuthorizationView: View {
 }
 ```
 
-- [ ] **Step 3 : stubs temporaires** pour compiler avant M3.2–M3.5 — créer chaque fichier de vue manquant avec `struct XView: View { var body: some View { Text("X") } }` : `HomeView`, `HistoryView`, `DrinkPickerView`, `ManualDoseView`, `SettingsView` aux chemins de la structure des fichiers. Ils sont remplacés dans les tâches suivantes.
+- [x] **Step 3 : stubs temporaires** pour compiler avant M3.2–M3.5 — créer chaque fichier de vue manquant avec `struct XView: View { var body: some View { Text("X") } }` : `HomeView`, `HistoryView`, `DrinkPickerView`, `ManualDoseView`, `SettingsView` aux chemins de la structure des fichiers. Ils sont remplacés dans les tâches suivantes.
 
-- [ ] **Step 4 : `make run`** → écran Home stub après autorisation ; réinitialiser l'autorisation (Simulateur › Réglages › Santé) pour voir `AuthorizationView`.
+- [x] **Step 4 : `make run`** → écran Home stub après autorisation ; réinitialiser l'autorisation (Simulateur › Réglages › Santé) pour voir `AuthorizationView`.
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add "Kaff Watch App"
@@ -2218,7 +2218,7 @@ git commit -m "feat(app): M3.1 root navigation, authorization screen, UI helpers
 - Create: `Kaff Watch App/Features/Home/LevelGaugeView.swift`
 - Create: `Kaff Watch App/Features/Home/CaffeineChartView.swift`
 
-- [ ] **Step 1 : jauge**
+- [x] **Step 1 : jauge**
 
 ```swift
 import KaffCore
@@ -2249,7 +2249,7 @@ struct LevelGaugeView: View {
 }
 ```
 
-- [ ] **Step 2 : courbe** (12 h passées, 6 h projetées, pas 10 min)
+- [x] **Step 2 : courbe** (12 h passées, 6 h projetées, pas 10 min)
 
 ```swift
 import Charts
@@ -2292,7 +2292,7 @@ struct CaffeineChartView: View {
 }
 ```
 
-- [ ] **Step 3 : Home**
+- [x] **Step 3 : Home**
 
 ```swift
 import KaffCore
@@ -2343,9 +2343,9 @@ struct HomeView: View {
 }
 ```
 
-- [ ] **Step 4 : `make run`** → jauge, courbe, deux boutons. Avec une dose loguée en M2.3, la courbe montre le pic. Laisser l'app ouverte 2 min : le nombre change (décroissance live).
+- [x] **Step 4 : `make run`** → jauge, courbe, deux boutons. Avec une dose loguée en M2.3, la courbe montre le pic. Laisser l'app ouverte 2 min : le nombre change (décroissance live).
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add "Kaff Watch App/Features/Home"
@@ -2359,7 +2359,7 @@ git commit -m "feat(app): M3.2 home screen with live level, status and chart"
 - Create: `Kaff Watch App/Features/QuickLog/DrinkAmountView.swift`
 - Create: `Kaff Watch App/Features/QuickLog/ManualDoseView.swift`
 
-- [ ] **Step 1 : grille**
+- [x] **Step 1 : grille**
 
 ```swift
 import KaffCore
@@ -2395,7 +2395,7 @@ struct DrinkPickerView: View {
 }
 ```
 
-- [ ] **Step 2 : volume + confirmation**
+- [x] **Step 2 : volume + confirmation**
 
 ```swift
 import KaffCore
@@ -2439,7 +2439,7 @@ struct DrinkAmountView: View {
 }
 ```
 
-- [ ] **Step 3 : saisie manuelle en mg**
+- [x] **Step 3 : saisie manuelle en mg**
 
 ```swift
 import KaffCore
@@ -2478,9 +2478,9 @@ struct ManualDoseView: View {
 }
 ```
 
-- [ ] **Step 4 : `make run`** → Boisson › Espresso › couronne change le volume et les mg › Ajouter → retour Home, niveau mis à jour, haptique. Idem via « mg ».
+- [x] **Step 4 : `make run`** → Boisson › Espresso › couronne change le volume et les mg › Ajouter → retour Home, niveau mis à jour, haptique. Idem via « mg ».
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add "Kaff Watch App/Features/QuickLog"
@@ -2492,7 +2492,7 @@ git commit -m "feat(app): M3.3 quick log by drink or milligrams"
 **Files:**
 - Create: `Kaff Watch App/Features/History/HistoryView.swift`
 
-- [ ] **Step 1 : vue**
+- [x] **Step 1 : vue**
 
 ```swift
 import KaffCore
@@ -2537,9 +2537,9 @@ struct HistoryView: View {
 }
 ```
 
-- [ ] **Step 2 : `make run`** → défiler vers le bas depuis Home : liste par jour ; swipe → supprimer ; retour Home : niveau recalculé.
+- [x] **Step 2 : `make run`** → défiler vers le bas depuis Home : liste par jour ; swipe → supprimer ; retour Home : niveau recalculé.
 
-- [ ] **Step 3 : commit**
+- [x] **Step 3 : commit**
 
 ```bash
 git add "Kaff Watch App/Features/History"
@@ -2552,7 +2552,7 @@ git commit -m "feat(app): M3.4 history with swipe-to-delete"
 - Create: `Kaff Watch App/Features/Settings/SettingsView.swift`
 - Create: `Kaff Watch App/Features/Settings/CustomDrinkEditorView.swift`
 
-- [ ] **Step 1 : réglages**
+- [x] **Step 1 : réglages**
 
 ```swift
 import KaffCore
@@ -2618,7 +2618,7 @@ struct SettingsView: View {
 }
 ```
 
-- [ ] **Step 2 : éditeur de boissons**
+- [x] **Step 2 : éditeur de boissons**
 
 ```swift
 import KaffCore
@@ -2666,9 +2666,9 @@ struct CustomDrinkEditorView: View {
 }
 ```
 
-- [ ] **Step 3 : `make run`** → changer la demi-vie : le niveau Home change. Régler le coucher : « OK pour dormir à » change. Créer « Cold brew » : elle apparaît dans la grille Boisson.
+- [x] **Step 3 : `make run`** → changer la demi-vie : le niveau Home change. Régler le coucher : « OK pour dormir à » change. Créer « Cold brew » : elle apparaît dans la grille Boisson.
 
-- [ ] **Step 4 : commit**
+- [x] **Step 4 : commit**
 
 ```bash
 git add "Kaff Watch App/Features/Settings"
@@ -2677,16 +2677,16 @@ git commit -m "feat(app): M3.5 settings and custom drinks"
 
 ### Task M3.6 : Parcours complet et captures
 
-- [ ] **Step 1 : parcours** sur Series 11 (46 mm) puis Ultra 3 (49 mm) : réinitialiser l'app (`xcrun simctl uninstall "<SIM>" fr.batum.kaff.watchkitapp`), `make run`, autoriser, loguer un espresso et 100 mg manuels, vérifier statut/courbe/sommeil, supprimer une dose, changer un réglage, ouvrir `kaff://log` (`xcrun simctl openurl "<SIM>" "kaff://log"`) → arrive sur la grille Boisson.
+- [x] **Step 1 : parcours** sur Series 11 (46 mm) puis Ultra 3 (49 mm) : réinitialiser l'app (`xcrun simctl uninstall "<SIM>" fr.batum.kaff.watchkitapp`), `make run`, autoriser, loguer un espresso et 100 mg manuels, vérifier statut/courbe/sommeil, supprimer une dose, changer un réglage, ouvrir `kaff://log` (`xcrun simctl openurl "<SIM>" "kaff://log"`) → arrive sur la grille Boisson.
 
-- [ ] **Step 2 : captures**
+- [x] **Step 2 : captures**
 
 ```bash
 mkdir -p docs/screenshots
 for s in home drink amount history settings; do echo "naviguer vers $s puis Entrée"; read; xcrun simctl io "Apple Watch Series 11 (46mm)" screenshot docs/screenshots/m3-$s.png; done
 ```
 
-- [ ] **Step 3 : commit**
+- [x] **Step 3 : commit**
 
 ```bash
 git add docs/screenshots
