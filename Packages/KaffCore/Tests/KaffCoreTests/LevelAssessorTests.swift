@@ -187,3 +187,25 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(early.bedtime == nil)
     #expect(early.validUntil == TestClock.date(day: 11, 4))
 }
+
+/// `dayContext(at:)` autour d'un changement d'heure (Europe/Paris) : `validUntil` suit le 04:00 à l'horloge,
+/// pas un décalage fixe de 24 h.
+@Test(arguments: [(3, 28, 23.0), (10, 24, 25.0)])
+func dayContextValidUntilFollowsWallClockAcrossDST(month: Int, day: Int, realHours: Double) {
+    var paris = Calendar(identifier: .gregorian)
+    paris.timeZone = TimeZone(identifier: "Europe/Paris")!
+    let a = LevelAssessor(profile: .default, calendar: paris)   // coucher 23:00
+    let dayStart = paris.date(from: DateComponents(year: 2026, month: month, day: day, hour: 4))!
+    let lateEvening = paris.date(from: DateComponents(year: 2026, month: month, day: day, hour: 23, minute: 30))!
+    let context = a.dayContext(at: lateEvening)
+    #expect(context.dayStart == dayStart)
+    #expect(context.bedtime == nil)   // coucher passé → projection à l'instant
+    #expect(context.validUntil == a.day.nextStart(after: lateEvening))
+    #expect(context.validUntil.timeIntervalSince(dayStart) == realHours * 3600)
+    let comps = paris.dateComponents([.day, .hour], from: context.validUntil)
+    #expect(comps.day == day + 1 && comps.hour == 4)
+    // Avant le coucher, le contexte expire au coucher (même jour, avant le changement d'heure nocturne).
+    let afternoon = paris.date(from: DateComponents(year: 2026, month: month, day: day, hour: 15))!
+    let earlier = a.dayContext(at: afternoon)
+    #expect(earlier.validUntil == paris.date(from: DateComponents(year: 2026, month: month, day: day, hour: 23)))
+}

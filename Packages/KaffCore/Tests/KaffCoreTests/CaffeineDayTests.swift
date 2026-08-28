@@ -40,3 +40,26 @@ private let day = CaffeineDay(calendar: TestClock.calendar)
     #expect(comps.hour == 3 && comps.minute == 30)
     #expect(bedtime.timeIntervalSince(now) == 1.5 * 3600)
 }
+
+/// Calendrier Europe/Paris : 2026-03-29 (02:00 → 03:00, journée de 23 h) et 2026-10-25 (03:00 → 02:00, 25 h).
+private let paris: Calendar = {
+    var c = Calendar(identifier: .gregorian)
+    c.timeZone = TimeZone(identifier: "Europe/Paris")!
+    return c
+}()
+
+private func parisDate(month: Int, day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+    paris.date(from: DateComponents(year: 2026, month: month, day: day, hour: hour, minute: minute))!
+}
+
+@Test(arguments: [(3, 28, 23.0), (10, 24, 25.0)])
+func nextStartAcrossDSTLandsOnWallClockFourAM(month: Int, day: Int, realHours: Double) {
+    let caffeineDay = CaffeineDay(calendar: paris)
+    let from = parisDate(month: month, day: day, 4)
+    let next = caffeineDay.nextStart(after: from)
+    let comps = paris.dateComponents([.month, .day, .hour, .minute], from: next)
+    #expect(comps.month == month && comps.day == day + 1 && comps.hour == 4 && comps.minute == 0)
+    #expect(next.timeIntervalSince(from) == realHours * 3600)
+    // Depuis le soir de la même journée caféine, même 04:00 suivant.
+    #expect(caffeineDay.nextStart(after: parisDate(month: month, day: day, 23, 30)) == next)
+}
