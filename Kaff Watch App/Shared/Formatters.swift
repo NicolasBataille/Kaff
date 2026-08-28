@@ -5,7 +5,10 @@ enum Formatters {
     static func mg(_ value: Double) -> String { "\(mgValue(value)) mg" }
     static func mgValue(_ value: Double) -> String { "\(Int(value.rounded()))" }
     static func ml(_ value: Double) -> String { "\(Int(value.rounded())) ml" }
-    static func time(_ date: Date) -> String { date.formatted(date: .omitted, time: .shortened) }
+    /// « 08:53 » (toujours deux chiffres, comme la barre d'état).
+    static func time(_ date: Date) -> String {
+        date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+    }
     static func count(_ value: Double) -> String { value.formatted(.number.precision(.fractionLength(0...1))) }
     static func kg(_ value: Double) -> String { "\(Int(value.rounded())) kg" }
     static func hours(_ value: Double) -> String { "\(count(value)) h" }

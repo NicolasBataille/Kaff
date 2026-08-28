@@ -46,10 +46,10 @@ enum Theme {
     }
 
     enum Scrub {
-        /// Bornes du scrubber couronne (minutes autour de « maintenant »).
-        static let minMinutes = -Chart.pastHours * 60
-        static let maxMinutes = Chart.futureHours * 60
+        /// Bornes du scrubber couronne, en crans de `stepMinutes` autour de « maintenant » (−12 h … +6 h).
         static let stepMinutes = 15.0
+        static let minSteps = -Chart.pastHours * 60 / stepMinutes
+        static let maxSteps = Chart.futureHours * 60 / stepMinutes
         /// Sortie automatique du mode scrub après inactivité.
         static let idleExit: Duration = .milliseconds(1200)
     }

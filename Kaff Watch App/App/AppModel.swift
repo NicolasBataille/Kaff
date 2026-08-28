@@ -64,6 +64,11 @@ final class AppModel {
         dose.drinkID.flatMap { DrinkCatalog.drink(id: $0, custom: customDrinks) }
     }
 
+    /// Points de courbe (passé + projection) pour les doses connues. Pur : ne modifie rien.
+    func chartPoints(from start: Date, hours: Double, stepMinutes: Int) -> [TimelinePoint] {
+        TimelineBuilder(assessor: assessor).chartPoints(doses: doses, from: start, hours: hours, stepMinutes: stepMinutes)
+    }
+
     // MARK: Cycle de vie
 
     func start() async {
