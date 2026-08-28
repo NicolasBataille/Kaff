@@ -4,11 +4,14 @@ import SwiftUI
 @main
 struct KaffApp: App {
     @State private var model: AppModel = {
-        let defaults = SharedDefaults.resolve()
+        let sharedDefaults = SharedDefaults.resolve()
+        // Le profil (poids HealthKit) reste dans les défauts de l'app ; seul le snapshot widget est partagé.
+        let profileStore = ProfileStore(defaults: .standard)
+        profileStore.migrate(from: sharedDefaults)
         return AppModel(
             health: HealthKitStore(),
-            profileStore: ProfileStore(defaults: defaults),
-            cacheStore: CacheStore(defaults: defaults),
+            profileStore: profileStore,
+            cacheStore: CacheStore(defaults: sharedDefaults),
             widgets: WidgetCenterReloader())
     }()
 
