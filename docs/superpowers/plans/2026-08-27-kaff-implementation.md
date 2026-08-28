@@ -3058,10 +3058,10 @@ Mettre à jour `docs/ROADMAP.md` : M4 ✅.
 
 ### Task M5.4 : Revue de code, sécurité, couverture
 
-- [ ] **Step 1** : lancer l'agent `code-reviewer` sur l'ensemble du dépôt et l'agent `security-reviewer` sur `Kaff Watch App/Services` et `Kaff Watch App/App` (données de santé). Corriger les CRITICAL et HIGH ; noter les MEDIUM restants dans le backlog de `docs/ROADMAP.md`.
-- [ ] **Step 2** : couverture `KaffCore` : commande de la Task M1.7 Step 5 → ≥ 90 %.
-- [ ] **Step 3** : couverture app : `make test` puis `xcrun xccov view --report --only-targets build/Logs/Test/*.xcresult` → `Kaff Watch App` ≥ 80 % hors fichiers `Features/**` (vues) ; sinon ajouter des tests `AppModel`.
-- [ ] **Step 4** : commit `git commit -am "test: M5.4 review fixes and coverage"`.
+- [x] **Step 1** : lancer l'agent `code-reviewer` sur l'ensemble du dépôt et l'agent `security-reviewer` sur `Kaff Watch App/Services` et `Kaff Watch App/App` (données de santé). Corriger les CRITICAL et HIGH ; noter les MEDIUM restants dans le backlog de `docs/ROADMAP.md`.
+- [x] **Step 2** : couverture `KaffCore` : commande de la Task M1.7 Step 5 → ≥ 90 %. *(99,0 % lignes, 56 tests)*
+- [x] **Step 3** : couverture app : `make test` puis `xcrun xccov view --report --only-targets build/Logs/Test/*.xcresult` → `Kaff Watch App` ≥ 80 % hors fichiers `Features/**` (vues) ; sinon ajouter des tests `AppModel`. *(fichiers non-vue : 86,1 % avec `HealthKitStore`, 93,4 % sans — commande : `xcrun xccov view --report --files-for-target "Kaff Watch App.app" build/Logs/Test/*.xcresult`)*
+- [x] **Step 4** : commit `git commit -am "test: M5.4 review fixes and coverage"`. *(cinq commits, un par groupe de correctifs : `test(app)`, `fix(app)` fenêtre cache, `refactor(core)` snapshot v2, `fix(app)` suppression/nom, `test(core)` DST)*
 
 ### Task M5.5 : README et version
 
