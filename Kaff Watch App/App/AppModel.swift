@@ -9,8 +9,9 @@ import os
 final class AppModel {
     enum AuthorizationState: Equatable { case unknown, authorized, denied, unavailable }
 
+    /// Source: spec §6 — favoris calculés sur 30 jours ; l'historique n'en affiche que 7.
     static let historyDays = 30
-    static let cacheHours = 24.0
+    /// Source: spec §6 — quatre favoris en tête du carrousel.
     static let favoritesLimit = 4
     /// Nombre de lectures du statut d'autorisation avant de conclure « refusé » (voir `pollWriteAuthorization`).
     static let authorizationAttempts = 3
@@ -208,9 +209,14 @@ final class AppModel {
 
     // MARK: Privé
 
-    /// Écrit le snapshot 24 h et demande le rechargement des complications.
+    /// Fenêtre des doses conservées dans le snapshot widget.
+    // Source: 10 demi-vies → contribution résiduelle < 0,1 % ; plancher 30 h pour couvrir une journée caféine de 25 h
+    // (changement d'heure) avec marge.
+    static func cacheWindowHours(halfLifeHours: Double) -> Double { max(30, 10 * halfLifeHours) }
+
+    /// Écrit le snapshot (fenêtre `cacheWindowHours`) et demande le rechargement des complications.
     private func publish() {
-        let cutoff = now().addingTimeInterval(-Self.cacheHours * 3600)
+        let cutoff = now().addingTimeInterval(-Self.cacheWindowHours(halfLifeHours: profile.halfLifeHours) * 3600)
         let snapshot = CacheSnapshot(doses: doses.filter { $0.date >= cutoff }, profile: profile, updatedAt: now())
         do { try cacheStore.write(snapshot) } catch { report("Écriture du cache impossible", error) }
         widgets.reloadAll()

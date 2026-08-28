@@ -177,4 +177,38 @@ struct AppModelTests {
         #expect(ProfileStore(defaults: defaults).loadCustomDrinks().isEmpty)
         #expect(model.lastError == nil)
     }
+
+    // MARK: Fenêtre du snapshot widget
+
+    @Test func cacheWindowIsTenHalfLivesWithThirtyHourFloor() {
+        #expect(AppModel.cacheWindowHours(halfLifeHours: 2) == 30)
+        #expect(AppModel.cacheWindowHours(halfLifeHours: 3) == 30)
+        #expect(AppModel.cacheWindowHours(halfLifeHours: 5) == 50)
+        #expect(AppModel.cacheWindowHours(halfLifeHours: 10) == 100)
+    }
+
+    @Test func snapshotKeepsThirtyHoursWithShortHalfLife() async throws {
+        var profile = UserProfile.default
+        profile.halfLifeHours = 2
+        try ProfileStore(defaults: defaults).save(profile)
+        let kept = CaffeineDose(date: now.addingTimeInterval(-29 * 3600), milligrams: 50)
+        let dropped = CaffeineDose(date: now.addingTimeInterval(-31 * 3600), milligrams: 50)
+        health.stored = [dropped, kept]
+        let model = makeModel()
+        await model.start()
+        let cache = try #require(CacheStore(defaults: defaults).read())
+        #expect(cache.doses.map(\.id) == [kept.id])
+    }
+
+    @Test func snapshotCoversLongHalfLives() async throws {
+        var profile = UserProfile.default
+        profile.halfLifeHours = 10
+        try ProfileStore(defaults: defaults).save(profile)
+        let old = CaffeineDose(date: now.addingTimeInterval(-90 * 3600), milligrams: 50)
+        health.stored = [old]
+        let model = makeModel()
+        await model.start()
+        let cache = try #require(CacheStore(defaults: defaults).read())
+        #expect(cache.doses.map(\.id) == [old.id])
+    }
 }
