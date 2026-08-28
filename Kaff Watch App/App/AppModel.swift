@@ -64,9 +64,37 @@ final class AppModel {
         dose.drinkID.flatMap { DrinkCatalog.drink(id: $0, custom: customDrinks) }
     }
 
-    /// Points de courbe (passé + projection) pour les doses connues. Pur : ne modifie rien.
-    func chartPoints(from start: Date, hours: Double, stepMinutes: Int) -> [TimelinePoint] {
-        TimelineBuilder(assessor: assessor).chartPoints(doses: doses, from: start, hours: hours, stepMinutes: stepMinutes)
+    /// Points de courbe (passé + projection). `adding` > 0 ajoute une dose hypothétique prise à `now()`
+    /// (aperçu d'impact). Pur : ne modifie rien.
+    func chartPoints(from start: Date, hours: Double, stepMinutes: Int, adding milligrams: Double = 0) -> [TimelinePoint] {
+        TimelineBuilder(assessor: assessor)
+            .chartPoints(doses: doses(adding: milligrams), from: start, hours: hours, stepMinutes: stepMinutes)
+    }
+
+    // MARK: Aperçu d'impact (pur)
+
+    /// Pas d'échantillonnage pour `peak(afterAdding:)`.
+    /// Source: choix produit — précision d'affichage « pic à 14:35 », bien sous la tolérance de ±10 min des tests.
+    static let peakSampleStepMinutes = 2
+    /// Horizon de recherche du pic : tmax vaut ≈ 0,74 h avec t½ = 5 h et reste < 2 h sur toute la plage 2–10 h.
+    static let peakSearchHours = 3.0
+
+    /// Évaluation à `date ?? now()` avec une dose hypothétique de `milligrams` prise à `now()`.
+    func preview(adding milligrams: Double, at date: Date? = nil) -> LevelAssessment {
+        assessor.assess(doses: doses(adding: milligrams), at: date ?? now())
+    }
+
+    /// Instant et valeur du niveau maximal dans les 3 h après l'ajout hypothétique de `milligrams` à `now()`.
+    func peak(afterAdding milligrams: Double) -> (date: Date, mg: Double) {
+        let points = chartPoints(from: now(), hours: Self.peakSearchHours,
+                                 stepMinutes: Self.peakSampleStepMinutes, adding: milligrams)
+        let best = points.max { $0.milligrams < $1.milligrams } ?? TimelinePoint(date: now(), milligrams: 0, status: .ok)
+        return (best.date, best.milligrams)
+    }
+
+    private func doses(adding milligrams: Double) -> [CaffeineDose] {
+        guard milligrams > 0 else { return doses }
+        return doses + [CaffeineDose(date: now(), milligrams: milligrams)]
     }
 
     // MARK: Cycle de vie
