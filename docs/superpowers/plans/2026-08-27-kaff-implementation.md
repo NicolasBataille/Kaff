@@ -2706,7 +2706,7 @@ Mettre à jour `docs/ROADMAP.md` : M3 ✅.
 - Create: `Packages/KaffCore/Sources/KaffCore/Timeline/WidgetTimelinePlanner.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/WidgetTimelinePlannerTests.swift`
 
-- [ ] **Step 1 : tests**
+- [x] **Step 1 : tests**
 
 ```swift
 import Foundation
@@ -2733,9 +2733,9 @@ import Testing
 }
 ```
 
-- [ ] **Step 2 : `make test-core` → échec de compilation**
+- [x] **Step 2 : `make test-core` → échec de compilation**
 
-- [ ] **Step 3 : implémentation**
+- [x] **Step 3 : implémentation**
 
 `Timeline/WidgetEntryData.swift` :
 ```swift
@@ -2790,9 +2790,9 @@ public enum WidgetTimelinePlanner {
 }
 ```
 
-- [ ] **Step 4 : `make test-core` → vert**
+- [x] **Step 4 : `make test-core` → vert**
 
-- [ ] **Step 5 : commit**
+- [x] **Step 5 : commit**
 
 ```bash
 git add Packages
@@ -2811,7 +2811,7 @@ git commit -m "feat(core): M4.1 widget timeline planner"
 - Create: `KaffComplication/Views/CornerView.swift`
 - Create: `KaffComplication/Views/InlineView.swift`
 
-- [ ] **Step 1 : entrée et provider**
+- [x] **Step 1 : entrée et provider**
 
 `CaffeineEntry.swift` :
 ```swift
@@ -2851,7 +2851,7 @@ struct CaffeineTimelineProvider: TimelineProvider {
 }
 ```
 
-- [ ] **Step 2 : vues par famille**
+- [x] **Step 2 : vues par famille**
 
 Couleur partagée — ajouter en haut de `CaffeineWidget.swift` :
 ```swift
@@ -3012,9 +3012,9 @@ struct KaffComplicationBundle: WidgetBundle {
 }
 ```
 
-- [ ] **Step 3 : `make run`** puis ajouter la complication sur un cadran (Modulaire ou Infographe pour voir plusieurs familles). Loguer une dose dans l'app → la complication se met à jour. Attendre 15 min (ou avancer l'horloge du simulateur) → la valeur décroît sans ouvrir l'app. Tap → l'app s'ouvre sur la grille Boisson.
+- [x] **Step 3 : `make run`** puis ajouter la complication sur un cadran (Modulaire ou Infographe pour voir plusieurs familles). Loguer une dose dans l'app → la complication se met à jour. Attendre 15 min (ou avancer l'horloge du simulateur) → la valeur décroît sans ouvrir l'app. Tap → l'app s'ouvre sur la grille Boisson.
 
-- [ ] **Step 4 : commit**
+- [x] **Step 4 : commit**
 
 ```bash
 git add KaffComplication
