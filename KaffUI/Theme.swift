@@ -25,6 +25,11 @@ enum Theme {
         /// Seconde couche fine pour le dépassement de la limite.
         static let overflowLineWidth = 3.0
         static let trackOpacity = 0.16
+        /// Complication circulaire (~45 pt) : mêmes proportions que Home (9 pt sur ~120 pt).
+        static let complicationLineWidth = 4.0
+        /// Mini-anneau de la complication rectangulaire.
+        static let miniComplicationSize = 34.0
+        static let miniLineWidth = 3.5
     }
 
     enum Typography {
@@ -34,6 +39,10 @@ enum Theme {
         static let dial = Font.system(size: 36, weight: .bold, design: .rounded)
         static let dialInRing = Font.system(size: 28, weight: .bold, design: .rounded)
         static let heroMinimumScale = 0.8
+        /// Nombre des complications (circulaire, coin, titre rectangulaire).
+        static let complication = Font.system(.title3, design: .rounded).weight(.bold)
+        /// « mg » logé dans l'ouverture de l'anneau circulaire.
+        static let complicationUnit = Font.system(size: 8, weight: .semibold, design: .rounded)
     }
 
     enum Chart {
@@ -44,6 +53,8 @@ enum Theme {
         static let futureHours = 6.0
         static let stepMinutes = 10
         static let previewHours = 6.0
+        /// Sparkline de la complication rectangulaire.
+        static let sparklineHeight = 14.0
     }
 
     enum Scrub {

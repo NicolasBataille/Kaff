@@ -20,6 +20,18 @@ struct KaffApp: App {
 
     /// Tailles de texte plafonnées à `accessibility5` (les mises en page sont vérifiées jusque-là), jamais planchées.
     @ViewBuilder private var root: some View {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["KAFF_WIDGET_GALLERY"] != nil {
+            NavigationStack { WidgetGalleryView() }
+        } else {
+            sizedRoot
+        }
+        #else
+        sizedRoot
+        #endif
+    }
+
+    @ViewBuilder private var sizedRoot: some View {
         if let forced = Self.forcedDynamicTypeSize {
             RootView().dynamicTypeSize(forced)
         } else {

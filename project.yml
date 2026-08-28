@@ -33,6 +33,8 @@ targets:
         excludes: ["**/*.entitlements"]
       # Jetons, anneau, libellés de statut, formats : compilés dans l'app ET la complication (pas de framework).
       - path: KaffUI
+      # Vues des familles de complication, pour la galerie de debug `KAFF_WIDGET_GALLERY` (WidgetGalleryView).
+      - path: KaffComplication/Views
     dependencies:
       - package: KaffCore
       - target: KaffComplication
