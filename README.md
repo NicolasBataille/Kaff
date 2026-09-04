@@ -1,10 +1,9 @@
 # Kaff
 
-Kaff est une app Apple Watch autonome (watchOS 26, SwiftUI, Swift 6) qui estime en continu la
-caféine présente dans l'organisme à partir des boissons enregistrées sur la montre, la compare à
-des seuils personnalisés (dose unique selon le poids, cumul du jour, niveau au coucher) et l'expose
-en complication sur le cadran. Les doses sont écrites dans Santé (HealthKit), qui reste la source
-de vérité ; l'app ne fait que lire, calculer et afficher.
+**Combien de caféine il te reste dans le corps, là, maintenant.** Kaff est une app Apple Watch autonome
+(watchOS 26) : tu enregistres ce que tu bois sur la montre, elle estime en continu la caféine présente dans ton
+organisme, te dit si c'est OK, élevé ou trop haut, à quelle heure tu pourras dormir tranquille, et affiche tout
+ça en complication sur le cadran.
 
 <p align="center">
   <img src="docs/screenshots/m3-home-46mm.png" width="180" alt="Home : anneau, niveau en direct, statut">
@@ -13,103 +12,180 @@ de vérité ; l'app ne fait que lire, calculer et afficher.
   <img src="docs/screenshots/m4-gallery-ok-46mm.png" width="180" alt="Complications accessory">
 </p>
 
-> Estimation indicative — ce n'est pas un avis médical.
+> Estimation indicative, pas un avis médical. Aucun capteur ne mesure la caféine : Kaff calcule à partir de ce que
+> tu déclares avoir bu. Usage adulte.
 
-## Fonctionnalités
+## En trente secondes
 
-- **Niveau en direct** : anneau et nombre héros mis à jour chaque minute, courbe 12 h passées + 6 h projetées.
-- **Modèle de Bateman** : absorption et élimination de premier ordre, demi-vie réglable (2–10 h).
-- **Trois seuils** : pic (Cmax d'une dose unique de 3 mg/kg plafonnée à 200 mg, EFSA 2015), cumul du jour
-  (400 mg depuis 04:00), niveau au coucher (35 mg, dérivé de Gardiner 2023) — statut OK / Élevé / Trop haut
-  avec la raison, et « OK pour dormir à HH:MM ». Sources et vérification : [`docs/science/`](docs/science/2026-09-04-fact-check.md).
-- **Scrubber couronne** : un tap sur la courbe, puis la couronne parcourt le passé et la projection.
-- **Aperçu d'impact** : avant d'ajouter une boisson, la courbe « avant / après », le pic et le niveau au coucher.
-- **Complication 4 familles** (circulaire, rectangulaire, coin, ligne) avec timeline précalculée qui décroît
-  sans ouvrir l'app ; tap → écran Boisson (`kaff://log`).
-- **HealthKit source de vérité** : doses `dietaryCaffeine` lues et écrites dans Santé, poids `bodyMass` lu
-  pour les seuils ; le widget ne touche jamais HealthKit, il lit un instantané dans l'App Group.
+- **Tu enregistres** une boisson du catalogue (espresso, thé, cola…) ou une quantité en mg, en deux taps et un tour
+  de couronne. La dose part dans Santé (HealthKit), qui reste la source de vérité.
+- **Kaff calcule chaque minute** ce qu'il en reste dans ton organisme, avec un modèle pharmacocinétique classique
+  et une demi-vie que tu peux régler.
+- **Trois questions** décident du statut : le niveau du moment, le total de la journée, et ce qu'il restera au
+  coucher. La complication reçoit d'avance toute la courbe et décroît sans ouvrir l'app.
 
 ## Comment ça marche
 
-Modèle à un compartiment : pour une dose `D` (mg) prise à `t = 0`, la quantité dans l'organisme vaut
+### 1. Une dose suit toujours la même courbe
+
+Une fois bue, la caféine passe dans le sang en une quarantaine de minutes, puis l'organisme l'élimine de moitié
+toutes les cinq heures environ. Kaff modélise ça avec la courbe de Bateman (un compartiment, absorption et
+élimination de premier ordre), le modèle standard de la littérature pour la caféine.
+
+<p align="center">
+  <img src="docs/figures/dose-unique.svg" width="720" alt="Courbe d'une dose de 100 mg : pic à 90 mg 44 minutes après la prise, 51 mg à 5 h, 26 mg à 10 h">
+</p>
+
+Pour une dose `D` prise à `t = 0` :
 
 ```
-A(t) = D · ka / (ka − ke) · (e^(−ke·t) − e^(−ka·t))      t en heures
-ke   = ln 2 / t½      t½ = 5 h par défaut (réglable 2–10 h)
-ka   = 5,0 h⁻¹        pic ≈ 44 min après la prise, à ≈ 90 % de D
+A(t) = D · ka / (ka − ke) · (e^(−ke·t) − e^(−ka·t))
+ka = 5 h⁻¹        ke = ln 2 / t½        t½ = 5 h par défaut, réglable de 2 à 10 h
 ```
 
-Les doses se superposent (PK linéaire) : `A_total(t) = Σ A_i(t − t_i)`. Les seuils et le statut sont
-décrits dans la spec, [§4 Modèle pharmacocinétique](docs/superpowers/specs/2026-08-27-kaff-design.md#4-modèle-pharmacocinétique)
-et [§5 Évaluation du niveau](docs/superpowers/specs/2026-08-27-kaff-design.md#5-évaluation-du-niveau-levelassessor).
+### 2. Les boissons s'additionnent
 
-## Prérequis
+Chaque prise a sa propre courbe ; ce que tu as dans le corps, c'est la somme. Kaff relit toutes les doses de
+Santé et les superpose. Voici une journée : deux espressos le matin, un thé vert l'après-midi.
 
-- Xcode 26.6 et le SDK watchOS 26 (simulateurs Apple Watch Series 11 en watchOS 26.5).
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`) — le `.xcodeproj` est généré, jamais édité à la main.
-- Un compte développeur Apple pour installer sur une montre physique (le simulateur n'en a pas besoin).
+<p align="center">
+  <img src="docs/figures/journee-type.svg" width="840" alt="Journée type : deux espressos et un thé vert, courbe totale, projection au coucher, statut affiché">
+</p>
 
-## Installation
+Le bandeau du haut est ce que la montre affiche. Dès le thé de 15:30, le statut passe à « élevé · coucher » :
+non pas parce que le niveau est haut maintenant, mais parce qu'il en restera 28 mg à 23:00. Et Kaff indique
+l'heure à partir de laquelle le niveau sera passé sous le seuil : « OK pour dormir à 21:19 ».
+
+### 3. Trois questions, chaque minute
+
+<p align="center">
+  <img src="docs/figures/trois-seuils.svg" width="800" alt="Trois jauges : pic 71 mg sur 181 OK, journée 154 mg sur 400 OK, coucher 28 mg sur 35 élevé">
+</p>
+
+| Question | Ce qui est comparé | Limite par défaut | « élevé » dès |
+|---|---|---|---|
+| **Pic** : est-ce beaucoup, là maintenant ? | mg dans l'organisme | ce qu'atteint une dose unique de 3 mg/kg (plafond 200 mg), soit ≈ 181 mg | 60 % |
+| **Journée** : ai-je trop bu aujourd'hui ? | mg ingérés depuis 04:00 | 400 mg | 75 % |
+| **Coucher** : vais-je bien dormir ? | mg qu'il restera à l'heure du coucher | 35 mg | 60 % |
+
+Le statut global est le pire des trois, et la raison est affichée. Toutes les limites, le poids, la demi-vie et
+l'heure du coucher se règlent à la couronne.
+
+```mermaid
+flowchart LR
+    D[Doses dans Santé] --> P["Pic : mg maintenant<br/>vs ≈ 181 mg"]
+    D --> J["Journée : mg bus depuis 04:00<br/>vs 400 mg"]
+    D --> C["Coucher : mg projetés à 23:00<br/>vs 35 mg"]
+    P --> W{le pire des trois}
+    J --> W
+    C --> W
+    W -->|"toutes les jauges sous leur seuil « élevé »"| OK([OK])
+    W -->|"au moins une jauge au-delà de son seuil « élevé »"| EL(["Élevé · raison"])
+    W -->|"au moins une jauge à 100 %"| HI(["Trop haut · raison"])
+```
+
+### 4. Ta demi-vie change tout
+
+Cinq heures est une moyenne. Un fumeur ou un gros buveur de café élimine plus vite, une contraception orale
+ralentit l'élimination, et la génétique fait le reste. C'est le réglage le plus important de l'app.
+
+<p align="center">
+  <img src="docs/figures/demi-vie.svg" width="720" alt="Même dose de 100 mg avec une demi-vie de 3, 5 et 8 h : 10, 26 et 43 mg dix heures plus tard">
+</p>
+
+### 5. Où vont les données
+
+```mermaid
+flowchart LR
+    subgraph Montre
+        UI["App Kaff<br/>SwiftUI"] --> Core["KaffCore<br/>modèle + seuils"]
+        Core --> Snap[("Snapshot<br/>App Group")]
+        Snap --> Widget["Complication<br/>WidgetKit"]
+    end
+    Sante[("Santé / HealthKit<br/>dietaryCaffeine · bodyMass")] <--> UI
+    Widget -. tap .-> UI
+```
+
+Les doses et le poids vivent dans Santé, sauvegardés avec ton iPhone et réutilisables par n'importe quelle autre
+app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, jamais le poids) dans l'App Group ;
+la complication ne lit que ça et ne touche jamais HealthKit. Rien ne quitte tes appareils.
+
+### 6. La complication sait déjà tout
+
+Puisque la courbe est déterministe, Kaff calcule d'avance la timeline de la complication : une entrée tous les
+quarts d'heure, plus une entrée exactement à chaque changement de statut. Le cadran se met à jour tout seul,
+même l'app fermée.
+
+<p align="center">
+  <img src="docs/figures/timeline-complication.svg" width="800" alt="Timeline de la complication : points toutes les 15 minutes et entrées ajoutées aux changements de statut">
+</p>
+
+## La science derrière
+
+Chaque constante de Kaff a été confrontée à la littérature (avis EFSA 2015, IOM 2001, méta-analyse Gardiner 2023,
+articles originaux, USDA), avec extraits cités et DOI. Résultat : l'approche est la bonne, deux valeurs ont été
+corrigées (le seuil coucher, dérivé de Gardiner 2023 ; la limite de pic, qui est la concentration maximale d'une
+dose unique, pas la dose elle-même) et quelques attributions rectifiées.
+
+<p align="center">
+  <img src="docs/figures/gardiner-iso-charge.svg" width="640" alt="Deux cut-offs de Gardiner 2023 aboutissent à 32,5 et 35,9 mg au coucher avec le modèle de Kaff">
+</p>
+
+→ **[docs/science/](docs/science/README.md)** : la synthèse, les deux revues complètes et les décisions.
+
+## Installer
+
+Prérequis : Xcode 26.6 avec le SDK watchOS 26, [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+(`brew install xcodegen`), et un compte développeur Apple pour une montre physique.
 
 ```bash
 cp Config/Local.xcconfig.example Config/Local.xcconfig   # puis renseigner DEVELOPMENT_TEAM (Team ID)
 make run                                                 # génère le projet, build, installe et lance sur le simulateur
-make test                                                # tests de l'app sur le simulateur
 ```
 
 | Cible | Effet |
 |---|---|
 | `make generate` | `xcodegen generate` (crée `Config/Local.xcconfig` depuis l'exemple si absent) |
-| `make build` | Build Debug de l'app Watch pour le simulateur |
-| `make run` | Build + installation + lancement sur le simulateur |
+| `make build` / `make run` | Build Debug, puis installation et lancement sur le simulateur |
 | `make test` | Tests de l'app (`KaffTests`) sur le simulateur, avec couverture |
 | `make test-core` | `swift test` du package `KaffCore` |
+| `make figures` | Regénère les figures de ce README (matplotlib) |
 | `make clean` | Supprime `build/`, le `.xcodeproj` et `.build` du package |
 
 Variables : `SIM` (défaut `Apple Watch Series 11 (46mm)`), `OS` (défaut `26.5`), ou `SIM_ID` pour un UDID précis.
-Pour la montre physique : `xcodegen generate && open Kaff.xcodeproj`, choisir la montre comme destination, Run.
+Montre physique : `xcodegen generate && open Kaff.xcodeproj`, choisir la montre comme destination, Run.
 
-## Architecture
-
-- **`Packages/KaffCore`** — logique pure et testée : modèles, catalogue de boissons, modèle PK,
-  `LevelAssessor` (seuils), `TimelineBuilder` (courbe), `WidgetTimelinePlanner` (entrées de complication).
-- **`KaffUI/`** — jetons de thème, `KaffRingView`, libellés de statut, formats ; sources compilées à la fois
-  dans l'app et dans l'extension (pas de framework).
-- **`Kaff Watch App/`** — SwiftUI : écrans (`Features/`), `AppModel` `@Observable`, services HealthKit,
-  cache App Group et profil (`Services/`).
-- **`KaffComplication/`** — extension WidgetKit : quatre familles accessory, timeline précalculée avec
-  croisements de seuils, deep link `kaff://log`.
+## Sous le capot
 
 ```
 Kaff/
-├── project.yml              # XcodeGen (cibles app, extension, tests)
-├── Makefile                 # generate / build / run / test / test-core
-├── Config/                  # Local.xcconfig (Team ID, ignoré par git) + exemple
-├── Packages/KaffCore/       # package SwiftPM, tests Swift Testing
-├── KaffUI/                  # thème, anneau, formats (partagés)
-├── Kaff Watch App/          # App, Features, Services, Shared, Resources
-├── KaffComplication/        # extension WidgetKit
-├── KaffTests/               # tests de l'app (AppModel, mocks des stores)
-└── docs/                    # roadmap, plan, spec, direction UI, captures
+├── Packages/KaffCore/       # logique pure et testée : modèle PK, seuils, timeline, catalogue
+├── KaffUI/                  # thème, anneau, formats — compilés dans l'app et dans l'extension
+├── Kaff Watch App/          # SwiftUI : écrans, AppModel @Observable, services HealthKit et cache
+├── KaffComplication/        # extension WidgetKit, quatre familles accessory, deep link kaff://log
+├── KaffTests/               # tests de l'app avec stores simulés
+├── docs/                    # science, figures, roadmap, spec, direction UI, captures
+├── project.yml              # XcodeGen — le .xcodeproj n'est jamais édité à la main
+└── Makefile
 ```
+
+Swift 6 strict concurrency, Swift Testing, Swift Charts, Liquid Glass, couronne digitale et haptiques partout où
+ça a du sens. Toute la logique vit dans `KaffCore`, testée sous macOS en quelques secondes ; les vues restent fines.
 
 ## Suivi
 
-- [Roadmap et journal](docs/ROADMAP.md) — état des jalons M0→M5, décisions, blocages.
-- [Plan d'implémentation](docs/superpowers/plans/2026-08-27-kaff-implementation.md) — tâches détaillées.
-- [Spécification](docs/superpowers/specs/2026-08-27-kaff-design.md) — modèle, seuils, écrans, complication.
-- [Direction UI/UX](docs/design/ui-direction.md) — brief de design watchOS 26.
-- [Instructions de travail](CLAUDE.md).
+- [Roadmap et journal](docs/ROADMAP.md) : jalons M0→M5, décisions, blocages.
+- [Plan d'implémentation](docs/superpowers/plans/2026-08-27-kaff-implementation.md) et
+  [spécification](docs/superpowers/specs/2026-08-27-kaff-design.md).
+- [Direction UI/UX](docs/design/ui-direction.md), [instructions de travail](CLAUDE.md).
 
 ## Limites connues
 
-- Les doses ajoutées depuis l'iPhone (ou une autre app) sont prises en compte à la prochaine ouverture de l'app.
-- Pas de notifications (« dernière dose avant le coucher », « niveau redescendu ») en v1.
-- Le niveau est une estimation indicative issue d'un modèle générique — ce n'est pas un avis médical.
-- Aucun capteur de la montre ne mesure la caféine : tout repose sur les prises saisies. Le contenu réel d'une
-  tasse varie du simple au sextuple selon l'établissement (espresso 48–322 mg) ; au-delà de ~500 mg en une prise
-  la cinétique n'est plus linéaire et le résidu est sous-estimé ; grossesse et certains médicaments (fluvoxamine)
-  sortent des bornes de demi-vie. Usage adulte uniquement.
+- Les doses ajoutées depuis l'iPhone ou une autre app sont prises en compte à la prochaine ouverture de Kaff.
+- Pas de notifications en v1.
+- Le contenu réel d'une tasse varie du simple au sextuple selon le café ; au-delà de ~500 mg en une prise le
+  modèle sous-estime le résidu ; grossesse et certains médicaments sortent des bornes de demi-vie.
+  Détail dans [docs/science/](docs/science/README.md#ce-que-kaff-ne-sait-pas-faire-et-le-dit).
 
 ## Licence
 

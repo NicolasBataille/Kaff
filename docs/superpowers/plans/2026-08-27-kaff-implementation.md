@@ -3086,6 +3086,7 @@ Mettre à jour `docs/ROADMAP.md` : M5 ✅, journal « v0.1.0 installée sur la m
 - [x] **Step 4** : `fix(app)` — anneau, ligne de limite, aperçu d'impact, feuille de statut comparent la charge corporelle à `peakLimitMg` ; Réglages gardent la limite ingérée.
 - [x] **Step 5** : `fix(core)` — catalogue : chocolat noir 70–85 % 24 mg/30 g (USDA 170273), maté 80 mg/150 ml (Heck & de Mejia 2007), allongé sourcé (Ludwig 2014).
 - [x] **Step 6** : `docs` — spec §4–6, README, ROADMAP (journal + backlog sourcé), revue finale.
+- [x] **Step 7** : présentation publique — `docs/science/README.md` (page d'accueil des analyses), figures générées par `docs/figures/make_figures.py` (`make figures`, mêmes constantes que le code), README réécrit autour des figures et de deux diagrammes Mermaid (statut, flux de données).
 
 ---
 
