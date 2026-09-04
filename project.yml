@@ -54,8 +54,12 @@ targets:
       properties:
         CFBundleDevelopmentRegion: fr
         CFBundleDisplayName: Kaff
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         WKApplication: true
         WKWatchOnly: true
+        # Requis par Xcode pour envelopper une app watch-only dans le conteneur App Store Connect.
+        WKRunsIndependentlyOfCompanionApp: true
         NSHealthShareUsageDescription: Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.
         NSHealthUpdateUsageDescription: Kaff enregistre les doses de caféine que vous loguez.
         # TestFlight / App Store : aucun chiffrement propriétaire, évite la question d'export à chaque build.
@@ -66,6 +70,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff
+        # XcodeGen hérite du préréglage des apps Watch embarquées (SKIP_INSTALL YES) : l'archive serait vide.
+        SKIP_INSTALL: "NO"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
       configs:
@@ -93,6 +99,8 @@ targets:
       properties:
         CFBundleDevelopmentRegion: fr
         CFBundleDisplayName: Kaff
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         ITSAppUsesNonExemptEncryption: false
