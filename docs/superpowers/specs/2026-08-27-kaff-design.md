@@ -219,10 +219,11 @@ Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson
 ## 11. Hypothèses
 
 - Cible de déploiement **watchOS 26.0** (à ajuster si la montre physique est plus ancienne).
-- Bundle IDs : `fr.batum.kaff` (app) et `fr.batum.kaff.widget` (complication) — changés le 2026-09-04
-  à l'enregistrement sur le portail développeur (les identifiants `…watchkitapp…` d'origine ont été
-  refusés de façon transitoire, la forme courte est la convention des apps watchOS autonomes) ;
-  App Group `group.fr.batum.kaff`. `DEVELOPMENT_TEAM` dans `Config/Local.xcconfig` (ignoré par git).
+- Bundle IDs : `fr.batum.kaff` (conteneur iOS sans code, cible `Kaff`, c'est lui que voit App Store
+  Connect), `fr.batum.kaff.watchkitapp` (app Watch), `fr.batum.kaff.watchkitapp.widget` (complication) ;
+  App Group `group.fr.batum.kaff`. Le conteneur a été ajouté le 2026-09-04 : Xcode n'a pas de méthode de
+  distribution App Store pour watchOS (forums Apple 817223, 738218), une app watch-only doit être embarquée
+  dans une app iOS `watchapp2-container`. `DEVELOPMENT_TEAM` dans `Config/Local.xcconfig` (ignoré par git).
 - Langue de l'UI : français uniquement en v1 (chaînes dans `Localizable.xcstrings`
   pour ne pas bloquer une traduction ultérieure).
 - Swift 6 avec concurrence stricte activée dès le départ.

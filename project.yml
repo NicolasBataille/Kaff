@@ -69,15 +69,38 @@ targets:
             CFBundleURLSchemes: [kaff]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff
-        # XcodeGen hérite du préréglage des apps Watch embarquées (SKIP_INSTALL YES) : l'archive serait vide.
-        SKIP_INSTALL: "NO"
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
       configs:
         Release:
           # Les vues de complication ne servent qu'à la galerie de debug (`WidgetGalleryView`, DEBUG).
           EXCLUDED_SOURCE_FILE_NAMES: ["KaffComplication/Views/*.swift"]
+
+  # Conteneur iOS sans code : Xcode n'a pas de méthode de distribution App Store pour watchOS (bug/limite
+  # Xcode 26, forums Apple 817223 et 738218). App Store Connect voit une app iOS `fr.batum.kaff` qui embarque
+  # l'app Watch dans Watch/. Archiver le schéma `Kaff` pour TestFlight ; le schéma `Kaff Watch App` reste
+  # celui du développement sur simulateur et montre.
+  Kaff:
+    type: application.watchapp2-container
+    platform: iOS
+    deploymentTarget: "18.0"
+    dependencies:
+      - target: Kaff Watch App
+    info:
+      path: KaffContainer/Info.plist
+      properties:
+        CFBundleDevelopmentRegion: fr
+        CFBundleDisplayName: Kaff
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        ITSWatchOnlyContainer: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SKIP_INSTALL: "NO"
 
   KaffComplication:
     type: app-extension
@@ -106,7 +129,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.widget
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp.widget
 
   KaffTests:
     type: bundle.unit-test
@@ -121,6 +144,14 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
 
 schemes:
+  Kaff:
+    build:
+      targets:
+        Kaff: all
+    run:
+      config: Debug
+    archive:
+      config: Release
   Kaff Watch App:
     build:
       targets:

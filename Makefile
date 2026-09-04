@@ -9,9 +9,9 @@ SCHEME = Kaff Watch App
 DEST = platform=watchOS Simulator,id=$(SIM_ID)
 DERIVED = build
 APP = $(DERIVED)/Build/Products/Debug-watchsimulator/Kaff Watch App.app
-BUNDLE_ID = fr.batum.kaff
+BUNDLE_ID = fr.batum.kaff.watchkitapp
 
-.PHONY: generate test-core check-sim build test run clean figures
+.PHONY: generate test-core check-sim build test run clean figures archive testflight
 
 # Figures du README (docs/figures/*.svg|png), calculées avec les constantes du modèle. Dépend de matplotlib.
 figures:
@@ -40,6 +40,19 @@ run: build check-sim
 	open -a Simulator
 	xcrun simctl install "$(SIM_ID)" "$(APP)"
 	xcrun simctl launch "$(SIM_ID)" $(BUNDLE_ID)
+
+# Archive App Store : schéma `Kaff` = conteneur iOS sans code qui embarque l'app Watch (Xcode n'a pas de
+# méthode de distribution App Store pour watchOS). Signature automatique, Team ID dans Config/Local.xcconfig.
+ARCHIVE = $(DERIVED)/Kaff.xcarchive
+archive: generate
+	rm -rf "$(ARCHIVE)"
+	xcodebuild -project Kaff.xcodeproj -scheme Kaff -destination "generic/platform=iOS" -configuration Release \
+	  -archivePath "$(ARCHIVE)" -allowProvisioningUpdates -quiet archive
+
+# Envoi vers App Store Connect / TestFlight (fiche app `fr.batum.kaff`, plateforme iOS, requise au préalable).
+testflight: archive
+	xcodebuild -exportArchive -archivePath "$(ARCHIVE)" -exportOptionsPlist Config/ExportOptions-TestFlight.plist \
+	  -exportPath $(DERIVED)/export -allowProvisioningUpdates
 
 clean:
 	rm -rf $(DERIVED) Kaff.xcodeproj Packages/KaffCore/.build
