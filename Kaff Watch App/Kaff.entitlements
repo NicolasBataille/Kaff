@@ -8,7 +8,7 @@
 	<array/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.fr.batum.kaff</string>
+		<string>group.fr.nikou.kaff</string>
 	</array>
 </dict>
 </plist>

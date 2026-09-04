@@ -4,7 +4,7 @@ import WidgetKit
 
 /// Complication « Caféine » : anneau et jetons partagés avec l'app (`KaffUI`), timeline précalculée, tap → `kaff://log`.
 struct CaffeineWidget: Widget {
-    static let kind = "fr.batum.kaff.level"
+    static let kind = "fr.nikou.kaff.level"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: Self.kind, provider: CaffeineTimelineProvider()) { entry in

@@ -4,7 +4,7 @@ import WidgetKit
 
 /// Lit le snapshot de l'App Group (jamais HealthKit, règle CLAUDE.md §4) et le déroule en entrées précalculées.
 struct CaffeineTimelineProvider: TimelineProvider {
-    private static let logger = Logger(subsystem: "fr.batum.kaff", category: "Widget")
+    private static let logger = Logger(subsystem: "fr.nikou.kaff", category: "Widget")
     /// App Group absent = erreur de configuration : signalée par un `fault` unique, comme `SharedDefaults.resolve()` côté app.
     private static let appGroupFault: Void = {
         logger.fault("App Group indisponible côté complication")
@@ -38,7 +38,7 @@ struct CaffeineTimelineProvider: TimelineProvider {
         completion(Timeline(entries: entries, policy: .atEnd))
     }
 
-    /// Diagnostic de la timeline (`log stream --predicate 'subsystem == "fr.batum.kaff"'`), DEBUG seulement :
+    /// Diagnostic de la timeline (`log stream --predicate 'subsystem == "fr.nikou.kaff"'`), DEBUG seulement :
     /// les valeurs (mg, statut) restent privées, seule la famille est publique.
     private static func log(_ entries: [CaffeineEntry], family: WidgetFamily) {
         #if DEBUG

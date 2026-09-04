@@ -30,7 +30,7 @@ final class AppModel {
     private let calendar: Calendar
     private let now: @Sendable () -> Date
     private let authorizationRetryDelay: Duration
-    private let logger = Logger(subsystem: "fr.batum.kaff", category: "AppModel")
+    private let logger = Logger(subsystem: "fr.nikou.kaff", category: "AppModel")
 
     init(health: any HealthStore, profileStore: ProfileStore, cacheStore: CacheStore,
          widgets: any WidgetReloader, calendar: Calendar = .current,

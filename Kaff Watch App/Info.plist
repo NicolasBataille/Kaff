@@ -22,7 +22,7 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.batum.kaff</string>
+			<string>fr.nikou.kaff</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>kaff</string>

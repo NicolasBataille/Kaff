@@ -5,9 +5,9 @@ import KaffCore
 /// Implémentation HealthKit. `HKHealthStore` est thread-safe (documentation Apple) mais pas annoté `Sendable`.
 final class HealthKitStore: HealthStore, @unchecked Sendable {
     enum MetadataKey {
-        static let drinkID = "fr.batum.kaff.drinkID"
-        static let volumeML = "fr.batum.kaff.volumeML"
-        static let source = "fr.batum.kaff.source"
+        static let drinkID = "fr.nikou.kaff.drinkID"
+        static let volumeML = "fr.nikou.kaff.volumeML"
+        static let source = "fr.nikou.kaff.source"
     }
 
     private let store = HKHealthStore()

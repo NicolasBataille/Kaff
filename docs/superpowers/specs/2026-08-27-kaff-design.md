@@ -162,7 +162,7 @@ Boissons personnalisées : nom, mg, volume, icône ; stockées dans `ProfileStor
 Favoris = les 4 plus loguées sur 30 jours, en tête de grille.
 
 Chaque dose enregistrée dans HealthKit porte les métadonnées
-`fr.batum.kaff.drinkID`, `fr.batum.kaff.volumeML`, `fr.batum.kaff.source` (`drink` | `manual`).
+`fr.nikou.kaff.drinkID`, `fr.nikou.kaff.volumeML`, `fr.nikou.kaff.source` (`drink` | `manual`).
 
 ## 7. Écrans watchOS
 
@@ -198,7 +198,7 @@ Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson
 | Situation | Comportement |
 |---|---|
 | HealthKit non autorisé | Écran bloquant explicatif avec rappel du chemin Réglages → Santé ; pas de mode dégradé en v1 |
-| Échec d'écriture HealthKit | Alerte, dose non ajoutée, log détaillé (`os.Logger`, sous-système `fr.batum.kaff`) |
+| Échec d'écriture HealthKit | Alerte, dose non ajoutée, log détaillé (`os.Logger`, sous-système `fr.nikou.kaff`) |
 | Poids absent | 70 kg par défaut + badge « poids estimé » + lien Réglages |
 | Cache absent côté widget | Vue placeholder « Ouvrir Kaff » |
 | Valeurs saisies aberrantes | Validation aux bornes (mg 0–1000, poids 30–250 kg, demi-vie 2–10 h) |
@@ -219,9 +219,9 @@ Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson
 ## 11. Hypothèses
 
 - Cible de déploiement **watchOS 26.0** (à ajuster si la montre physique est plus ancienne).
-- Bundle IDs : `fr.batum.kaff` (conteneur iOS sans code, cible `Kaff`, c'est lui que voit App Store
-  Connect), `fr.batum.kaff.watchkitapp` (app Watch), `fr.batum.kaff.watchkitapp.widget` (complication) ;
-  App Group `group.fr.batum.kaff`. Le conteneur a été ajouté le 2026-09-04 : Xcode n'a pas de méthode de
+- Bundle IDs : `fr.nikou.kaff` (conteneur iOS sans code, cible `Kaff`, c'est lui que voit App Store
+  Connect), `fr.nikou.kaff.watchkitapp` (app Watch), `fr.nikou.kaff.watchkitapp.widget` (complication) ;
+  App Group `group.fr.nikou.kaff` (préfixe `fr.nikou` depuis le 2026-09-04, à la demande de l'utilisateur). Le conteneur a été ajouté le 2026-09-04 : Xcode n'a pas de méthode de
   distribution App Store pour watchOS (forums Apple 817223, 738218), une app watch-only doit être embarquée
   dans une app iOS `watchapp2-container`. `DEVELOPMENT_TEAM` dans `Config/Local.xcconfig` (ignoré par git).
 - Langue de l'UI : français uniquement en v1 (chaînes dans `Localizable.xcstrings`

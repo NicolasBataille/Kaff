@@ -1,6 +1,6 @@
 name: Kaff
 options:
-  bundleIdPrefix: fr.batum
+  bundleIdPrefix: fr.nikou
   deploymentTarget:
     watchOS: "26.0"
   xcodeVersion: "26.6"
@@ -48,7 +48,7 @@ targets:
       properties:
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.access: []
-        com.apple.security.application-groups: [group.fr.batum.kaff]
+        com.apple.security.application-groups: [group.fr.nikou.kaff]
     info:
       path: Kaff Watch App/Info.plist
       properties:
@@ -63,11 +63,11 @@ targets:
         # TestFlight / App Store : aucun chiffrement propriétaire, évite la question d'export à chaque build.
         ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
-          - CFBundleURLName: fr.batum.kaff
+          - CFBundleURLName: fr.nikou.kaff
             CFBundleURLSchemes: [kaff]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp
+        PRODUCT_BUNDLE_IDENTIFIER: fr.nikou.kaff.watchkitapp
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
       configs:
@@ -76,7 +76,7 @@ targets:
           EXCLUDED_SOURCE_FILE_NAMES: ["KaffComplication/Views/*.swift"]
 
   # Conteneur iOS sans code : Xcode n'a pas de méthode de distribution App Store pour watchOS (bug/limite
-  # Xcode 26, forums Apple 817223 et 738218). App Store Connect voit une app iOS `fr.batum.kaff` qui embarque
+  # Xcode 26, forums Apple 817223 et 738218). App Store Connect voit une app iOS `fr.nikou.kaff` qui embarque
   # l'app Watch dans Watch/. Archiver le schéma `Kaff` pour TestFlight ; le schéma `Kaff Watch App` reste
   # celui du développement sur simulateur et montre.
   Kaff:
@@ -96,7 +96,7 @@ targets:
         ITSWatchOnlyContainer: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff
+        PRODUCT_BUNDLE_IDENTIFIER: fr.nikou.kaff
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SKIP_INSTALL: "NO"
 
@@ -114,7 +114,7 @@ targets:
     entitlements:
       path: KaffComplication/KaffComplication.entitlements
       properties:
-        com.apple.security.application-groups: [group.fr.batum.kaff]
+        com.apple.security.application-groups: [group.fr.nikou.kaff]
     info:
       path: KaffComplication/Info.plist
       properties:
@@ -127,7 +127,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp.widget
+        PRODUCT_BUNDLE_IDENTIFIER: fr.nikou.kaff.watchkitapp.widget
 
   KaffTests:
     type: bundle.unit-test
@@ -138,7 +138,7 @@ targets:
       - package: KaffCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.tests
+        PRODUCT_BUNDLE_IDENTIFIER: fr.nikou.kaff.tests
         GENERATE_INFOPLIST_FILE: YES
 
 schemes:

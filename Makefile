@@ -9,7 +9,7 @@ SCHEME = Kaff Watch App
 DEST = platform=watchOS Simulator,id=$(SIM_ID)
 DERIVED = build
 APP = $(DERIVED)/Build/Products/Debug-watchsimulator/Kaff Watch App.app
-BUNDLE_ID = fr.batum.kaff.watchkitapp
+BUNDLE_ID = fr.nikou.kaff.watchkitapp
 
 .PHONY: generate test-core check-sim build test run clean figures archive testflight
 
@@ -49,7 +49,7 @@ archive: generate
 	xcodebuild -project Kaff.xcodeproj -scheme Kaff -destination "generic/platform=iOS" -configuration Release \
 	  -archivePath "$(ARCHIVE)" -allowProvisioningUpdates -quiet archive
 
-# Envoi vers App Store Connect / TestFlight (fiche app `fr.batum.kaff`, plateforme iOS, requise au préalable).
+# Envoi vers App Store Connect / TestFlight (fiche app `fr.nikou.kaff`, plateforme iOS, requise au préalable).
 # PATH réduit : openrsync (/usr/bin/rsync) lance « rsync » comme serveur via le PATH ; s'il tombe sur le rsync
 # 3.x de Homebrew, l'étape « Create IPA » échoue (« Copy failed », option --extended-attributes inconnue).
 testflight: archive
