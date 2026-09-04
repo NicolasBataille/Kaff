@@ -11,7 +11,11 @@ DERIVED = build
 APP = $(DERIVED)/Build/Products/Debug-watchsimulator/Kaff Watch App.app
 BUNDLE_ID = fr.batum.kaff.watchkitapp
 
-.PHONY: generate test-core check-sim build test run clean
+.PHONY: generate test-core check-sim build test run clean figures
+
+# Figures du README (docs/figures/*.svg|png), calculées avec les constantes du modèle. Dépend de matplotlib.
+figures:
+	python3 docs/figures/make_figures.py
 
 generate:
 	@test -f Config/Local.xcconfig || { cp Config/Local.xcconfig.example Config/Local.xcconfig; echo "Config/Local.xcconfig created from example — set DEVELOPMENT_TEAM before building for a device"; }
