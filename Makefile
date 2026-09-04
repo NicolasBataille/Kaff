@@ -50,8 +50,10 @@ archive: generate
 	  -archivePath "$(ARCHIVE)" -allowProvisioningUpdates -quiet archive
 
 # Envoi vers App Store Connect / TestFlight (fiche app `fr.batum.kaff`, plateforme iOS, requise au préalable).
+# PATH réduit : openrsync (/usr/bin/rsync) lance « rsync » comme serveur via le PATH ; s'il tombe sur le rsync
+# 3.x de Homebrew, l'étape « Create IPA » échoue (« Copy failed », option --extended-attributes inconnue).
 testflight: archive
-	xcodebuild -exportArchive -archivePath "$(ARCHIVE)" -exportOptionsPlist Config/ExportOptions-TestFlight.plist \
+	PATH=/usr/bin:/bin:/usr/sbin:/sbin xcodebuild -exportArchive -archivePath "$(ARCHIVE)" -exportOptionsPlist Config/ExportOptions-TestFlight.plist \
 	  -exportPath $(DERIVED)/export -allowProvisioningUpdates
 
 clean:

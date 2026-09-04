@@ -57,9 +57,7 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         WKApplication: true
-        WKWatchOnly: true
-        # Requis par Xcode pour envelopper une app watch-only dans le conteneur App Store Connect.
-        WKRunsIndependentlyOfCompanionApp: true
+        WKWatchOnly: true   # pas de WKRunsIndependentlyOfCompanionApp : App Store Connect refuse les deux ensemble (90751)
         NSHealthShareUsageDescription: Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.
         NSHealthUpdateUsageDescription: Kaff enregistre les doses de caféine que vous loguez.
         # TestFlight / App Store : aucun chiffrement propriétaire, évite la question d'export à chaque build.
