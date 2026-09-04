@@ -2,7 +2,8 @@ import Foundation
 
 /// Découpage de la journée « caféine » : elle commence à 04:00, pas à minuit.
 public struct CaffeineDay: Sendable {
-    /// Source: choix produit — une soirée tardive ne remet pas le cumul à zéro à minuit.
+    /// Source: choix produit — une soirée tardive ne remet pas le cumul à zéro à minuit ; sans base littéraire :
+    /// EFSA raisonne en consommation « au cours de la journée ».
     public static let startHour = 4
 
     public let calendar: Calendar

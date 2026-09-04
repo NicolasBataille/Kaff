@@ -29,12 +29,18 @@ public struct UserProfile: Hashable, Codable, Sendable {
     }
 
     public static let `default` = UserProfile(
-        halfLifeHours: 5,                // Source: EFSA 2015, demi-vie médiane adulte ~5 h (fourchette 1,5–9,5 h)
+        // Source: IOM 2001, moyenne ≈ 5 h (1,5–9,5 h) ; EFSA 2015 : ≈ 4 h (2–8 h)
+        halfLifeHours: 5,
         bedtime: ClockTime(hour: 23, minute: 0),
-        dailyLimitMg: 400,               // Source: EFSA 2015 / FDA, apport journalier sans risque adulte
-        bedtimeLimitMg: 50,              // Source: choix produit ; ≈ une demi-tasse restante au coucher. À affiner.
-        singleDoseMgPerKg: 3,            // Source: EFSA 2015, dose unique sans risque ≈ 3 mg/kg
-        singleDoseCapMg: 200             // Source: EFSA 2015, dose unique ≤ 200 mg
+        // Source: EFSA 2015 (400 mg/j « consommés au cours de la journée », consommation habituelle) ; FDA idem
+        dailyLimitMg: 400,
+        // Source: Gardiner 2023 — café 107 mg ≥ 8,8 h et pré-workout 217,5 mg ≥ 13,2 h avant le coucher ;
+        // résidu avec Bateman (ka 5, t½ 5 h) = 32,5 et 35,9 mg → 35 mg. Borne haute absolue : 100 mg près du
+        // coucher peut perturber le sommeil (EFSA 2015)
+        bedtimeLimitMg: 35,
+        // Source: EFSA 2015, dose unique 200 mg ≈ 3 mg/kg pc (quantité ingérée)
+        singleDoseMgPerKg: 3,
+        singleDoseCapMg: 200
     )
 
     /// Poids effectif : manuel > HealthKit > repli.
@@ -47,6 +53,7 @@ public struct UserProfile: Hashable, Codable, Sendable {
 
     public enum Bounds {
         public static let weightKg = 30.0...250.0
+        /// Source: couvre EFSA 2–8 h et IOM 1,5–9,5 h ; hors bornes (documenté) : grossesse T3 11,5–18 h, fluvoxamine 31 h.
         public static let halfLifeHours = 2.0...10.0
         public static let dailyLimitMg = 50.0...1000.0
         /// Source: revue de code M1 — 0 mg est inatteignable avec une décroissance exponentielle.

@@ -59,10 +59,41 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(abs(a.projectedBedtimeMg - 118) < 2)  // 200 × 0,59 à t = 4 h
     #expect(a.bedtimeStatus == .high)
     #expect(a.reason == .bedtime)
-    // < 50 mg à t ≈ 10,2 h après 19:00 → ≈ 05:12
-    let expected = TestClock.date(19).addingTimeInterval(10.204 * 3600)
+    // Seuil de coucher 35 mg : 200 × 1,0285 × e^(−0,13863·t) = 35 (terme d'absorption négligeable)
+    // → t = ln(205,7/35)/0,13863 ≈ 12,776 h après 19:00 → ≈ 07:47 le lendemain.
+    let expected = TestClock.date(19).addingTimeInterval(12.776 * 3600)
     #expect(abs(a.sleepReadyAt.timeIntervalSince(expected)) < 120)
     #expect(!a.isSleepReady)
+}
+
+/// Seuil de coucher 35 mg calé sur Gardiner 2023 (café 107 mg ≥ 8,8 h avant le coucher).
+@Test func coffeeAtGardinerCutoffIsElevatedNotHigh() {
+    // 107 × 1,0285 × e^(−0,13863 × 8,8) ≈ 32,5 mg → 32,5/35 = 0,93 : élevé, pas haut.
+    let bedtime = TestClock.date(23)
+    let dose = CaffeineDose(date: bedtime.addingTimeInterval(-8.8 * 3600), milligrams: 107)
+    let a = assessor().assess(doses: [dose], at: TestClock.date(15))
+    #expect(a.bedtime == bedtime)
+    #expect(abs(a.projectedBedtimeMg - 32.5) < 0.2)
+    #expect(a.bedtimeStatus == .elevated)
+}
+
+@Test func coffeeEightHoursBeforeBedIsHigh() {
+    // 107 × 1,0285 × e^(−0,13863 × 8) ≈ 36,3 mg > 35 mg.
+    let bedtime = TestClock.date(23)
+    let dose = CaffeineDose(date: bedtime.addingTimeInterval(-8 * 3600), milligrams: 107)
+    let a = assessor().assess(doses: [dose], at: TestClock.date(16))
+    #expect(abs(a.projectedBedtimeMg - 36.3) < 0.2)
+    #expect(a.bedtimeStatus == .high)
+}
+
+/// Drake 2013 : 400 mg 6 h avant le coucher réduit le sommeil total de plus d'une heure.
+@Test func fourHundredMilligramsSixHoursBeforeBedIsHigh() {
+    // 400 × 1,0285 × e^(−0,13863 × 6) ≈ 179 mg ≫ 35 mg.
+    let bedtime = TestClock.date(23)
+    let dose = CaffeineDose(date: bedtime.addingTimeInterval(-6 * 3600), milligrams: 400)
+    let a = assessor().assess(doses: [dose], at: TestClock.date(18))
+    #expect(abs(a.projectedBedtimeMg - 179) < 1)
+    #expect(a.bedtimeStatus == .high)
 }
 
 @Test func afterBedtimeProjectionIsCurrentLevel() {

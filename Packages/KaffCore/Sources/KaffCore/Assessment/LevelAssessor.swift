@@ -2,7 +2,7 @@ import Foundation
 
 /// Applique les trois vérifications de la spec §5 à un jeu de doses.
 public struct LevelAssessor: Sendable {
-    /// Source: choix produit — fractions à partir desquelles on prévient avant le dépassement.
+    /// Source: choix produit, sans base littéraire — pré-alerte avant le dépassement.
     public static let elevatedPeakFraction = 0.6
     public static let elevatedDailyFraction = 0.75
     public static let elevatedBedtimeFraction = 0.6
