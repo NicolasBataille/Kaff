@@ -31,6 +31,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.</string>
 	<key>NSHealthUpdateUsageDescription</key>
