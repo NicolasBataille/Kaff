@@ -3073,6 +3073,20 @@ Mettre à jour `docs/ROADMAP.md` : M4 ✅.
 
 Mettre à jour `docs/ROADMAP.md` : M5 ✅, journal « v0.1.0 installée sur la montre ».
 
+### Task M5.6 : Fact-check scientifique du modèle et des seuils (ajoutée le 2026-09-04)
+
+**Files:**
+- Create: `docs/science/2026-09-04-fact-check.md`, `docs/science/fact-check-pk.md`, `docs/science/fact-check-seuils.md`
+- Modify: `PharmacokineticModel.swift`, `UserProfile.swift`, `AssessmentLimits.swift`, `LevelAssessor.swift`, `CacheStore.swift`, `DrinkCatalog.swift`, vues comparant la charge corporelle, spec §4–6, `README.md`
+- Test: `PharmacokineticScienceTests.swift`, `LevelAssessorTests.swift`, `AssessmentLimitsTests.swift`, `CacheStoreTests.swift`, `DrinkCatalogTests.swift`
+
+- [x] **Step 1** : deux revues indépendantes avec sources primaires (EFSA 2015, IOM 2001, Blanchard & Sawers 1983, Seng 2009, Gardiner 2023, Drake 2013, USDA FDC, doc Apple HealthKit) : modèle PK d'un côté, seuils/catalogue/métriques de l'autre ; extraits cités, bibliographie. Réconciliation dans `docs/science/2026-09-04-fact-check.md`.
+- [x] **Step 2** : `fix(core)` — attributions corrigées (tmax 30–120 min EFSA ; t½ 5 h = IOM 2001, EFSA 4 h), seuil coucher 35 mg (Gardiner 2023), tests tmax/peakFraction paramétrés sur t½, bilan de masse, scénarios Gardiner/Drake.
+- [x] **Step 3** : `feat(core)` — `peakFraction`, `UserProfile.peakLimitMg`, `AssessmentLimits.peakLimitMg` (EFSA §5.1.3, Cmax d'une dose unique), snapshot widget v3 (purge v1/v2), tests.
+- [x] **Step 4** : `fix(app)` — anneau, ligne de limite, aperçu d'impact, feuille de statut comparent la charge corporelle à `peakLimitMg` ; Réglages gardent la limite ingérée.
+- [x] **Step 5** : `fix(core)` — catalogue : chocolat noir 70–85 % 24 mg/30 g (USDA 170273), maté 80 mg/150 ml (Heck & de Mejia 2007), allongé sourcé (Ludwig 2014).
+- [x] **Step 6** : `docs` — spec §4–6, README, ROADMAP (journal + backlog sourcé), revue finale.
+
 ---
 
 ## Auto-revue du plan (faite le 2026-08-27)

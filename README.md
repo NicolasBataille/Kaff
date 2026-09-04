@@ -19,8 +19,9 @@ de vérité ; l'app ne fait que lire, calculer et afficher.
 
 - **Niveau en direct** : anneau et nombre héros mis à jour chaque minute, courbe 12 h passées + 6 h projetées.
 - **Modèle de Bateman** : absorption et élimination de premier ordre, demi-vie réglable (2–10 h).
-- **Trois seuils** : dose unique (3 mg/kg, plafonnée à 200 mg), cumul du jour (400 mg depuis 04:00),
-  niveau au coucher (50 mg) — statut OK / Élevé / Trop haut avec la raison, et « OK pour dormir à HH:MM ».
+- **Trois seuils** : pic (Cmax d'une dose unique de 3 mg/kg plafonnée à 200 mg, EFSA 2015), cumul du jour
+  (400 mg depuis 04:00), niveau au coucher (35 mg, dérivé de Gardiner 2023) — statut OK / Élevé / Trop haut
+  avec la raison, et « OK pour dormir à HH:MM ». Sources et vérification : [`docs/science/`](docs/science/2026-09-04-fact-check.md).
 - **Scrubber couronne** : un tap sur la courbe, puis la couronne parcourt le passé et la projection.
 - **Aperçu d'impact** : avant d'ajouter une boisson, la courbe « avant / après », le pic et le niveau au coucher.
 - **Complication 4 familles** (circulaire, rectangulaire, coin, ligne) avec timeline précalculée qui décroît
@@ -105,6 +106,10 @@ Kaff/
 - Les doses ajoutées depuis l'iPhone (ou une autre app) sont prises en compte à la prochaine ouverture de l'app.
 - Pas de notifications (« dernière dose avant le coucher », « niveau redescendu ») en v1.
 - Le niveau est une estimation indicative issue d'un modèle générique — ce n'est pas un avis médical.
+- Aucun capteur de la montre ne mesure la caféine : tout repose sur les prises saisies. Le contenu réel d'une
+  tasse varie du simple au sextuple selon l'établissement (espresso 48–322 mg) ; au-delà de ~500 mg en une prise
+  la cinétique n'est plus linéaire et le résidu est sous-estimé ; grossesse et certains médicaments (fluvoxamine)
+  sortent des bornes de demi-vie. Usage adulte uniquement.
 
 ## Licence
 

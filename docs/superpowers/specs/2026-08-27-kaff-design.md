@@ -113,9 +113,16 @@ Vérification indépendante des constantes (à reprendre dans les tests) :
 - Au pic, `A(tmax) ≈ 0,90 · D`.
 - Pour `t ≫ tmax`, la courbe suit l'asymptote `1,0285 · D · e^(−ke·t)` (le préfacteur `ka/(ka−ke)` persiste ; ex. à 10 h : ≈ 25,7 % de D, pas 25 %).
 
-**Références à confirmer à l'implémentation** (ordres de grandeur issus de la
-littérature, à sourcer dans le code) : demi-vie 1,5–9,5 h (médiane ~5 h),
-tmax 30–60 min, Vd ≈ 0,6 L/kg (non utilisé en v1 puisqu'on affiche des mg).
+**Références** (fact-check du 2026-09-04, `docs/science/`) : modèle à 1 compartiment
+= meilleur ajustement en PK de population (Seng 2009) ; biodisponibilité orale ≈ 100 %
+(Blanchard & Sawers 1983) ; demi-vie ≈ 5 h, 1,5–9,5 h (IOM 2001) ou ≈ 4 h, 2–8 h
+(EFSA 2015) ; tmax 30–120 min (EFSA 2015), ≈ 42 min pour le café (Liguori 1997) ;
+Vd ≈ 0,67 L/kg (EFSA 2015, non utilisé puisqu'on affiche des mg). Limites : cinétique
+non linéaire au-delà de ~500 mg en une prise (Kaplan 1997) ; ka unique calé sur les
+boissons chaudes ; grossesse et fluvoxamine hors bornes de t½.
+
+`peakFraction = A(tmax)/D` (0,82 à t½ = 2 h, 0,90 à 5 h, 0,94 à 10 h) sert à convertir
+une limite ingérée en plafond de charge corporelle (§5).
 
 ## 5. Évaluation du niveau (`LevelAssessor`)
 
@@ -124,11 +131,13 @@ est le pire des trois, et la raison est affichée.
 
 | Vérification | Valeur comparée | Seuil par défaut | `elevated` | `high` |
 |---|---|---|---|---|
-| Pic ponctuel | `A_total(now)` | `3 mg/kg × poids`, plafonné à 200 mg (EFSA dose unique) | ≥ 60 % | ≥ 100 % |
-| Cumul journalier | Σ doses depuis 04:00 local | 400 mg (EFSA/FDA adulte) | ≥ 75 % | ≥ 100 % |
-| Coucher | `A_total(heure de coucher)` projeté | 50 mg | ≥ 60 % | ≥ 100 % |
+| Pic ponctuel | `A_total(now)` | `peakLimitMg` = `min(3 mg/kg × poids, 200 mg) × peakFraction(t½)` — Cmax d'une dose unique à la limite EFSA (§5.1.3 : les prises répétées ne doivent pas dépasser la concentration maximale d'une dose de 200 mg) ; ≈ 180 mg pour 200 mg à t½ 5 h | ≥ 60 % | ≥ 100 % |
+| Cumul journalier | Σ doses ingérées depuis 04:00 local | 400 mg (EFSA 2015 « au cours de la journée », FDA) | ≥ 75 % | ≥ 100 % |
+| Coucher | `A_total(heure de coucher)` projeté | 35 mg — résidu, avec ce modèle à t½ 5 h, des cut-offs de Gardiner 2023 (107 mg à 8,8 h → 32,5 mg ; 217,5 mg à 13,2 h → 35,9 mg) ; borne absolue : 100 mg près du coucher perturbe le sommeil (EFSA 2015) | ≥ 60 % | ≥ 100 % |
 
-Tous les seuils sont réglables. Poids : `bodyMass` HealthKit, sinon surcharge
+Tous les seuils sont réglables ; la limite ingérée (« dose unique max ») reste celle
+affichée dans Réglages, la conversion en charge corporelle est interne. Les fractions
+« élevé » et la borne 04:00 sont des choix produit sans base littéraire. Poids : `bodyMass` HealthKit, sinon surcharge
 manuelle, sinon 70 kg avec badge « poids estimé » sur Home.
 
 Dérivés affichés :
@@ -143,8 +152,11 @@ Une ligne dans Réglages et dans le README : *estimation indicative, pas un avis
 Prédéfinies (mg pour un volume standard, réglables) : espresso 63 mg/30 ml,
 double espresso 125 mg/60 ml, café filtre 95 mg/240 ml, allongé 80 mg/120 ml,
 cappuccino/latte 63 mg, décaféiné 3 mg, thé noir 47 mg/240 ml, thé vert 28 mg,
-maté 85 mg/240 ml, cola 34 mg/355 ml, boisson énergisante 80 mg/250 ml,
-chocolat noir 12 mg/30 g. Valeurs à sourcer (USDA/EFSA) à l'implémentation.
+maté 80 mg/150 ml (Heck & de Mejia 2007), cola 32 mg/330 ml, boisson énergisante
+80 mg/250 ml, chocolat noir 70–85 % 24 mg/30 g (USDA FDC 170273). Sources USDA
+FoodData Central / EFSA 2015 dans `DrinkCatalog.swift` ; vérification du 2026-09-04
+dans `docs/science/fact-check-seuils.md`. Une tasse réelle varie du simple au
+sextuple (espresso 48–322 mg, Ludwig 2014).
 
 Boissons personnalisées : nom, mg, volume, icône ; stockées dans `ProfileStore`.
 Favoris = les 4 plus loguées sur 30 jours, en tête de grille.
