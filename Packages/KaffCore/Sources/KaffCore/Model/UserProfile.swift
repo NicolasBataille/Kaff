@@ -48,8 +48,12 @@ public struct UserProfile: Hashable, Codable, Sendable {
     /// `true` quand on utilise le poids de repli (badge « poids estimé » dans l'UI).
     public var isWeightEstimated: Bool { manualWeightKg == nil && healthKitWeightKg == nil }
 
-    /// Dose ponctuelle maximale pour ce poids.
+    /// Dose ponctuelle maximale pour ce poids (quantité ingérée, affichée dans Réglages).
     public var singleDoseLimitMg: Double { min(singleDoseMgPerKg * weightKg, singleDoseCapMg) }
+
+    /// Charge corporelle maximale : Cmax d'une dose unique à la limite (EFSA 2015 §5.1.3 : des prises répétées
+    /// ne doivent pas dépasser la concentration maximale d'une dose de 200 mg).
+    public var peakLimitMg: Double { singleDoseLimitMg * PharmacokineticModel(halfLifeHours: halfLifeHours).peakFraction }
 
     public enum Bounds {
         public static let weightKg = 30.0...250.0

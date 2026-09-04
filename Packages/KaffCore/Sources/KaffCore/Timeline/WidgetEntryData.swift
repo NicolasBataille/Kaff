@@ -5,6 +5,7 @@ public struct WidgetEntryData: Hashable, Sendable {
     public let date: Date
     public let milligrams: Double
     public let status: LevelStatus
+    /// Limite de pic (charge corporelle), dénominateur de l'anneau et repère de la sparkline.
     public let limitMg: Double
     public let sleepReadyAt: Date
     public let isSleepReady: Bool
@@ -27,7 +28,7 @@ public struct WidgetEntryData: Hashable, Sendable {
     }
 
     public static func empty(at date: Date) -> WidgetEntryData {
-        WidgetEntryData(date: date, milligrams: 0, status: .ok, limitMg: UserProfile.default.singleDoseLimitMg,
+        WidgetEntryData(date: date, milligrams: 0, status: .ok, limitMg: UserProfile.default.peakLimitMg,
                         sleepReadyAt: date, isSleepReady: true, hasData: false,
                         sparkline: Array(repeating: 0, count: WidgetTimelinePlanner.sparklineSamples))
     }

@@ -27,7 +27,7 @@ public enum WidgetTimelinePlanner {
     private static func entry(at date: Date, doses: [CaffeineDose], assessor: LevelAssessor) -> WidgetEntryData {
         let a = assessor.assess(doses: doses, at: date)
         return WidgetEntryData(date: date, milligrams: a.currentMg, status: a.status,
-                               limitMg: assessor.limits.singleDoseLimitMg,
+                               limitMg: assessor.limits.peakLimitMg,
                                sleepReadyAt: a.sleepReadyAt, isSleepReady: a.isSleepReady, hasData: true,
                                sparkline: sparkline(doses: doses, from: date, model: assessor.model))
     }

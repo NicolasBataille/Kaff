@@ -101,7 +101,7 @@ public struct LevelAssessor: Sendable {
             dailyTotalMg: dailyTotal,
             bedtime: bedtime,
             projectedBedtimeMg: projected,
-            peakStatus: Self.status(current, limit: limits.singleDoseLimitMg, elevatedAt: Self.elevatedPeakFraction),
+            peakStatus: Self.status(current, limit: limits.peakLimitMg, elevatedAt: Self.elevatedPeakFraction),
             dailyStatus: Self.status(dailyTotal, limit: limits.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
             bedtimeStatus: Self.status(projected, limit: limits.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)
         )

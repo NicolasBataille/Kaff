@@ -30,8 +30,31 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
 @Test func mediumDoseIsElevatedForPeak() {
     let now = TestClock.date(10)
     let a = assessor().assess(doses: [CaffeineDose(date: TestClock.date(9), milligrams: 150)], at: now)
-    #expect(a.peakStatus == .elevated)           // 133 mg / 200 = 0,67 ≥ 0,6
+    #expect(a.peakStatus == .elevated)           // 133 mg / 180,6 = 0,74 ≥ 0,6
     #expect(a.status == .elevated)
+}
+
+/// EFSA 2015 §5.1.3 : la charge corporelle ne doit pas dépasser le Cmax d'une dose unique à la limite (200 mg).
+/// 190 mg = 0,95 × 200 → pic 190 × 0,903 = 171,5 mg < 180,6 mg : jamais haut, échantillonné à la minute sur 3 h.
+@Test func singleDoseBelowIntakeLimitNeverReachesHighPeak() {
+    let a = assessor()
+    let intake = TestClock.date(9)
+    let doses = [CaffeineDose(date: intake, milligrams: 0.95 * UserProfile.default.singleDoseLimitMg)]
+    for minute in 0...180 {
+        let at = intake.addingTimeInterval(Double(minute) * 60)
+        #expect(a.assess(doses: doses, at: at).peakStatus != .high, "minute \(minute)")
+    }
+}
+
+/// 210 mg = 1,05 × 200 → pic 210 × 0,903 = 189,6 mg > 180,6 mg : haut au tmax.
+@Test func singleDoseAboveIntakeLimitIsHighAtPeak() {
+    let a = assessor()
+    let intake = TestClock.date(9)
+    let doses = [CaffeineDose(date: intake, milligrams: 1.05 * UserProfile.default.singleDoseLimitMg)]
+    let atPeak = intake.addingTimeInterval(a.model.timeToPeakHours * 3600)
+    let result = a.assess(doses: doses, at: atPeak)
+    #expect(abs(result.currentMg - 189.6) < 0.1)
+    #expect(result.peakStatus == .high)
 }
 
 @Test func dailyTotalCountsSinceFourAM() {
@@ -47,9 +70,10 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     let a = assessor { $0.bedtimeLimitMg = 100 }.assess(doses: doses, at: now)
     #expect(a.dailyTotalMg == 420)
     #expect(a.dailyStatus == .high)
-    #expect(a.peakStatus == .ok)                 // ≈ 114 mg / 200 = 0,57
+    // 140 × 1,0285 × (e^(−0,13863×12) + e^(−0,13863×10) + e^(−0,13863×8)) ≈ 110,8 mg / 180,6 = 0,61 ≥ 0,6
+    #expect(a.peakStatus == .elevated)
     #expect(a.bedtimeStatus == .elevated)        // ≈ 74 mg / 100
-    #expect(a.reason == .daily)
+    #expect(a.reason == .daily)                  // seul .high ; le pic et le coucher ne sont qu'élevés
 }
 
 @Test func bedtimeProjectionAndSleepReady() {
@@ -118,15 +142,15 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
 }
 
 @Test func bedtimeTakesPriorityOverDailyWhenPeakIsNotHigh() {
-    // 40 mg à 21:30 fait déjà passer peakStatus à .elevated (ratio ≈ 0,59 sous 0,6 avec 35 mg,
-    // mais 0,617 avec 40 mg) : on baisse la dernière dose à 35 mg pour garder peakStatus == .ok,
-    // avec dailyStatus et bedtimeStatus tous deux .high — vérifié par calcul direct avec le modèle.
+    // Limite de pic 180,6 mg (M5.6) → peakStatus reste .ok sous 108,4 mg. Les trois 140 mg valent ≈ 83,9 mg à
+    // 22:00 ; 35 mg à 21:30 ajoutait ≈ 30,6 mg (114,5 → 0,63, élevé) : on baisse la dernière dose à 20 mg
+    // (≈ 17,5 mg → 101,5 mg, ratio 0,56). Coucher : ≈ 89,8 mg projetés à 23:00 ≫ 35 mg ; journée 440 mg ≥ 400.
     let now = TestClock.date(22)
     let doses = [
         CaffeineDose(date: TestClock.date(8), milligrams: 140),
         CaffeineDose(date: TestClock.date(10), milligrams: 140),
         CaffeineDose(date: TestClock.date(12), milligrams: 140),
-        CaffeineDose(date: TestClock.date(21, 30), milligrams: 35),
+        CaffeineDose(date: TestClock.date(21, 30), milligrams: 20),
     ]
     let a = assessor().assess(doses: doses, at: now)
     #expect(a.peakStatus == .ok)

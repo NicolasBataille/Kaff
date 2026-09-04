@@ -16,7 +16,9 @@ import Testing
     let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
     #expect(entries.count > 49)
     #expect(entries.first?.date == now)
-    #expect(entries.allSatisfy { $0.hasData && $0.limitMg == 200 })
+    // La limite affichée par l'anneau est la limite de pic (charge corporelle), 200 × 0,903 ≈ 180,6 mg (M5.6).
+    #expect(entries.allSatisfy { $0.hasData && $0.limitMg == UserProfile.default.peakLimitMg })
+    #expect(abs(entries[0].limitMg - 180.6) < 0.1)
     let peak = entries.max { $0.milligrams < $1.milligrams }!
     #expect(peak.status == .high)
     #expect(entries.last!.milligrams < peak.milligrams)

@@ -28,14 +28,18 @@ private func freshDefaults() -> UserDefaults {
     #expect(CacheStore(defaults: defaults).read() == nil)
 }
 
-@Test func legacyV1SnapshotIsIgnoredAndRemovedOnWrite() throws {
+/// v1 (profil brut) et v2 (`singleDoseLimitMg`) ne sont jamais relus ; ils sont purgés à la première écriture.
+@Test func legacyV1AndV2SnapshotsAreIgnoredAndRemovedOnWrite() throws {
     let defaults = freshDefaults()
-    let legacyKey = "cache.snapshot.v1"
-    defaults.set(Data("{\"profile\":{}}".utf8), forKey: legacyKey)
+    let legacyKeys = ["cache.snapshot.v1", "cache.snapshot.v2"]
+    defaults.set(Data("{\"profile\":{}}".utf8), forKey: legacyKeys[0])
+    defaults.set(Data("{\"limits\":{\"singleDoseLimitMg\":200}}".utf8), forKey: legacyKeys[1])
     let store = CacheStore(defaults: defaults)
-    #expect(CacheStore.key == "cache.snapshot.v2")
+    #expect(CacheStore.key == "cache.snapshot.v3")
     #expect(store.read() == nil)
     try store.write(CacheSnapshot(doses: [], limits: AssessmentLimits(profile: .default), updatedAt: TestClock.date(10)))
-    #expect(defaults.data(forKey: legacyKey) == nil)
+    for key in legacyKeys {
+        #expect(defaults.data(forKey: key) == nil, "clé \(key)")
+    }
     #expect(store.read() != nil)
 }
