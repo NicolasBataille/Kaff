@@ -13,7 +13,7 @@ température ou le SpO2 ne sont des marqueurs exploitables : les études sont co
 et non monotones, brouillés par l'activité, le sommeil et l'habituation. La seule mesure directe portable est un
 patch de sueur de laboratoire.
 
-La meilleure estimation disponible est donc **un modèle pharmacocinétique nourri par ce que vous déclarez avoir
+La meilleure estimation disponible est donc **un modèle pharmacocinétique nourri par ce que tu déclares avoir
 bu**, avec le poids corporel pour ajuster les seuils. C'est ce que fait Kaff, et chaque brique de ce choix a été
 confrontée à la littérature :
 

@@ -68,8 +68,8 @@ l'heure à partir de laquelle le niveau sera passé sous le seuil : « OK pour d
 | **Journée** : ai-je trop bu aujourd'hui ? | mg ingérés depuis 04:00 | 400 mg | 75 % |
 | **Coucher** : vais-je bien dormir ? | mg qu'il restera à l'heure du coucher | 35 mg | 60 % |
 
-Le statut global est le pire des trois, et la raison est affichée. Toutes les limites, le poids, la demi-vie et
-l'heure du coucher se règlent à la couronne.
+Le statut global est le pire des trois, et la raison est affichée. Les limites journalière et coucher, le poids, la
+demi-vie et l'heure du coucher se règlent à la couronne.
 
 ```mermaid
 flowchart LR
@@ -108,7 +108,7 @@ flowchart LR
 
 Les doses et le poids vivent dans Santé, sauvegardés avec ton iPhone et réutilisables par n'importe quelle autre
 app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, jamais le poids) dans l'App Group ;
-la complication ne lit que ça et ne touche jamais HealthKit. Rien ne quitte tes appareils.
+la complication ne lit que ça et ne touche jamais HealthKit. Kaff n'envoie rien nulle part : pas de réseau, pas de statistiques.
 
 ### 6. La complication sait déjà tout
 
