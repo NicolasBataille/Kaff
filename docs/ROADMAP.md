@@ -14,7 +14,7 @@ Légende : ⬜ à faire · 🟨 en cours · ✅ terminé · ⛔ bloqué
 | M2 — Services | `HealthStore` (protocole + HealthKit), `CacheStore`, `ProfileStore`, autorisation, lecture `bodyMass` | Round-trip d'une dose écrite/lue dans HealthKit sur simulateur ; tests stores verts | ✅ | 2026-08-28 |
 | M3 — App Watch | Home (niveau live, statut, courbe), QuickLog boisson/mg, Historique, Réglages, écran autorisation | Parcours complet sur simulateur : loguer, voir le niveau décroître, supprimer, régler ; captures dans `docs/screenshots/` | ✅ | 2026-08-28 |
 | M4 — Complication | Extension WidgetKit 4 familles, timeline précalculée avec croisements de seuils, deep link `kaff://log` | Complication ajoutée à un cadran simulateur, valeur qui décroît sans ouvrir l'app, tap → QuickLog | ✅ | 2026-08-28 |
-| M5 — Finition & appareil | Haptiques, états vides/erreurs, `xcstrings`, test sur montre physique, revue code + sécurité, README | Installée sur la montre de l'utilisateur, une journée d'usage réel sans crash, couverture globale ≥ 80 % | 🟨 | 2026-08-28 |
+| M5 — Finition & appareil | Haptiques, états vides/erreurs, `xcstrings`, test sur montre physique, revue code + sécurité, README, fact-check scientifique (M5.6) | Installée sur la montre de l'utilisateur, une journée d'usage réel sans crash, couverture globale ≥ 80 % | 🟨 | 2026-08-28 |
 
 ## Journal
 

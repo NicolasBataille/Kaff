@@ -31,7 +31,7 @@ Fichier de tokens : `Kaff Watch App/Shared/Theme.swift` (couleurs de statut, tai
 ## 3. Écrans
 
 ### 3.1 Home — « Maintenant »
-- **Anneau** (`KaffRingView`) : arc 300° style anneaux Activité, épaisseur 9 pt, dégradé angulaire de la couleur de statut (clair → saturé), extrémité arrondie avec un léger glow. Valeur = `currentMg / singleDoseLimitMg` (plafonné à 1 ; au-delà, une seconde couche plus fine se superpose en rouge pour montrer le dépassement). Animation de remplissage `.spring` à l'apparition et à chaque changement.
+- **Anneau** (`KaffRingView`) : arc 300° style anneaux Activité, épaisseur 9 pt, dégradé angulaire de la couleur de statut (clair → saturé), extrémité arrondie avec un léger glow. Valeur = `currentMg / peakLimitMg` — depuis M5.6 la charge corporelle se rapporte à la Cmax d'une dose unique à la limite (≈ 180 mg pour 200 mg), pas à la dose ingérée ; seul l'anneau du cadran mg (§Quantité) garde `singleDoseLimitMg` puisqu'il note une quantité ingérée (plafonné à 1 ; au-delà, une seconde couche plus fine se superpose en rouge pour montrer le dépassement). Animation de remplissage `.spring` à l'apparition et à chaque changement.
 - **Nombre héros** au centre : mg, `contentTransition(.numericText())`, en dessous « mg » en `.caption2`. À gauche/droite de l'anneau : rien (respirer).
 - **Pastille statut** sous l'anneau : glass capsule, icône + libellé (« OK », « Élevé », « Trop haut ») tinté ; tap → `sheet` courte expliquant la raison (« Cumul du jour : 420 / 400 mg ») avec les trois vérifications en liste (pic, jour, coucher) et leurs jauges linéaires.
 - **Ligne sommeil** : `moon.zzz.fill` indigo + « OK pour dormir à 05:12 » / « OK pour dormir maintenant ».
