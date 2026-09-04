@@ -24,7 +24,7 @@ struct ImpactPreviewData: Equatable {
             peakDate: peak.date, peakMg: peak.mg,
             bedtimeMg: atPeak.projectedBedtimeMg,
             status: atPeak.status, reason: atPeak.reason,
-            limitMg: model.profile.singleDoseLimitMg)
+            limitMg: model.profile.peakLimitMg)
     }
 }
 

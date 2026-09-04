@@ -19,6 +19,7 @@ struct ManualDoseView: View {
         (Theme.Dial.milligramsRange.lowerBound / Theme.Dial.milligramsStep)...(Theme.Dial.milligramsRange.upperBound / Theme.Dial.milligramsStep)
     }
     private var ringSize: Double { min(WKInterfaceDevice.current().screenBounds.width * 0.31, 64) }
+    /// La molette règle une quantité ingérée : on la rapporte à la dose unique max (ingérée), pas à la limite de pic.
     private var limitMg: Double { max(model.profile.singleDoseLimitMg, 1) }
     private var espresso: Drink? { DrinkCatalog.drink(id: "espresso", custom: []) }
     private var espressoCount: Double { espresso.map { DrinkEquivalence.count(of: $0, forMilligrams: milligrams) } ?? 0 }

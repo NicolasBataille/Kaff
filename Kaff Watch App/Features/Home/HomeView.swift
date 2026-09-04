@@ -178,7 +178,8 @@ struct HomeView: View {
     }
 
     private func ring(mg: Double, tint: Color, lineWidth: Double) -> some View {
-        let limit = max(model.profile.singleDoseLimitMg, 1)
+        // Charge corporelle rapportée à la limite de pic (Cmax d'une dose unique), pas à la dose ingérée (M5.6).
+        let limit = max(model.profile.peakLimitMg, 1)
         return KaffRingView(progress: min(mg / limit, 1), overflowProgress: max(mg / limit - 1, 0),
                             tint: tint, lineWidth: lineWidth, isAnimated: !isLuminanceReduced)
             .matchedGeometryEffect(id: "ring", in: morph)
@@ -229,7 +230,7 @@ struct HomeView: View {
 
     private func chart(now: Date, shown: LevelAssessment, tint: Color) -> some View {
         CaffeineChartView(
-            points: points, now: now, limitMg: model.profile.singleDoseLimitMg,
+            points: points, now: now, limitMg: model.profile.peakLimitMg,
             cursor: isScrubbing ? (scrubDate(now), shown.currentMg, tint) : nil)
             .frame(height: isScrubbing ? scrubChartHeight : Theme.Chart.restingHeight)
             .padding(.top, 4)

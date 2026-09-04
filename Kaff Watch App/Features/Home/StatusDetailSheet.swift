@@ -18,7 +18,7 @@ struct StatusDetailSheet: View {
     private var checks: [Check] {
         [
             Check(id: "peak", title: "Pic", symbol: "waveform.path.ecg",
-                  value: assessment.currentMg, limit: profile.singleDoseLimitMg, status: assessment.peakStatus),
+                  value: assessment.currentMg, limit: profile.peakLimitMg, status: assessment.peakStatus),
             Check(id: "daily", title: "Cumul du jour", symbol: "sun.max.fill",
                   value: assessment.dailyTotalMg, limit: profile.dailyLimitMg, status: assessment.dailyStatus),
             Check(id: "bedtime", title: "Au coucher \(Formatters.time(assessment.bedtime))", symbol: "moon.zzz.fill",
