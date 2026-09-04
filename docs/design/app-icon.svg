@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Icône Kaff : fond ambre, anneau 300° comme l'anneau de l'app, tasse crème. Rasterisée par docs/design/make_icon.sh. -->
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="30%" r="90%">
+      <stop offset="0" stop-color="#E9A24A"/>
+      <stop offset="0.55" stop-color="#C8792B"/>
+      <stop offset="1" stop-color="#7E4614"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF3E0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- anneau : rayon 372, ouverture 60° en bas (arc 300°, de 120° à 420°) -->
+  <g transform="translate(512 512)">
+    <circle r="372" fill="none" stroke="#5A3110" stroke-opacity="0.35" stroke-width="74"
+            stroke-linecap="round" stroke-dasharray="1948 390" transform="rotate(120)"/>
+    <circle r="372" fill="none" stroke="url(#ring)" stroke-width="74"
+            stroke-linecap="round" stroke-dasharray="1948 390" transform="rotate(120)"/>
+    <!-- extrémité lumineuse de l'arc (à 420° = 60°) -->
+    <circle cx="186" cy="322.2" r="46" fill="#FFFFFF" opacity="0.55" filter="url(#glow)"/>
+    <circle cx="186" cy="322.2" r="37" fill="#FFFFFF"/>
+  </g>
+
+  <!-- tasse -->
+  <g transform="translate(512 528)">
+    <ellipse cx="0" cy="196" rx="150" ry="22" fill="#5A3110" opacity="0.28" filter="url(#soft)"/>
+    <!-- anse -->
+    <path d="M118 -40 h66 a92 92 0 0 1 0 184 h-66" fill="none" stroke="#FFF6E8" stroke-width="40" stroke-linecap="round"/>
+    <!-- corps -->
+    <path d="M-150 -110 h300 v150 a150 150 0 0 1 -300 0 z" fill="#FFF6E8"/>
+    <!-- café -->
+    <ellipse cx="0" cy="-110" rx="150" ry="34" fill="#7E4614"/>
+    <ellipse cx="0" cy="-112" rx="118" ry="22" fill="#5A3110"/>
+    <!-- vapeur -->
+    <g fill="none" stroke="#FFF6E8" stroke-width="22" stroke-linecap="round" opacity="0.9">
+      <path d="M-60 -170 c-30 -40 30 -70 0 -110"/>
+      <path d="M0 -185 c-30 -40 30 -70 0 -110"/>
+      <path d="M60 -170 c-30 -40 30 -70 0 -110"/>
+    </g>
+  </g>
+</svg>

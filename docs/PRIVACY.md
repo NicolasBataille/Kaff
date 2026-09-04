@@ -1,0 +1,38 @@
+# Politique de confidentialité de Kaff
+
+Dernière mise à jour : 4 septembre 2026.
+
+Kaff est une application Apple Watch qui estime la caféine présente dans votre organisme à partir des boissons
+que vous enregistrez.
+
+## Données traitées
+
+- **Doses de caféine** : chaque boisson enregistrée est écrite dans l'app Santé (HealthKit, type
+  « Caféine alimentaire ») sur votre montre. Kaff relit ces doses pour calculer son estimation.
+- **Poids** : Kaff lit votre poids dans Santé, uniquement pour adapter ses seuils (mg par kg). Vous pouvez saisir
+  un poids manuel à la place.
+- **Réglages** : demi-vie, heure de coucher, limites, boissons personnalisées. Stockés sur la montre.
+
+## Ce que Kaff ne fait pas
+
+- Kaff **n'envoie aucune donnée** : pas de serveur, pas de connexion réseau, pas de statistiques d'usage, pas de
+  publicité, pas de suivi.
+- Kaff ne lit dans Santé que les deux types ci-dessus, avec votre autorisation explicite, que vous pouvez retirer
+  à tout moment dans Réglages › Santé.
+- La complication (cadran) n'accède jamais à Santé : elle lit un instantané local (doses récentes et seuils déjà
+  calculés, jamais le poids) partagé entre l'app et la complication sur la montre.
+
+## Vos données restent les vôtres
+
+Les doses vivent dans Santé : elles sont sauvegardées et synchronisées selon vos réglages iCloud, et lisibles par
+toute autre app que vous autorisez. Supprimer une dose dans Kaff la supprime de Santé. Supprimer Kaff ne supprime
+pas les doses de Santé ; vous pouvez les effacer depuis l'app Santé.
+
+## Avertissement
+
+Kaff fournit une estimation indicative issue d'un modèle générique. Ce n'est pas un dispositif médical et cela ne
+remplace pas un avis médical.
+
+## Contact
+
+Nicolas Bataille — via les issues du dépôt https://github.com/NicolasBataille/Kaff.

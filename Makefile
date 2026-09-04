@@ -9,7 +9,7 @@ SCHEME = Kaff Watch App
 DEST = platform=watchOS Simulator,id=$(SIM_ID)
 DERIVED = build
 APP = $(DERIVED)/Build/Products/Debug-watchsimulator/Kaff Watch App.app
-BUNDLE_ID = fr.batum.kaff.watchkitapp
+BUNDLE_ID = fr.batum.kaff
 
 .PHONY: generate test-core check-sim build test run clean figures
 

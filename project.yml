@@ -58,12 +58,14 @@ targets:
         WKWatchOnly: true
         NSHealthShareUsageDescription: Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.
         NSHealthUpdateUsageDescription: Kaff enregistre les doses de caféine que vous loguez.
+        # TestFlight / App Store : aucun chiffrement propriétaire, évite la question d'export à chaque build.
+        ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
           - CFBundleURLName: fr.batum.kaff
             CFBundleURLSchemes: [kaff]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
       configs:
@@ -93,9 +95,10 @@ targets:
         CFBundleDisplayName: Kaff
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.watchkitapp.complication
+        PRODUCT_BUNDLE_IDENTIFIER: fr.batum.kaff.widget
 
   KaffTests:
     type: bundle.unit-test
