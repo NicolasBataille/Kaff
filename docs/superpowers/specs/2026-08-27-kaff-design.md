@@ -156,7 +156,7 @@ maté 80 mg/150 ml (Heck & de Mejia 2007), cola 32 mg/330 ml, boisson énergisan
 80 mg/250 ml, chocolat noir 70–85 % 24 mg/30 g (USDA FDC 170273). Sources USDA
 FoodData Central / EFSA 2015 dans `DrinkCatalog.swift` ; vérification du 2026-09-04
 dans `docs/science/fact-check-seuils.md`. Une tasse réelle varie du simple au
-sextuple (espresso 48–322 mg, Ludwig 2014).
+sextuple (espresso 48–322 mg, Crozier 2012 et Ludwig 2014).
 
 Boissons personnalisées : nom, mg, volume, icône ; stockées dans `ProfileStore`.
 Favoris = les 4 plus loguées sur 30 jours, en tête de grille.

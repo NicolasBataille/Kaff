@@ -1,10 +1,10 @@
 /// Boissons prédéfinies. Valeurs : USDA FoodData Central et EFSA (2015), arrondies.
-/// Une tasse réelle varie du simple au sextuple (espresso 48–322 mg, Ludwig 2014).
+/// Une tasse réelle varie du simple au sextuple (espresso 48–322 mg, Crozier 2012 et Ludwig 2014).
 public enum DrinkCatalog {
     public static let builtIn: [Drink] = [
         Drink(id: "espresso", name: "Espresso", milligrams: 63, volumeML: 30, symbol: "cup.and.saucer.fill"),          // Source: USDA 212 mg/100 g
         Drink(id: "double-espresso", name: "Double espresso", milligrams: 125, volumeML: 60, symbol: "cup.and.saucer.fill"),
-        Drink(id: "lungo", name: "Allongé", milligrams: 80, volumeML: 120, symbol: "cup.and.saucer.fill"),              // Source: estimation — extraction longue +20–33 % vs espresso court (Ludwig 2014) : 63 × 1,25 ≈ 80 mg
+        Drink(id: "lungo", name: "Allongé", milligrams: 80, volumeML: 120, symbol: "cup.and.saucer.fill"),              // Source: estimation — extraction longue +20–33 % vs espresso court (Ludwig 2014) : 63 × 1,25 ≈ 79 mg, arrondi à 80
         Drink(id: "filter", name: "Café filtre", milligrams: 95, volumeML: 240, symbol: "mug.fill"),                    // Source: USDA 40 mg/100 g
         Drink(id: "latte", name: "Latte / cappuccino", milligrams: 63, volumeML: 240, symbol: "mug.fill"),               // Source: 1 shot d'espresso
         Drink(id: "decaf", name: "Décaféiné", milligrams: 3, volumeML: 30, symbol: "cup.and.saucer"),                   // Source: USDA décaf espresso ~3 mg/30 ml
