@@ -7,6 +7,7 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
     var isAvailable = true
     var stored: [CaffeineDose] = []
     var bodyMassKg: Double? = 72
+    var bodyMassDate = Date(timeIntervalSince1970: 1_700_000_000)
     var bodyMassError: Error?
     var saveError: Error?
     var deleteError: Error?
@@ -56,8 +57,8 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
         deletedIDs.append(doseID)
     }
 
-    func latestBodyMassKg() async throws -> Double? {
+    func latestBodyMass() async throws -> BodyMassReading? {
         if let bodyMassError { throw bodyMassError }
-        return bodyMassKg
+        return bodyMassKg.map { BodyMassReading(kg: $0, date: bodyMassDate) }
     }
 }

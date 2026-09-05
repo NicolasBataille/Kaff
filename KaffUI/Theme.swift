@@ -54,6 +54,8 @@ enum Theme {
         static let futureHours = 6.0
         static let stepMinutes = 10
         static let previewHours = 6.0
+        /// Pas de l'aperçu d'impact : 6 h en 25 points suffisent à 40 pt de haut et divisent le coût par cran.
+        static let previewStepMinutes = 15
         /// Sparkline de la complication rectangulaire.
         static let sparklineHeight = 14.0
     }
@@ -79,6 +81,11 @@ enum Theme {
 
     /// Délai entre la coche de confirmation et le retour à Home.
     static let confirmationDelay: Duration = .milliseconds(350)
+
+    /// Aperçu d'impact recalculé seulement quand la couronne marque une pause : le nombre suit chaque cran,
+    /// la courbe suit la main. Source: retour montre réelle 2026-09-05 — l'app ramait en rotation rapide
+    /// (deux courbes et ~150 marques Swift Charts ré-animées à chaque cran).
+    static let previewDelay: Duration = .milliseconds(90)
 
     enum Limits {
         /// Longueur maximale du nom d'une boisson personnalisée.

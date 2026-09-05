@@ -63,12 +63,13 @@ final class HealthKitStore: HealthStore, @unchecked Sendable {
         }
     }
 
-    func latestBodyMassKg() async throws -> Double? {
+    func latestBodyMass() async throws -> BodyMassReading? {
         let descriptor = HKSampleQueryDescriptor(
             predicates: [.quantitySample(type: bodyMassType)],
             sortDescriptors: [SortDescriptor(\.startDate, order: .reverse)],
             limit: 1)
-        return try await descriptor.result(for: store).first?.quantity.doubleValue(for: .gramUnit(with: .kilo))
+        guard let sample = try await descriptor.result(for: store).first else { return nil }
+        return BodyMassReading(kg: sample.quantity.doubleValue(for: .gramUnit(with: .kilo)), date: sample.startDate)
     }
 
     private func dose(from sample: HKQuantitySample) -> CaffeineDose {

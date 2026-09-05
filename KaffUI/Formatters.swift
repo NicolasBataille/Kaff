@@ -22,6 +22,11 @@ enum Formatters {
         String(format: "%02d:%02d", clock.hour, clock.minute)
     }
 
+    /// « 3 sept. » pour dater la dernière pesée.
+    static func shortDate(_ date: Date) -> String {
+        date.formatted(.dateTime.day().month(.abbreviated))
+    }
+
     /// « jeudi 28 » pour les sections d'historique.
     static func day(_ date: Date) -> String {
         date.formatted(.dateTime.weekday(.wide).day())

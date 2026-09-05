@@ -16,16 +16,28 @@ struct SettingsView: View {
         })
     }
 
+    /// « 72 kg · 3 sept. » ou « — » quand la montre n'a aucune pesée.
+    private var healthWeightText: String {
+        guard let kg = profile.healthKitWeightKg else { return "—" }
+        guard let date = profile.healthKitWeightDate else { return Formatters.kg(kg) }
+        return "\(Formatters.kg(kg)) · \(Formatters.shortDate(date))"
+    }
+
     var body: some View {
         Form {
             Section("Poids") {
                 LabeledContent("Santé") {
-                    Text(profile.healthKitWeightKg.map(Formatters.kg) ?? "—").foregroundStyle(.secondary)
+                    Text(healthWeightText).foregroundStyle(.secondary)
                 }
                 Toggle("Saisir manuellement", isOn: useManualWeight)
                     .tint(Theme.accent)
                 if profile.manualWeightKg != nil {
                     row(.weight)
+                }
+                if profile.healthKitWeightKg == nil {
+                    // La base Santé de la montre ne reçoit qu'une copie récente des données de l'iPhone :
+                    // une pesée ancienne n'y figure pas, HealthKit renvoie alors zéro résultat.
+                    footnote("Aucune pesée récente dans Santé sur la montre. Ajoutez votre poids dans Santé sur l'iPhone, ou saisissez-le ici.")
                 }
                 footnote("Dose unique max \(Formatters.mg(profile.singleDoseLimitMg)) · \(Formatters.count(profile.singleDoseMgPerKg)) mg/kg")
             }

@@ -170,8 +170,10 @@ final class AppModel {
             return
         }
         do {
-            if let kg = try await health.latestBodyMassKg(), kg != profile.healthKitWeightKg {
-                profile.healthKitWeightKg = kg
+            if let reading = try await health.latestBodyMass(),
+               reading.kg != profile.healthKitWeightKg || reading.date != profile.healthKitWeightDate {
+                profile.healthKitWeightKg = reading.kg
+                profile.healthKitWeightDate = reading.date
                 try profileStore.save(profile)
             }
         } catch {

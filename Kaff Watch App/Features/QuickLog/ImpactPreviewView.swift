@@ -18,8 +18,8 @@ struct ImpactPreviewData: Equatable {
         let peak = model.peak(afterAdding: milligrams)
         let atPeak = model.preview(adding: milligrams, at: peak.date)
         return ImpactPreviewData(
-            before: model.chartPoints(from: now, hours: Theme.Chart.previewHours, stepMinutes: Theme.Chart.stepMinutes),
-            after: model.chartPoints(from: now, hours: Theme.Chart.previewHours, stepMinutes: Theme.Chart.stepMinutes,
+            before: model.chartPoints(from: now, hours: Theme.Chart.previewHours, stepMinutes: Theme.Chart.previewStepMinutes),
+            after: model.chartPoints(from: now, hours: Theme.Chart.previewHours, stepMinutes: Theme.Chart.previewStepMinutes,
                                      adding: milligrams),
             peakDate: peak.date, peakMg: peak.mg,
             bedtimeMg: atPeak.projectedBedtimeMg,

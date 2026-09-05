@@ -29,6 +29,7 @@ struct AppModelTests {
         #expect(model.authorization == .authorized)
         #expect(model.doses.count == 1)
         #expect(model.profile.healthKitWeightKg == 72)
+        #expect(model.profile.healthKitWeightDate == health.bodyMassDate)
         #expect(model.profile.isWeightEstimated == false)
     }
 

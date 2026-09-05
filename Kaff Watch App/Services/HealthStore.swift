@@ -13,7 +13,14 @@ protocol HealthStore: Sendable {
     /// Retourne la dose telle qu'enregistrée (l'`id` devient l'UUID HealthKit).
     func save(_ dose: CaffeineDose) async throws -> CaffeineDose
     func delete(doseID: UUID) async throws
-    func latestBodyMassKg() async throws -> Double?
+    /// Dernière pesée présente dans la base Santé **de la montre** (copie partielle et récente de celle de l'iPhone).
+    func latestBodyMass() async throws -> BodyMassReading?
+}
+
+/// Une pesée lue dans HealthKit.
+struct BodyMassReading: Equatable, Sendable {
+    let kg: Double
+    let date: Date
 }
 
 /// Autorisation d'écriture telle que HealthKit la rapporte (`HKAuthorizationStatus`).

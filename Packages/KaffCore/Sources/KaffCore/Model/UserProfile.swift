@@ -7,6 +7,8 @@ public struct UserProfile: Hashable, Codable, Sendable {
 
     /// Dernier poids lu dans HealthKit (`bodyMass`), rafraîchi par l'app.
     public var healthKitWeightKg: Double?
+    /// Date de cette pesée (affichée dans Réglages ; la base Santé de la montre ne garde que des échantillons récents).
+    public var healthKitWeightDate: Date?
     /// Surcharge saisie dans Réglages ; prioritaire sur HealthKit.
     public var manualWeightKg: Double?
     public var halfLifeHours: Double
@@ -16,9 +18,11 @@ public struct UserProfile: Hashable, Codable, Sendable {
     public var singleDoseMgPerKg: Double
     public var singleDoseCapMg: Double
 
-    public init(healthKitWeightKg: Double? = nil, manualWeightKg: Double? = nil, halfLifeHours: Double, bedtime: ClockTime,
+    public init(healthKitWeightKg: Double? = nil, healthKitWeightDate: Date? = nil, manualWeightKg: Double? = nil,
+                halfLifeHours: Double, bedtime: ClockTime,
                 dailyLimitMg: Double, bedtimeLimitMg: Double, singleDoseMgPerKg: Double, singleDoseCapMg: Double) {
         self.healthKitWeightKg = healthKitWeightKg
+        self.healthKitWeightDate = healthKitWeightDate
         self.manualWeightKg = manualWeightKg
         self.halfLifeHours = halfLifeHours
         self.bedtime = bedtime

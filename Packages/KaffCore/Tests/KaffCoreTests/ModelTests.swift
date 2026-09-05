@@ -63,3 +63,17 @@ import Testing
     let data = try JSONEncoder().encode(d)
     #expect(try JSONDecoder().decode(CaffeineDose.self, from: data) == d)
 }
+
+@Test func profileKeepsHealthKitWeightDateAndDecodesWithoutIt() throws {
+    var p = UserProfile.default
+    p.healthKitWeightKg = 80
+    p.healthKitWeightDate = Date(timeIntervalSince1970: 1_700_000_000)
+    let data = try JSONEncoder().encode(p)
+    #expect(try JSONDecoder().decode(UserProfile.self, from: data) == p)
+    // Profil enregistré avant l'ajout du champ (build 2) : la clé est absente, le décodage doit passer.
+    var json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+    json.removeValue(forKey: "healthKitWeightDate")
+    let legacy = try JSONDecoder().decode(UserProfile.self, from: JSONSerialization.data(withJSONObject: json))
+    #expect(legacy.healthKitWeightKg == 80)
+    #expect(legacy.healthKitWeightDate == nil)
+}
