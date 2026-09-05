@@ -32,18 +32,50 @@ struct AppModelTests {
         #expect(model.profile.isWeightEstimated == false)
     }
 
-    @Test func startDetectsDeniedAuthorization() async {
-        health.isWriteAuthorized = false
+    @Test func startDetectsDeniedAuthorizationWithoutAskingAgain() async {
+        health.writeStatus = .denied
         let model = makeModel()
         await model.start()
         #expect(model.authorization == .denied)
+        // Une fois refusée, HealthKit ne ré-affiche jamais la feuille : seul le chemin Réglages reste.
+        #expect(health.authorizationRequests == 0)
     }
 
-    @Test func startRetriesAuthorizationStatusBeforeDenying() async {
-        health.authorizedAfterChecks = 2
+    @Test func startWaitsForUserWhenAuthorizationIsUndetermined() async {
+        health.writeStatus = .notDetermined
+        health.stored = [CaffeineDose(date: now.addingTimeInterval(-3600), milligrams: 63)]
         let model = makeModel()
         await model.start()
+        // La feuille Santé n'est fiable que déclenchée par une action de l'utilisateur, app au premier plan.
+        #expect(model.authorization == .notDetermined)
+        #expect(health.authorizationRequests == 0)
+        #expect(model.doses.isEmpty)
+    }
+
+    @Test func requestAccessAsksHealthThenLoads() async {
+        health.writeStatus = .notDetermined
+        health.stored = [CaffeineDose(date: now.addingTimeInterval(-3600), milligrams: 63)]
+        let model = makeModel()
+        await model.start()
+        health.authorizedAfterChecks = 2   // statut encore « refusé » juste après la feuille, puis accordé
+        await model.requestAccess()
+        #expect(health.authorizationRequests == 1)
         #expect(model.authorization == .authorized)
+        #expect(model.doses.count == 1)
+    }
+
+    @Test func requestAccessKeepsButtonWhenStillUndetermined() async {
+        health.writeStatus = .notDetermined
+        let model = makeModel()
+        await model.requestAccess()
+        #expect(model.authorization == .notDetermined)
+    }
+
+    @Test func requestAccessReportsDenial() async {
+        health.writeStatus = .denied
+        let model = makeModel()
+        await model.requestAccess()
+        #expect(model.authorization == .denied)
     }
 
     @Test func refreshPublishesDosesEvenIfWeightReadFails() async throws {
@@ -161,18 +193,18 @@ struct AppModelTests {
         #expect(model.lastError == nil)
     }
 
-    @Test func startSurvivesAuthorizationRequestError() async {
+    @Test func requestAccessSurvivesAuthorizationRequestError() async {
         health.authorizationError = NSError(domain: "test", code: 3)
-        health.isWriteAuthorized = false
+        health.writeStatus = .denied
         let denied = makeModel()
-        await denied.start()
+        await denied.requestAccess()
         #expect(denied.lastError != nil)
         #expect(denied.authorization == .denied)
         // L'échec de la demande n'empêche pas de constater une autorisation déjà accordée.
-        health.isWriteAuthorized = true
+        health.writeStatus = .authorized
         health.stored = [CaffeineDose(date: now.addingTimeInterval(-3600), milligrams: 63)]
         let granted = makeModel()
-        await granted.start()
+        await granted.requestAccess()
         #expect(granted.authorization == .authorized)
         #expect(granted.doses.count == 1)
     }

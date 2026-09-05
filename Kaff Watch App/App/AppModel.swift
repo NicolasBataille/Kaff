@@ -7,7 +7,8 @@ import os
 @MainActor
 @Observable
 final class AppModel {
-    enum AuthorizationState: Equatable { case unknown, authorized, denied, unavailable }
+    /// `notDetermined` : la feuille Santé n'a pas encore été présentée, l'écran d'accueil propose « Autoriser ».
+    enum AuthorizationState: Equatable { case unknown, notDetermined, authorized, denied, unavailable }
 
     /// Source: spec §6 — favoris calculés sur 30 jours ; l'historique n'en affiche que 7.
     static let historyDays = 30
@@ -120,23 +121,42 @@ final class AppModel {
 
     // MARK: Cycle de vie
 
+    /// Lit l'état sans rien demander : la feuille Santé ne part que de `requestAccess()`, sur action de
+    /// l'utilisateur (au lancement, sur montre réelle, elle n'apparaît pas de façon fiable).
     func start() async {
         guard health.isAvailable else { authorization = .unavailable; return }
+        await apply(status: health.writeStatus)
+    }
+
+    /// Présente la feuille Santé puis relit le statut (bouton « Autoriser » de l'écran d'accueil).
+    func requestAccess() async {
+        guard health.isAvailable else { authorization = .unavailable; return }
         do { try await health.requestAuthorization() } catch { report("Autorisation Santé impossible", error) }
-        authorization = await pollWriteAuthorization() ? .authorized : .denied
-        guard authorization == .authorized else { return }
-        await refresh()
+        await apply(status: await pollWriteStatus())
+    }
+
+    private func apply(status: HealthWriteStatus) async {
+        switch status {
+        case .authorized:
+            authorization = .authorized
+            await refresh()
+        case .notDetermined:
+            authorization = .notDetermined
+        case .denied:
+            authorization = .denied
+        }
     }
 
     /// HealthKit renvoie encore `.sharingDenied` juste après la fermeture de la feuille d'autorisation
     /// (observé sur simulateur en M2.3) : on relit le statut quelques fois avant de conclure.
-    private func pollWriteAuthorization() async -> Bool {
-        for attempt in 1...Self.authorizationAttempts {
-            guard !Task.isCancelled else { return false }
-            if health.isWriteAuthorized { return true }
+    private func pollWriteStatus() async -> HealthWriteStatus {
+        var status = health.writeStatus
+        for attempt in 1...Self.authorizationAttempts where status != .authorized {
+            guard !Task.isCancelled else { break }
             if attempt < Self.authorizationAttempts { try? await Task.sleep(for: authorizationRetryDelay) }
+            status = health.writeStatus
         }
-        return false
+        return status
     }
 
     func refresh() async {

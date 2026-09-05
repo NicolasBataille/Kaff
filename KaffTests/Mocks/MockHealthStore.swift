@@ -13,22 +13,26 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
     var authorizationError: Error?
     var savedIDs: [UUID] = []
     var deletedIDs: [UUID] = []
+    /// Nombre d'appels à `requestAuthorization` (la feuille Santé ne doit partir que sur action de l'utilisateur).
+    private(set) var authorizationRequests = 0
 
-    /// Simule le retard de HealthKit : `isWriteAuthorized` renvoie `false` pendant les N premières lectures.
+    /// Simule le retard de HealthKit : le statut reste `.denied` pendant les N premières lectures après la feuille
+    /// (observé en M2.3), puis passe à `.authorized`.
     var authorizedAfterChecks: Int?
     private var authorizationChecks = 0
-    private var writeAuthorized = true
+    private var status: HealthWriteStatus = .authorized
 
-    var isWriteAuthorized: Bool {
+    var writeStatus: HealthWriteStatus {
         get {
-            guard let authorizedAfterChecks else { return writeAuthorized }
+            guard let authorizedAfterChecks else { return status }
             authorizationChecks += 1
-            return authorizationChecks > authorizedAfterChecks
+            return authorizationChecks > authorizedAfterChecks ? .authorized : .denied
         }
-        set { writeAuthorized = newValue }
+        set { status = newValue }
     }
 
     func requestAuthorization() async throws {
+        authorizationRequests += 1
         if let authorizationError { throw authorizationError }
     }
 

@@ -17,7 +17,14 @@ final class HealthKitStore: HealthStore, @unchecked Sendable {
 
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
-    var isWriteAuthorized: Bool { store.authorizationStatus(for: caffeineType) == .sharingAuthorized }
+    var writeStatus: HealthWriteStatus {
+        switch store.authorizationStatus(for: caffeineType) {
+        case .sharingAuthorized: .authorized
+        case .sharingDenied: .denied
+        case .notDetermined: .notDetermined
+        @unknown default: .notDetermined
+        }
+    }
 
     func requestAuthorization() async throws {
         try await store.requestAuthorization(toShare: [caffeineType], read: [caffeineType, bodyMassType])

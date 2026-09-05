@@ -22,8 +22,8 @@ struct RootView: View {
             guard phase == .active else { return }
             switch model.authorization {
             case .authorized: Task { await model.refresh() }
-            case .denied: Task { await model.start() }
-            case .unknown, .unavailable: break
+            case .denied: Task { await model.start() }   // relit le statut au retour de Réglages › Santé
+            case .unknown, .notDetermined, .unavailable: break
             }
         }
         .onOpenURL { url in
@@ -48,7 +48,7 @@ struct RootView: View {
                 HistoryView()
             }
             .tabViewStyle(.verticalPage)
-        case .denied, .unavailable:
+        case .notDetermined, .denied, .unavailable:
             AuthorizationView()
         }
     }
