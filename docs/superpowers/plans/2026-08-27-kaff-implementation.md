@@ -3052,7 +3052,7 @@ Mettre à jour `docs/ROADMAP.md` : M4 ✅.
 
 - [ ] **Step 1** : sur l'iPhone, Réglages › Confidentialité et sécurité › Mode développeur activé ; idem sur la montre (Réglages › Confidentialité et sécurité › Mode développeur).
 - [ ] **Step 2** : Xcode › Window › Devices and Simulators : l'iPhone apparaît, la montre appariée en dessous. Renseigner `Config/Local.xcconfig` avec le Team ID réel si ce n'est pas fait.
-- [ ] **Step 3** : `xcodegen generate && open Kaff.xcodeproj`, choisir la montre comme destination, Run. Première fois : accepter le profil sur la montre (Réglages › Général › Gestion des appareils) et autoriser Santé.
+- [x] **Step 3** : ~~Run depuis Xcode~~ → installée via TestFlight le 2026-09-05 (mode développeur de la montre inaccessible ; `make testflight`, groupe interne). Autoriser Santé au premier lancement.
 - [ ] **Step 4** : ajouter la complication à ton cadran, utiliser l'app une journée. Noter dans `docs/ROADMAP.md` (journal) les crashs ou frictions observés ; corriger avant de continuer.
 - [ ] **Step 5** : commit des éventuels correctifs `fix(app): M5.3 …`.
 
