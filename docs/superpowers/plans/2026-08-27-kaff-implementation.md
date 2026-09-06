@@ -3050,11 +3050,11 @@ Mettre à jour `docs/ROADMAP.md` : M4 ✅.
 
 ### Task M5.3 : Installation sur la montre physique
 
-- [ ] **Step 1** : sur l'iPhone, Réglages › Confidentialité et sécurité › Mode développeur activé ; idem sur la montre (Réglages › Confidentialité et sécurité › Mode développeur).
-- [ ] **Step 2** : Xcode › Window › Devices and Simulators : l'iPhone apparaît, la montre appariée en dessous. Renseigner `Config/Local.xcconfig` avec le Team ID réel si ce n'est pas fait.
+- [x] **Step 1** : mode développeur activé sur l'iPhone ; sur la montre l'interrupteur n'est jamais apparu → installation via TestFlight (voir Step 3).
+- [x] **Step 2** : Team ID `N84YXYF2NZ` (OU du certificat de développement) dans `Config/Local.xcconfig` ; montre visible dans Devices and Simulators (« will connect on demand »).
 - [x] **Step 3** : ~~Run depuis Xcode~~ → installée via TestFlight le 2026-09-05 (mode développeur de la montre inaccessible ; `make testflight`, groupe interne). Autoriser Santé au premier lancement.
-- [ ] **Step 4** : ajouter la complication à ton cadran, utiliser l'app une journée. Noter dans `docs/ROADMAP.md` (journal) les crashs ou frictions observés ; corriger avant de continuer.
-- [ ] **Step 5** : commit des éventuels correctifs `fix(app): M5.3 …`.
+- [x] **Step 4** : complication ajoutée et vérifiée (décroît sans ouvrir l'app), une journée d'usage sans crash. Frictions corrigées en builds 2 et 3 : feuille Santé, lag des cadrans, poids.
+- [x] **Step 5** : correctifs `fix(app): M5.3 …` (builds 0.1.0 (2) et (3)).
 
 ### Task M5.4 : Revue de code, sécurité, couverture
 
