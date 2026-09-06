@@ -29,6 +29,8 @@ public struct CacheSnapshot: Hashable, Codable, Sendable {
         doses = try c.decode([CaffeineDose].self, forKey: .doses)
         limits = try c.decode(AssessmentLimits.self, forKey: .limits)
         updatedAt = try c.decode(Date.self, forKey: .updatedAt)
-        windowHours = try c.decodeIfPresent(Double.self, forKey: .windowHours) ?? Self.defaultWindowHours
+        let window = try c.decodeIfPresent(Double.self, forKey: .windowHours) ?? Self.defaultWindowHours
+        // Blob altéré (fenêtre ≤ 0 ou non finie) : repli plutôt qu'une obsolescence permanente ou impossible.
+        windowHours = window.isFinite && window > 0 ? window : Self.defaultWindowHours
     }
 }

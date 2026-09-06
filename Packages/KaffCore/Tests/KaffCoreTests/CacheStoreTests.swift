@@ -59,6 +59,22 @@ private func freshDefaults() -> UserDefaults {
     #expect(read.doses == snapshot.doses && read.limits == snapshot.limits && read.updatedAt == snapshot.updatedAt)
 }
 
+/// Revue sécurité M6.7 : un blob altéré (fenêtre négative, nulle ou NaN) retombe sur la fenêtre par défaut
+/// plutôt que de rendre la complication toujours (ou jamais) obsolète.
+@Test(arguments: [-1.0, 0.0, Double.nan, Double.infinity])
+func invalidWindowHoursFallsBackToDefault(bad: Double) throws {
+    let defaults = freshDefaults()
+    let snapshot = CacheSnapshot(doses: [], limits: AssessmentLimits(profile: .default), updatedAt: TestClock.date(10))
+    var json = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(snapshot)) as? [String: Any])
+    // JSON n'encode ni NaN ni l'infini : on les injecte comme chaînes que le décodeur JSON de Foundation refuse
+    // (retour nil, comme un blob corrompu) — seuls les nombres finis passent par le repli.
+    json["windowHours"] = bad.isFinite ? bad : "\(bad)"
+    defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: CacheStore.key)
+    let read = CacheStore(defaults: defaults).read()
+    #expect(read == nil || read?.windowHours == CacheSnapshot.defaultWindowHours)
+    if bad.isFinite { #expect(read?.windowHours == CacheSnapshot.defaultWindowHours) }
+}
+
 @Test func windowHoursRoundTrips() throws {
     let store = CacheStore(defaults: freshDefaults())
     let snapshot = CacheSnapshot(doses: [], limits: AssessmentLimits(profile: .default),
