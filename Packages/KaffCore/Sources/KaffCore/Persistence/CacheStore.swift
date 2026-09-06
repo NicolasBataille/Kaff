@@ -4,6 +4,7 @@ import Foundation
 public struct CacheStore: @unchecked Sendable {
     // `UserDefaults` n'est pas déclaré `Sendable` par Foundation mais est documenté thread-safe.
     /// v2 (M5.4) : `limits` remplace `profile`. v3 (M5.6) : `peakLimitMg` remplace `singleDoseLimitMg`.
+    /// M6.6 ajoute `windowHours` à la v3 sans changer de clé : la lecture tolère son absence (défaut 30 h).
     /// Un blob d'une version antérieure n'est jamais relu (clé différente → placeholder) et est effacé à la
     /// première écriture pour ne pas laisser un poids (v1) ni un seuil périmé (v2) dans l'App Group.
     public static let key = "cache.snapshot.v3"

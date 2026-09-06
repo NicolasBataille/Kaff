@@ -43,3 +43,27 @@ private func freshDefaults() -> UserDefaults {
     }
     #expect(store.read() != nil)
 }
+
+/// M6.6 : `windowHours` s'ajoute à la v3 sans changer de clé ; un blob v3 antérieur (sans la clé) se relit avec 30 h.
+@Test func v3BlobWithoutWindowHoursDecodesWithDefaultWindow() throws {
+    let defaults = freshDefaults()
+    let snapshot = CacheSnapshot(
+        doses: [CaffeineDose(date: TestClock.date(9), milligrams: 63)],
+        limits: AssessmentLimits(profile: .default), updatedAt: TestClock.date(10), windowHours: 50)
+    var json = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(snapshot)) as? [String: Any])
+    #expect(json.removeValue(forKey: "windowHours") != nil)
+    defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: CacheStore.key)
+    let read = try #require(CacheStore(defaults: defaults).read())
+    #expect(read.windowHours == 30)
+    #expect(CacheSnapshot.defaultWindowHours == 30)
+    #expect(read.doses == snapshot.doses && read.limits == snapshot.limits && read.updatedAt == snapshot.updatedAt)
+}
+
+@Test func windowHoursRoundTrips() throws {
+    let store = CacheStore(defaults: freshDefaults())
+    let snapshot = CacheSnapshot(doses: [], limits: AssessmentLimits(profile: .default),
+                                 updatedAt: TestClock.date(10), windowHours: 50)
+    try store.write(snapshot)
+    #expect(store.read() == snapshot)
+    #expect(store.read()?.windowHours == 50)
+}

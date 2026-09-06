@@ -3,7 +3,7 @@ import KaffCore
 import SwiftUI
 import WidgetKit
 
-/// Mini-anneau + « 142 mg · OK » + « Sommeil 05:12 » + sparkline 6 h (brief §4).
+/// Mini-anneau + « 142 mg · OK » + « Sommeil 05:12 » (« Ouvrir Kaff » si obsolète) + sparkline 6 h (brief §4).
 struct RectangularView: View {
     let data: WidgetEntryData
 
@@ -20,10 +20,10 @@ struct RectangularView: View {
             VStack(alignment: .leading, spacing: 1) {
                 if data.hasData {
                     headline
-                    Text(data.sleepText)
+                    Text(data.secondaryText)
                         .font(.caption2)
                         .monospacedDigit()
-                        .foregroundStyle(renderingMode == .accented ? AnyShapeStyle(.secondary) : AnyShapeStyle(Theme.sleep))
+                        .foregroundStyle(secondaryStyle)
                         .lineLimit(1)
                     Sparkline(values: data.sparkline, limitMg: data.limitMg, tint: data.tint)
                         .frame(height: Theme.Chart.sparklineHeight)
@@ -40,6 +40,11 @@ struct RectangularView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(data.accessibilityText)
+    }
+
+    /// Teinte sommeil en couleur ; gris sur cadran teinté ou quand la ligne dit « Ouvrir Kaff » (snapshot obsolète).
+    private var secondaryStyle: AnyShapeStyle {
+        renderingMode == .accented || data.isStale ? AnyShapeStyle(.secondary) : AnyShapeStyle(Theme.sleep)
     }
 
     private var headline: some View {

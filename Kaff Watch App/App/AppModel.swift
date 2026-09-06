@@ -333,11 +333,14 @@ final class AppModel {
     // (changement d'heure) avec marge.
     static func cacheWindowHours(halfLifeHours: Double) -> Double { max(30, 10 * halfLifeHours) }
 
-    /// Écrit le snapshot (fenêtre `cacheWindowHours`), demande le rechargement des complications, puis remplace les
-    /// notifications en attente par le plan courant — même vide, pour retirer celles d'un état précédent.
+    /// Écrit le snapshot (fenêtre `cacheWindowHours`, transmise au widget comme seuil d'obsolescence), demande le
+    /// rechargement des complications, puis remplace les notifications en attente par le plan courant — même vide,
+    /// pour retirer celles d'un état précédent.
     private func publish() async {
-        let cutoff = now().addingTimeInterval(-Self.cacheWindowHours(halfLifeHours: profile.halfLifeHours) * 3600)
-        let snapshot = CacheSnapshot(doses: doses.filter { $0.date >= cutoff }, limits: assessor.limits, updatedAt: now())
+        let windowHours = Self.cacheWindowHours(halfLifeHours: profile.halfLifeHours)
+        let cutoff = now().addingTimeInterval(-windowHours * 3600)
+        let snapshot = CacheSnapshot(doses: doses.filter { $0.date >= cutoff }, limits: assessor.limits,
+                                     updatedAt: now(), windowHours: windowHours)
         do { try cacheStore.write(snapshot) } catch { report("Écriture du cache impossible", error) }
         widgets.reloadAll()
         await scheduleNotifications()

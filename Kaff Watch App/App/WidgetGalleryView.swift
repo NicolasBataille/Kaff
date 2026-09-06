@@ -19,14 +19,18 @@ struct WidgetGalleryView: View {
     init() {
         let snapshot = CacheStore(defaults: SharedDefaults.resolve()).read()
         let live = WidgetTimelinePlanner.entries(snapshot: snapshot, now: .now)
-        // Entrée réelle + entrées synthétiques (élevé, trop haut, sans données) pour voir chaque teinte.
+        // Entrée réelle + entrées synthétiques (élevé, trop haut, obsolète, sans données) pour voir chaque teinte.
         let now = Date.now
-        func synthetic(_ mg: Double, hoursAgo: Double) -> WidgetEntryData {
+        func synthetic(_ mg: Double, hoursAgo: Double, updatedHoursAgo: Double = 0) -> WidgetEntryData {
             let s = CacheSnapshot(doses: [CaffeineDose(date: now.addingTimeInterval(-hoursAgo * 3600), milligrams: mg)],
-                                  limits: snapshot?.limits ?? AssessmentLimits(profile: .default), updatedAt: now)
+                                  limits: snapshot?.limits ?? AssessmentLimits(profile: .default),
+                                  updatedAt: now.addingTimeInterval(-updatedHoursAgo * 3600))
             return WidgetTimelinePlanner.entries(snapshot: s, now: now).first!
         }
-        entries = [live.first ?? .empty(at: now), synthetic(160, hoursAgo: 1), synthetic(320, hoursAgo: 0.75), .empty(at: now)]
+        // Obsolète : snapshot écrit il y a 31 h (fenêtre par défaut 30 h) → « Ouvrir Kaff » en ligne secondaire.
+        let stale = synthetic(160, hoursAgo: 1, updatedHoursAgo: CacheSnapshot.defaultWindowHours + 1)
+        entries = [live.first ?? .empty(at: now), synthetic(160, hoursAgo: 1), synthetic(320, hoursAgo: 0.75),
+                   stale, .empty(at: now)]
     }
 
     var body: some View {
