@@ -99,3 +99,32 @@ private func estimate(_ sessions: [SleepSession]) -> BedtimeEstimate? {
     let future = session(day: 24, 22)
     #expect(estimate(nights + [future]) == BedtimeEstimate(time: ClockTime(hour: 23, minute: 0), nights: 3))
 }
+
+/// Revue M6.7 : HealthKit écrit une nuit en plusieurs échantillons (phases, réveils). Un fragment qui commence
+/// après 04:00 tombe dans la journée caféine suivante et en deviendrait le « coucher » (04:15 au lieu de 23:00).
+/// Les fragments d'une même nuit (écart ≤ `mergeGapHours`) sont fusionnés avant le regroupement.
+@Test func fragmentedNightsAcrossFourAmAreMergedIntoOneNight() {
+    var sessions: [SleepSession] = []
+    for day in 20...22 {
+        sessions += [
+            session(day: day, 23, 0, hours: 1.5, kind: .asleep),          // 23:00–00:30
+            session(day: day + 1, 0, 40, hours: 3.5, kind: .asleep),       // 00:40–04:10 (réveil de 10 min)
+            session(day: day + 1, 4, 15, hours: 2.75, kind: .asleep),      // 04:15–07:00 : après 04:00
+        ]
+    }
+    #expect(estimate(sessions) == BedtimeEstimate(time: ClockTime(hour: 23, minute: 0), nights: 3))
+}
+
+/// Un fragment de plus de 3 h qui commence après 05:00 (longue phase profonde tardive) reste rattaché à sa nuit.
+@Test func lateLongFragmentStaysWithItsNight() {
+    let sessions = (20...22).flatMap { day in
+        [session(day: day, 22, 30, hours: 6.5), session(day: day + 1, 5, 10, hours: 3.5)]   // 22:30–05:00, 05:10–08:40
+    }
+    #expect(estimate(sessions) == BedtimeEstimate(time: ClockTime(hour: 22, minute: 30), nights: 3))
+}
+
+/// Deux nuits consécutives ne fusionnent jamais (écart ≈ 16 h), et une sieste isolée non plus.
+@Test func mergingNeverJoinsDistinctNights() {
+    let sessions = [session(day: 20, 23), session(day: 21, 23), session(day: 22, 23), session(day: 22, 14, hours: 1)]
+    #expect(estimate(sessions) == BedtimeEstimate(time: ClockTime(hour: 23, minute: 0), nights: 3))
+}

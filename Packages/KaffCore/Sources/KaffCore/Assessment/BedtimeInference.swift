@@ -26,6 +26,10 @@ public enum BedtimeInference {
     /// Fin exclue de la fenêtre de sieste (19:00) ; c'est aussi le premier coucher accepté.
     /// Source: choix produit — un coucher entre `CaffeineDay.startHour` et 19:00 tombe dans la journée caféine suivante.
     public static let napWindowEndHour = 19
+    /// HealthKit écrit une nuit en plusieurs échantillons (phases, réveils) : deux fragments séparés d'au plus cet
+    /// écart forment la même nuit. Source: choix produit — un réveil nocturne dure des minutes, pas des heures ;
+    /// deux nuits consécutives sont espacées d'une journée.
+    public static let mergeGapHours = 2.0
 
     /// Source: définition — secondes par heure.
     private static let secondsPerHour = 3600.0
@@ -34,19 +38,32 @@ public enum BedtimeInference {
     /// Source: définition — 12:00 en minutes, origine de la médiane circulaire (23:30 → 690, 00:30 → 750).
     private static let noonMinutes = 720
 
-    /// Sessions starting between 05:00 and 18:59 that last ≤ napMaxHours are naps and ignored.
+    /// Les fragments d'une même nuit sont d'abord fusionnés (`mergeGapHours`), puis les siestes écartées : une
+    /// session qui commence entre 05:00 et 18:59 et dure ≤ `napMaxHours`.
     /// `nil` si moins de `minimumNights` nuits dans la fenêtre ou si la médiane tombe entre 04:00 et 18:59.
     public static func estimate(sessions: [SleepSession], now: Date, calendar: Calendar) -> BedtimeEstimate? {
         guard let windowStart = calendar.date(byAdding: .day, value: -lookbackDays, to: now) else { return nil }
-        let candidates = sessions.filter {
-            $0.start >= windowStart && $0.start <= now && !isNap($0, calendar: calendar)
-        }
+        let inWindow = sessions.filter { $0.start >= windowStart && $0.start <= now }
+        let candidates = merged(inWindow).filter { !isNap($0, calendar: calendar) }
         let bedtimes = nightlyBedtimes(candidates, calendar: calendar)
         guard bedtimes.count >= minimumNights else { return nil }
 
         let time = circularMedian(minutesOfDay: bedtimes.map { minutesOfDay($0, calendar: calendar) })
         guard isAcceptableBedtime(time) else { return nil }
         return BedtimeEstimate(time: time, nights: bedtimes.count)
+    }
+
+    /// Fusionne les sessions qui se chevauchent ou se suivent à moins de `mergeGapHours` (tri par début, balayage) ;
+    /// la session fusionnée garde le début du premier fragment et la fin la plus tardive, kind du premier fragment.
+    static func merged(_ sessions: [SleepSession]) -> [SleepSession] {
+        let gap = mergeGapHours * secondsPerHour
+        return sessions.sorted { $0.start < $1.start }.reduce(into: [SleepSession]()) { result, next in
+            guard let last = result.last, next.start.timeIntervalSince(last.end) <= gap else {
+                result.append(next)
+                return
+            }
+            result[result.count - 1] = SleepSession(start: last.start, end: max(last.end, next.end), kind: last.kind)
+        }
     }
 
     static func isNap(_ session: SleepSession, calendar: Calendar) -> Bool {

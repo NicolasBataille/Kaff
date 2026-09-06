@@ -165,7 +165,8 @@ vrai et qu'une valeur a pu être déduite, sinon `bedtime` (saisie manuelle, inc
 | Règle | Valeur | Raison |
 |---|---|---|
 | Fenêtre | nuits des 14 derniers jours | Fact-check §5 : « médiane des 7–14 dernières nuits » ; assez court pour suivre un changement d'habitude |
-| Nuit | sessions `inBed` ou `asleep*` groupées par journée caféine (04:00 → 04:00) de leur début ; le coucher de la nuit = début le plus tôt du groupe | Une nuit qui commence à 23:30 et une à 00:30 tombent dans la même journée caféine ; `inBed` précède `asleep` de quelques minutes, écart négligeable |
+| Fusion | fragments (phases, réveils) qui se chevauchent ou se suivent à ≤ 2 h fusionnés en une session (début du premier, fin la plus tardive) | HealthKit écrit une nuit en plusieurs échantillons ; sans fusion, un fragment commençant après 04:00 basculerait dans la journée caféine suivante (revue M6.7) |
+| Nuit | sessions fusionnées `inBed` ou `asleep*` groupées par journée caféine (04:00 → 04:00) de leur début ; le coucher de la nuit = début le plus tôt du groupe | Une nuit qui commence à 23:30 et une à 00:30 tombent dans la même journée caféine ; `inBed` précède `asleep` de quelques minutes, écart négligeable |
 | Sieste exclue | session ignorée si elle commence entre 05:00 et 18:59 **et** dure ≤ 3 h | Choix produit, sans base littéraire |
 | Minimum | 3 nuits, sinon `nil` (repli manuel) | Une médiane sur 1–2 nuits n'est pas une habitude |
 | Médiane circulaire | minutes depuis 12:00 (23:30 → 690, 00:30 → 750), médiane, retour en heure ; arrondi aux 5 min | 23:30 et 00:30 doivent donner 00:00, pas 12:00 |
