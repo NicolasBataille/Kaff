@@ -20,7 +20,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     CURRENT_PROJECT_VERSION: 3
-    MARKETING_VERSION: 0.1.0
+    MARKETING_VERSION: 0.2.0
     # Extraction des chaînes SwiftUI vers Localizable.xcstrings (M5.1).
     SWIFT_EMIT_LOC_STRINGS: YES
 

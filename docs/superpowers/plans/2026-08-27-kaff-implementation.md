@@ -3090,6 +3090,85 @@ Mettre à jour `docs/ROADMAP.md` : M5 ✅, journal « v0.1.0 installée sur la m
 
 ---
 
+## M6 — v0.2 : coucher réel, notifications, fraîcheur (ajouté le 2026-09-06)
+
+Cadre : spec §1 (v0.2), §2, §5.1, §5.2, §7.5–7.6, §8 (obsolescence), §9, §10. Branche `feat/v0.2`,
+`MARKETING_VERSION 0.2.0`, builds TestFlight à partir de (4). Hors périmètre (décision 2026-09-06) :
+grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager après M6.7 seulement).
+
+### Task M6.1 : `SleepSession` et `BedtimeInference` (KaffCore)
+
+**Files:**
+- Create: `Packages/KaffCore/Sources/KaffCore/Model/SleepSession.swift`, `Packages/KaffCore/Sources/KaffCore/Assessment/BedtimeInference.swift`
+- Test: `Packages/KaffCore/Tests/KaffCoreTests/BedtimeInferenceTests.swift`
+
+- [ ] **Step 1** : tests RED — 23:30/00:30 → 00:00 (médiane circulaire) ; 2 nuits → `nil` ; sieste 14:00–15:30 ignorée, sieste 13:00–17:00 (> 3 h) comptée ; nuit de 15 jours exclue, nuit de 13 jours incluse ; `inBed` 23:10 + `asleepCore` 23:25 même nuit → 23:10 ; arrondi 5 min ; résultat 05:00 → `nil` ; sessions non triées ; `awake` ignoré.
+- [ ] **Step 2** : `SleepSession { start, end, kind: .inBed | .asleep }` (Hashable, Sendable) ; `BedtimeInference.estimate(sessions:now:calendar:) -> BedtimeEstimate?` (`time: ClockTime`, `nights: Int`) avec constantes sourcées (`lookbackDays = 14`, `minimumNights = 3`, `napMaxHours = 3`, `nightWindow` 19:00–04:59, `roundingMinutes = 5`).
+- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M6.1 BedtimeInference`.
+
+### Task M6.2 : profil v0.2 et coucher effectif (KaffCore)
+
+**Files:**
+- Modify: `UserProfile.swift`, `AssessmentLimits.swift`
+- Test: `ModelTests.swift`, `AssessmentLimitsTests.swift`, `ProfileStoreTests.swift`
+
+- [ ] **Step 1** : tests RED — un JSON de profil v0.1 (sans les nouveaux champs) se décode avec `usesHealthBedtime == false`, `notifySleepReady == false`, `notifyLastIntake == false`, `healthBedtime == nil` ; `effectiveBedtime` = manuel quand l'option est inactive ou `healthBedtime` absent, = Santé sinon ; `AssessmentLimits(profile:).bedtime == profile.effectiveBedtime`.
+- [ ] **Step 2** : champs `usesHealthBedtime: Bool`, `healthBedtime: ClockTime?`, `healthBedtimeNights: Int?`, `notifySleepReady: Bool`, `notifyLastIntake: Bool` ; `init(from:)` tolérant (`decodeIfPresent`) ; `effectiveBedtime` ; `AssessmentLimits(profile:)` l'utilise.
+- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M6.2 effective bedtime in profile`.
+
+### Task M6.3 : `latestIntakeDate` et `NotificationPlanner` (KaffCore)
+
+**Files:**
+- Modify: `LevelAssessor.swift`
+- Create: `Packages/KaffCore/Sources/KaffCore/Assessment/NotificationPlanner.swift`
+- Test: `LevelAssessorTests.swift`, `NotificationPlannerTests.swift`
+
+- [ ] **Step 1** : tests RED — `latestIntakeDate(milligrams: 63, doses: [], from: 14:00, coucher 23:00, seuil 35)` ≈ 19:00 ± 10 min (calculé par la formule, pas deviné) ; une dose de 200 mg à 18:00 → `nil` (déjà trop tard) ; coucher passé → `nil` ; 20 mg → `coucher − tmax` ; la valeur retournée satisfait `A(coucher) < seuil` et `+ 2 min` ne le satisfait plus.
+- [ ] **Step 2** : implémentation (dichotomie sur `[now, coucher − tmax]`, réutiliser `dayContext`).
+- [ ] **Step 3** : tests RED `NotificationPlanner.plan(doses:limits:referenceMg:wantsSleepReady:wantsLastIntake:now:calendar:) -> [PlannedNotification]` (`kind: .sleepReady | .lastIntake`, `fireAt`, `milligrams?`) : rien si les deux options sont fausses ; `sleepReady` absent quand `sleepReadyAt <= now + 60 s` ; `lastIntake` absent quand `latestIntakeDate` est `nil` ou ≤ now + 60 s ; les deux présents dans le cas nominal, triés par date ; identifiants stables (`PlannedNotification.Kind.rawValue`).
+- [ ] **Step 4** : `swift test` vert ; commit `feat(core): M6.3 latestIntakeDate and NotificationPlanner`.
+
+### Task M6.4 : services sommeil et notifications, `AppModel`
+
+**Files:**
+- Modify: `Kaff Watch App/Services/HealthStore.swift`, `HealthKitStore.swift`, `Kaff Watch App/App/AppModel.swift`, `KaffApp.swift`, `project.yml` (`NSHealthShareUsageDescription` mentionne le sommeil), `KaffTests/Mocks/MockHealthStore.swift`
+- Create: `Kaff Watch App/Services/NotificationScheduler.swift` (protocole + `UserNotificationScheduler`), `KaffTests/Mocks/MockNotificationScheduler.swift`, `KaffTests/AppModelSleepTests.swift`, `KaffTests/AppModelNotificationTests.swift`
+
+- [ ] **Step 1** : tests RED `AppModel` — `enableHealthBedtime()` appelle `requestSleepAuthorization` une fois, lit 14 jours de sessions, stocke `healthBedtime`/`nights` et `usesHealthBedtime`, publie (snapshot avec `limits.bedtime` = valeur Santé) ; zéro session → `usesHealthBedtime` vrai, `healthBedtime` nil, `healthBedtimeState == .noNights` ; erreur de lecture → `lastError` « Lecture du sommeil impossible », ancienne valeur conservée ; `refresh()` ré-infère quand l'option est active et ne touche pas HealthKit sommeil sinon ; `disableHealthBedtime()` remet le manuel.
+- [ ] **Step 2** : tests RED notifications — `setNotifications(sleepReady:lastIntake:)` demande l'autorisation une fois (mock : accordée/refusée) ; refus → drapeaux faux + `notificationsDenied` ; accordée → `publish()` appelle `scheduler.replace(plan)` avec le plan de `NotificationPlanner` (dose de référence = favori sinon espresso 63) ; tout désactivé → `replace([])` ; `log`/`delete`/`update(profile:)` replanifient.
+- [ ] **Step 3** : `HealthStore.sleepSessions(from:to:)` + `requestSleepAuthorization()` ; `HealthKitStore` : `HKCategoryType(.sleepAnalysis)`, `.inBed` → `.inBed`, `.asleepUnspecified/.asleepCore/.asleepDeep/.asleepREM` → `.asleep`, `.awake` ignoré ; `NotificationScheduler` (`authorizationStatus() async`, `requestAuthorization() async throws -> Bool`, `replace(_ plan: [PlannedNotification]) async`) et `UserNotificationScheduler` (`UNCalendarNotificationTrigger` non répétitif, identifiants `fr.nikou.kaff.<kind>`, `removePendingNotificationRequests` avant ajout, contenu localisé) ; `AppModel` branché ; `KaffApp` injecte `UserNotificationScheduler()`.
+- [ ] **Step 4** : `make test` vert ; commit `feat(app): M6.4 sleep bedtime and notification services`.
+
+### Task M6.5 : Réglages — coucher Santé, notifications, indices demi-vie (design Fable)
+
+**Files:**
+- Modify: `Features/Settings/SettingsView.swift`, `BedtimePickerView.swift` (si nécessaire), `Route.swift`, `Resources/Localizable.xcstrings` (insertion minimale de clés, pas de réécriture), `docs/design/ui-direction.md` (§ Réglages)
+
+- [ ] **Step 1** : section Sommeil — interrupteur « Coucher depuis Santé » (déclenche `enableHealthBedtime()`), ligne Coucher : valeur effective en `Theme.sleep`, sous-titre « médiane de 12 nuits · Santé » ou « manuel » ; quand Santé est actif sans nuit : note « Aucune nuit trouvée dans Santé sur la montre. Le coucher manuel est utilisé. » ; le cadran manuel reste accessible.
+- [ ] **Step 2** : section Notifications — deux interrupteurs, note sous chacun avec la prochaine occurrence planifiée (« Prochain rappel 19:05 · Espresso 63 mg ») ou « Rien à planifier aujourd'hui » ; refus → interrupteurs grisés + note Réglages › Notifications ; haptique `.success` à l'activation.
+- [ ] **Step 3** : section Modèle — note sourcée sous la demi-vie (« Tabac ≈ 3,5 h · contraception œstroprogestative ≈ 8 h · grossesse : hors modèle », sources fact-check §3).
+- [ ] **Step 4** : vérification simulateur 46 mm + AX5 ; captures `docs/screenshots/m6-settings-*.png` ; commit `feat(app): M6.5 settings for sleep, notifications, half-life hints`.
+
+### Task M6.6 : obsolescence du snapshot côté complication
+
+**Files:**
+- Modify: `CacheSnapshot.swift` (`windowHours`, décodage tolérant, défaut 30), `AppModel.publish()`, `WidgetEntryData.swift` (`isStale`), `WidgetTimelinePlanner.swift`, `KaffComplication/Views/RectangularView.swift`, `InlineView.swift`
+- Test: `CacheStoreTests.swift`, `WidgetTimelinePlannerTests.swift`
+
+- [ ] **Step 1** : tests RED — snapshot v3 sans `windowHours` se décode (30) ; `entries(...)` marque `isStale` dès `now − updatedAt > windowHours`, jamais avant ; `empty` n'est pas stale.
+- [ ] **Step 2** : implémentation + rendu (« Ouvrir Kaff » en ligne secondaire du rectangulaire et de l'inline, galerie de debug mise à jour).
+- [ ] **Step 3** : tests verts ; commit `feat(widget): M6.6 stale snapshot indicator`.
+
+### Task M6.7 : vérification, revue, TestFlight 0.2.0 (4)
+
+- [ ] **Step 1** : simulateur — semis DEBUG `KAFF_SEED_SLEEP=1` (écrit 7 nuits `sleepAnalysis` dans la base du simulateur au lancement, autorisation d'écriture demandée seulement en DEBUG) ; activer « Coucher depuis Santé », vérifier la valeur ; activer les deux notifications, vérifier leur arrivée (`xcrun simctl` ou attente courte avec `now` décalé) ; complication obsolète après modification de `updatedAt`.
+- [ ] **Step 2** : agents `code-reviewer` (tout M6) et `security-reviewer` (`Services/`, `AppModel`) ; corriger CRITICAL/HIGH.
+- [ ] **Step 3** : couverture `KaffCore` ≥ 90 %, app non-vue ≥ 80 %.
+- [ ] **Step 4** : docs — README (section « et le sommeil ? »), `docs/science/README.md` (backlog → fait), `docs/PRIVACY.md` (sommeil lu, jamais affiché ; notifications locales), ROADMAP M6 ✅ + journal, plan coché.
+- [ ] **Step 5** : `CURRENT_PROJECT_VERSION 4`, `make testflight`, tag `v0.2.0` après validation sur la montre de l'utilisateur.
+
+---
+
 ## Auto-revue du plan (faite le 2026-08-27)
 
 - **Couverture de la spec** : §3 structure → M0/M1/M2 ; §4 PK → M1.3 ; §5 seuils, sommeil, équivalences → M1.2, M1.5, M3.3 ; §6 catalogue, favoris, boissons perso, métadonnées HealthKit → M1.2, M2.1, M2.2, M3.5 ; §7 écrans + deep link → M3.1–M3.5 ; §8 complication (4 familles, grille + transitions, `.atEnd`, rechargement, placeholder) → M1.6, M4.1, M4.2 ; §9 erreurs (autorisation, écriture, poids, cache widget, bornes) → M2.2, M3.1, M4.2, M1.1 ; §10 tests → chaque tâche ; §11 hypothèses → M0.2.

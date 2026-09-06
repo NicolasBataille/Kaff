@@ -16,6 +16,10 @@ Publication App Store non prévue en v1.
 **Hors périmètre v1 :** app iPhone, autres métriques vitales (FC, HRV, sommeil),
 notifications, synchronisation multi-appareils au-delà de ce que HealthKit offre.
 
+**v0.2 (M6, 2026-09-06)** : le sommeil Santé (`sleepAnalysis`) sert uniquement à déduire
+l'heure de coucher habituelle (§5.1), jamais affiché ni utilisé autrement ; deux notifications
+locales opt-in (§7.6). Toujours hors périmètre : app iPhone, FC/VFC, grossesse, mineurs.
+
 ## 2. Décisions validées
 
 | Sujet | Décision | Raison |
@@ -27,6 +31,8 @@ notifications, synchronisation multi-appareils au-delà de ce que HealthKit offr
 | Complication | WidgetKit, familles `accessory*`, timeline précalculée | ClockKit est déprécié ; la décroissance entre doses est déterministe |
 | Génération projet | XcodeGen (`project.yml`) | `.xcodeproj` reproductible, pas de conflits de merge |
 | Logique métier | Package Swift pur `KaffCore`, testé sous macOS | TDD et couverture 80 % à bas coût |
+| Coucher (v0.2) | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle | Le fact-check (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile ; le sommeil n'est jamais affiché |
+| Notifications (v0.2) | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
 
 ## 3. Architecture
 
@@ -57,7 +63,8 @@ Kaff/
 | Unité | Rôle | Dépend de | Testé par |
 |---|---|---|---|
 | `KaffCore` | Toute la logique : PK, seuils, timeline, catalogue. Fonctions pures : doses + profil → courbe / statut. | Foundation uniquement | Tests unitaires (cible ≥ 90 %) |
-| `HealthStore` (protocole) | Lire/écrire doses `dietaryCaffeine`, lire `bodyMass`, autorisation | HealthKit | Mock dans les tests de ViewModel |
+| `HealthStore` (protocole) | Lire/écrire doses `dietaryCaffeine`, lire `bodyMass`, lire `sleepAnalysis` (v0.2, autorisation séparée), autorisation | HealthKit | Mock dans les tests de ViewModel |
+| `NotificationScheduler` (protocole, v0.2) | Autorisation `UNUserNotificationCenter`, remplacer les notifications planifiées de Kaff par le plan calculé | UserNotifications | Mock dans les tests de ViewModel |
 | `CacheStore` | Snapshot JSON (doses 24 h + profil) dans l'App Group, lu par le widget | UserDefaults(suiteName:) | Tests unitaires |
 | `ProfileStore` | Réglages utilisateur (demi-vie, coucher, limites, surcharge poids, boissons perso) dans l'App Group | UserDefaults | Tests unitaires |
 | ViewModels (`@Observable`) | Orchestration : charge doses, calcule via KaffCore, écrit cache, recharge timelines widget | KaffCore, services | Tests avec mocks |
@@ -147,6 +154,42 @@ Dérivés affichés :
 
 Une ligne dans Réglages et dans le README : *estimation indicative, pas un avis médical.*
 
+### 5.1 Heure de coucher effective (v0.2)
+
+`UserProfile.effectiveBedtime` alimente `AssessmentLimits.bedtime` (donc le widget via le
+snapshot, sans changement de schéma) : c'est `healthBedtime` quand `usesHealthBedtime` est
+vrai et qu'une valeur a pu être déduite, sinon `bedtime` (saisie manuelle, inchangée).
+
+`BedtimeInference` (KaffCore, pure) déduit `healthBedtime` des sessions `sleepAnalysis` :
+
+| Règle | Valeur | Raison |
+|---|---|---|
+| Fenêtre | nuits des 14 derniers jours | Fact-check §5 : « médiane des 7–14 dernières nuits » ; assez court pour suivre un changement d'habitude |
+| Nuit | sessions `inBed` ou `asleep*` groupées par journée caféine (04:00 → 04:00) de leur début ; le coucher de la nuit = début le plus tôt du groupe | Une nuit qui commence à 23:30 et une à 00:30 tombent dans la même journée caféine ; `inBed` précède `asleep` de quelques minutes, écart négligeable |
+| Sieste exclue | session ignorée si elle commence entre 05:00 et 18:59 **et** dure ≤ 3 h | Choix produit, sans base littéraire |
+| Minimum | 3 nuits, sinon `nil` (repli manuel) | Une médiane sur 1–2 nuits n'est pas une habitude |
+| Médiane circulaire | minutes depuis 12:00 (23:30 → 690, 00:30 → 750), médiane, retour en heure ; arrondi aux 5 min | 23:30 et 00:30 doivent donner 00:00, pas 12:00 |
+| Rejet | résultat entre 04:00 et 18:59 → `nil` | Un coucher après 04:00 tombe dans la journée caféine suivante (`CaffeineDay.startHour`) |
+
+Le résultat est mémorisé dans le profil (`healthBedtime`, `healthBedtimeNights`) et recalculé
+à chaque `refresh()` quand l'option est active. Limitation : la base Santé de la montre ne
+contient que le sommeil suivi par la montre elle-même ou synchronisé récemment ; un sommeil
+saisi seulement sur l'iPhone ou par une app tierce peut manquer → « aucune nuit trouvée »,
+jamais un diagnostic de refus (HealthKit masque le statut de lecture).
+
+### 5.2 Dernière prise avant le coucher (v0.2)
+
+`LevelAssessor.latestIntakeDate(milligrams:doses:from:)` : dernier instant `t ≥ now` où une
+dose de `D` mg garde `A_total(coucher) < seuil coucher`. Contrainte réelle : le maximum de la
+courbe **après** le coucher doit rester sous le seuil ; pour `t ≤ coucher − tmax` ce maximum est
+`A_total(coucher)`, croissant en `t` → dichotomie à la minute près sur `[now, coucher − tmax]`.
+Résultats : `nil` si le coucher est passé dans la journée caféine ou si même `now` dépasse le
+seuil (« plus de caféine aujourd'hui ») ; `coucher − tmax` si la dose passe partout (petite
+dose). Une prise plus tardive que `coucher − tmax` culmine pendant le sommeil : jamais proposée.
+
+Dose de référence de la notification : la boisson favorite de l'utilisateur (première de
+`favoriteDrinks`), sinon l'espresso du catalogue (63 mg).
+
 ## 6. Catalogue de boissons
 
 Prédéfinies (mg pour un volume standard, réglables) : espresso 63 mg/30 ml,
@@ -175,8 +218,21 @@ Chaque dose enregistrée dans HealthKit porte les métadonnées
    (« ≈ 1,6 espresso ») → *Ajouter*.
 4. **Historique** — doses du jour (heure, boisson, mg), swipe pour supprimer
    (supprime l'échantillon HealthKit), sections par jour sur 7 jours.
-5. **Réglages** — poids (valeur HealthKit + surcharge), demi-vie, heure de coucher,
-   seuils, boissons personnalisées, mention non médicale.
+5. **Réglages** — poids (valeur HealthKit + surcharge), demi-vie (v0.2 : indices sourcés —
+   tabac ≈ 3,5 h, contraception œstroprogestative ≈ 8 h, grossesse hors modèle), heure de
+   coucher (v0.2 : interrupteur « Coucher depuis Santé », valeur déduite + nombre de nuits,
+   repli manuel visible), seuils, boissons personnalisées, mention non médicale.
+6. **Notifications (v0.2, Réglages)** — deux interrupteurs indépendants, chacun déclenche la
+   demande d'autorisation `UNUserNotificationCenter` la première fois :
+   - « OK pour dormir » : une notification à `sleepReadyAt` quand le niveau est encore au-dessus
+     du seuil coucher (« Niveau redescendu sous 35 mg : OK pour dormir »).
+   - « Dernière prise avant le coucher » : une notification à `latestIntakeDate` pour la dose de
+     référence (§5.2), texte « Dernier espresso (63 mg) pour dormir à 23:00 ».
+   Planification : à chaque publication du snapshot (log, suppression, réglage, premier plan),
+   Kaff remplace ses notifications en attente par le plan de `NotificationPlanner` (KaffCore,
+   pure) ; rien n'est planifié dans le passé ni à moins d'une minute ; désactiver un
+   interrupteur retire ses notifications. Limitation connue : sans ouverture de l'app, le plan
+   du jour n'est pas recalculé pour le lendemain (pas de tâche de fond en v0.2).
 
 Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson.
 
@@ -192,6 +248,11 @@ Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson
 - Rechargement : `WidgetCenter.shared.reloadAllTimelines()` après chaque écriture /
   suppression / changement de réglage.
 - Sans données ou sans autorisation : jauge vide, texte « Ouvrir Kaff ».
+- **Obsolescence (v0.2)** : `WidgetEntryData.isStale` vrai quand `now − snapshot.updatedAt`
+  dépasse la fenêtre des doses du snapshot (`CacheSnapshot.windowHours`, écrite par l'app :
+  `max(30, 10 × t½)`) — le widget ne peut alors plus connaître de dose non transmise. Rendu
+  discret : rectangulaire et inline remplacent la ligne secondaire par « Ouvrir Kaff », le
+  circulaire et le coin gardent la valeur (elle reste juste : la caféine connue a décru).
 
 ## 9. Gestion des erreurs
 
@@ -202,6 +263,9 @@ Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson
 | Poids absent | 70 kg par défaut + badge « poids estimé » + lien Réglages |
 | Cache absent côté widget | Vue placeholder « Ouvrir Kaff » |
 | Valeurs saisies aberrantes | Validation aux bornes (mg 0–1000, poids 30–250 kg, demi-vie 2–10 h) |
+| Sommeil absent ou < 3 nuits (v0.2) | Interrupteur reste actif, note « Aucune nuit trouvée dans Santé sur la montre », coucher manuel utilisé et affiché comme tel |
+| Notifications refusées (v0.2) | Interrupteurs désactivés, note avec le chemin Réglages › Notifications ; aucune re-demande automatique |
+| Lecture du sommeil en erreur (v0.2) | `lastError` « Lecture du sommeil impossible », dernière valeur déduite conservée |
 
 ## 10. Tests
 
@@ -212,6 +276,11 @@ Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson
 - **Services** : `CacheStore`/`ProfileStore` round-trip JSON ; `HealthStore` derrière
   un protocole, mock injecté dans les ViewModels.
 - **ViewModels** : log → cache écrit → reload widget demandé (spy).
+- **v0.2** : `BedtimeInference` (chaque règle du tableau §5.1, dont 23:30/00:30 → 00:00),
+  `latestIntakeDate` (monotonie, `nil` trop tard, `nil` coucher passé, petite dose → coucher − tmax),
+  `NotificationPlanner`, décodage d'un profil v0.1 sans les nouveaux champs, `AppModel`
+  (autorisation sommeil demandée une seule fois sur action, déduction stockée, plan de
+  notifications remplacé à chaque publication, retrait à la désactivation), `isStale`.
 - **UI** : vérification manuelle sur simulateur Apple Watch Series 11 (46 mm) et
   Ultra 3 ; captures dans `docs/screenshots/` à chaque jalon.
 - Couverture globale cible ≥ 80 % (les vues SwiftUI sont exclues de la mesure).
