@@ -14,9 +14,14 @@ public struct WidgetEntryData: Hashable, Sendable {
     /// Niveau (mg) échantillonné toutes les `WidgetTimelinePlanner.sparklineStepMinutes` à partir de `date`
     /// (`WidgetTimelinePlanner.sparklineSamples` points, ≈ 6 h) pour la mini-courbe de la famille rectangulaire.
     public let sparkline: [Double]
+    /// `true` quand, à `date`, le snapshot est plus vieux que sa fenêtre de doses (`CacheSnapshot.windowHours`) :
+    /// une dose non transmise ne peut plus être connue. Le rectangulaire et l'inline affichent alors « Ouvrir Kaff »
+    /// en ligne secondaire ; la valeur reste juste (la caféine connue a décru). `false` sans snapshot.
+    public let isStale: Bool
 
     public init(date: Date, milligrams: Double, status: LevelStatus, limitMg: Double,
-                sleepReadyAt: Date, isSleepReady: Bool, hasData: Bool, sparkline: [Double] = []) {
+                sleepReadyAt: Date, isSleepReady: Bool, hasData: Bool, sparkline: [Double] = [],
+                isStale: Bool = false) {
         self.date = date
         self.milligrams = milligrams
         self.status = status
@@ -25,6 +30,7 @@ public struct WidgetEntryData: Hashable, Sendable {
         self.isSleepReady = isSleepReady
         self.hasData = hasData
         self.sparkline = sparkline
+        self.isStale = isStale
     }
 
     public static func empty(at date: Date) -> WidgetEntryData {

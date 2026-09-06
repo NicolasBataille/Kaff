@@ -54,3 +54,50 @@ import Testing
     #expect(empty == WidgetTimelinePlanner.entries(snapshot: nil, now: now, calendar: TestClock.calendar).first)
     #expect(empty == .empty(at: now))
 }
+
+// MARK: Obsolescence (M6.6)
+
+/// Snapshot écrit il y a 29 h avec une fenêtre de 30 h : l'entrée à `now` n'est pas obsolète, celle à +2 h l'est
+/// (la timeline est précalculée : chaque entrée évalue l'obsolescence à sa propre date).
+@Test func stalenessIsEvaluatedPerEntryDate() {
+    let now = TestClock.date(8)
+    let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120)]
+    let snapshot = CacheSnapshot(doses: doses, limits: AssessmentLimits(profile: .default),
+                                 updatedAt: now.addingTimeInterval(-29 * 3600), windowHours: 30)
+    let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
+    #expect(entries.first?.isStale == false)
+    let twoHoursLater = entries.first { $0.date == now.addingTimeInterval(2 * 3600) }
+    #expect(twoHoursLater?.isStale == true)
+    // Strictement au-delà de la fenêtre : l'entrée à +1 h (exactement 30 h) n'est pas encore obsolète.
+    #expect(entries.first { $0.date == now.addingTimeInterval(3600) }?.isStale == false)
+    #expect(entries.allSatisfy { $0.isStale == ($0.date > now.addingTimeInterval(3600)) })
+}
+
+@Test func freshSnapshotIsNeverStaleOverTheHorizon() {
+    let now = TestClock.date(8)
+    let snapshot = CacheSnapshot(doses: [CaffeineDose(date: now, milligrams: 250)],
+                                 limits: AssessmentLimits(profile: .default), updatedAt: now)
+    let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
+    #expect(entries.last!.date >= now.addingTimeInterval(12 * 3600))
+    #expect(entries.allSatisfy { !$0.isStale })
+}
+
+@Test func emptyEntryIsNotStale() {
+    let now = TestClock.date(8)
+    #expect(WidgetEntryData.empty(at: now).isStale == false)
+    #expect(WidgetTimelinePlanner.entries(snapshot: nil, now: now, calendar: TestClock.calendar).first?.isStale == false)
+}
+
+@Test func firstEntryStalenessMatchesEntries() {
+    let now = TestClock.date(8)
+    let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120)]
+    let stale = CacheSnapshot(doses: doses, limits: AssessmentLimits(profile: .default),
+                              updatedAt: now.addingTimeInterval(-31 * 3600), windowHours: 30)
+    let first = WidgetTimelinePlanner.firstEntry(snapshot: stale, now: now, calendar: TestClock.calendar)
+    #expect(first.isStale)
+    #expect(first == WidgetTimelinePlanner.entries(snapshot: stale, now: now, calendar: TestClock.calendar).first)
+    // Une fenêtre plus large (t½ = 8 h → 80 h) lève l'obsolescence pour le même `updatedAt`.
+    let wide = CacheSnapshot(doses: doses, limits: AssessmentLimits(profile: .default),
+                             updatedAt: now.addingTimeInterval(-31 * 3600), windowHours: 80)
+    #expect(WidgetTimelinePlanner.firstEntry(snapshot: wide, now: now, calendar: TestClock.calendar).isStale == false)
+}

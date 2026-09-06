@@ -12,7 +12,11 @@ extension WidgetEntryData {
     var ringProgress: Double { limitMg > 0 ? min(milligrams / limitMg, 1) : 0 }
     var ringOverflow: Double { limitMg > 0 ? max(milligrams / limitMg - 1, 0) : 0 }
     var sleepText: String { isSleepReady ? "Sommeil OK" : "Sommeil \(Formatters.time(sleepReadyAt))" }
+    /// Ligne secondaire du rectangulaire : le sommeil, ou « Ouvrir Kaff » quand le snapshot est obsolète (spec §8).
+    var secondaryText: String { isStale ? Self.openAppLabel : sleepText }
+    /// Suffixe de l'inline après les mg : le statut, ou « Ouvrir Kaff » quand le snapshot est obsolète.
+    var inlineSuffix: String { isStale ? Self.openAppLabel : status.label }
     var accessibilityText: String {
-        hasData ? "\(Formatters.mgValue(milligrams)) milligrammes, \(status.accessibilityLabel), \(sleepText)" : Self.openAppLabel
+        hasData ? "\(Formatters.mgValue(milligrams)) milligrammes, \(status.accessibilityLabel), \(secondaryText)" : Self.openAppLabel
     }
 }
