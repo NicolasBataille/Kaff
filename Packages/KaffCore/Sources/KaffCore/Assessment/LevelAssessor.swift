@@ -130,4 +130,35 @@ public struct LevelAssessor: Sendable {
         }
         return high
     }
+
+    /// Dernier instant `t ≥ now` où une dose de `milligrams` garde `A_total(coucher) < limits.bedtimeLimitMg` (spec §5.2).
+    /// Une prise après `coucher − tmax` culmine pendant le sommeil : jamais proposée, l'intervalle s'arrête là.
+    /// `nil` : coucher déjà passé dans la journée caféine, `now > coucher − tmax` (intervalle vide), ou `now` lui-même
+    /// dépasse déjà le seuil (« plus de caféine aujourd'hui »). Une limite ≤ 0 (profil corrompu) désactive la recherche.
+    public func latestIntakeDate(milligrams: Double, doses: [CaffeineDose], from now: Date) -> Date? {
+        let limit = limits.bedtimeLimitMg
+        guard limit > 0, let bedtime = dayContext(at: now).bedtime else { return nil }
+        let upper = bedtime.addingTimeInterval(-model.timeToPeakHours * 3600)
+        guard upper >= now else { return nil }
+        let past = doses.filter { $0.date <= now }
+        // Sur [now, coucher − tmax], A_total(coucher) est croissante en t (la dose a moins de temps pour s'éliminer).
+        let projected: (Date) -> Double = { t in
+            model.amount(doses: past + [CaffeineDose(date: t, milligrams: milligrams)], at: bedtime)
+        }
+        guard projected(now) < limit else { return nil }
+        guard projected(upper) >= limit else { return upper }
+        return Self.lastMinute(below: limit, in: now...upper, value: projected)
+    }
+
+    /// Dichotomie à la minute près sur une fonction croissante : dernier instant de `range` où `value < limit`.
+    /// Précondition : `value(lowerBound) < limit` et `value(upperBound) >= limit`.
+    private static func lastMinute(below limit: Double, in range: ClosedRange<Date>, value: (Date) -> Double) -> Date {
+        var low = range.lowerBound
+        var high = range.upperBound
+        while high.timeIntervalSince(low) > 60 {
+            let mid = low.addingTimeInterval(high.timeIntervalSince(low) / 2)
+            if value(mid) < limit { low = mid } else { high = mid }
+        }
+        return low
+    }
 }
