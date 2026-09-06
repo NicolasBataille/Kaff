@@ -110,11 +110,25 @@ Les doses et le poids vivent dans Santé, sauvegardés avec ton iPhone et réuti
 app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, jamais le poids) dans l'App Group ;
 la complication ne lit que ça et ne touche jamais HealthKit. Kaff n'envoie rien nulle part : pas de réseau, pas de statistiques.
 
+### 5 bis. Et le sommeil ? (v0.2)
+
+Aucun capteur ne mesure la caféine, mais la montre sait quand tu te couches. Si tu actives « Coucher depuis
+Santé » dans Réglages, Kaff lit tes nuits des 14 derniers jours (lecture seule, jamais affichées) et prend la
+médiane de tes heures de coucher, siestes exclues, à partir de trois nuits. C'est cette heure qui sert à la
+question « coucher » et à la complication ; sinon c'est l'heure que tu as réglée à la main.
+
+Deux notifications, chacune à activer séparément : **« OK pour dormir »** quand le niveau repasse sous le seuil
+coucher (jamais après 04:00), et **« Dernière prise avant le coucher »**, calculée pour ta boisson favorite :
+le dernier instant où la prendre laisse encore le niveau sous le seuil à l'heure du coucher. Un espresso
+(63 mg) avec un seuil de 35 mg et une demi-vie de 5 h, c'est environ 4 h 30 avant.
+
 ### 6. La complication sait déjà tout
 
 Puisque la courbe est déterministe, Kaff calcule d'avance la timeline de la complication : une entrée tous les
 quarts d'heure, plus une entrée exactement à chaque changement de statut. Le cadran se met à jour tout seul,
-même l'app fermée.
+même l'app fermée. Si l'app n'a pas été ouverte depuis plus longtemps que la fenêtre de doses transmise
+(30 h au moins), la complication affiche « Ouvrir Kaff » : elle ne peut plus garantir qu'aucune dose ne lui
+manque.
 
 <p align="center">
   <img src="docs/figures/timeline-complication.svg" width="800" alt="Timeline de la complication : points toutes les 15 minutes et entrées ajoutées aux changements de statut">
@@ -174,7 +188,7 @@ Swift 6 strict concurrency, Swift Testing, Swift Charts, Liquid Glass, couronne 
 
 ## Suivi
 
-- [Roadmap et journal](docs/ROADMAP.md) : jalons M0→M5, décisions, blocages.
+- [Roadmap et journal](docs/ROADMAP.md) : jalons M0→M6, décisions, blocages.
 - [Plan d'implémentation](docs/superpowers/plans/2026-08-27-kaff-implementation.md) et
   [spécification](docs/superpowers/specs/2026-08-27-kaff-design.md).
 - [Direction UI/UX](docs/design/ui-direction.md), [instructions de travail](CLAUDE.md).
@@ -182,7 +196,10 @@ Swift 6 strict concurrency, Swift Testing, Swift Charts, Liquid Glass, couronne 
 ## Limites connues
 
 - Les doses ajoutées depuis l'iPhone ou une autre app sont prises en compte à la prochaine ouverture de Kaff.
-- Pas de notifications en v1.
+- Les notifications sont replanifiées à chaque ouverture de l'app : sans l'ouvrir de la journée, le plan de la
+  veille n'est pas recalculé.
+- Le sommeil lu sur la montre est celui qu'elle a suivi elle-même (ou synchronisé récemment) : un sommeil saisi
+  seulement sur l'iPhone ou par une app tierce peut manquer.
 - Le contenu réel d'une tasse varie du simple au sextuple selon le café ; au-delà de ~500 mg en une prise le
   modèle sous-estime le résidu ; grossesse et certains médicaments sortent des bornes de demi-vie.
   Détail dans [docs/science/](docs/science/README.md#ce-que-kaff-ne-sait-pas-faire-et-le-dit).

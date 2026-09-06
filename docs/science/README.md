@@ -91,6 +91,8 @@ dose à 95 % et 105 % de la limite).
 
 ## Pistes ouvertes par la revue
 
-Heure de coucher réelle lue dans `sleepAnalysis` ; fraîcheur du poids ; mode grossesse ou allaitement (limite
-200 mg/j, demi-vie allongée, EFSA 2015) ; indices de demi-vie dans Réglages (tabac, contraception) ; vitesse
-d'absorption par type de boisson. Détail et sources dans la synthèse, §5, et dans [`../ROADMAP.md`](../ROADMAP.md).
+Faites en v0.2 (M6, 2026-09-06) : heure de coucher réelle lue dans `sleepAnalysis` (médiane circulaire des
+14 dernières nuits, en option, spec §5.1) ; indices de demi-vie dans Réglages (tabac, contraception, grossesse
+hors modèle) ; notification « dernière prise avant le coucher » (spec §5.2, dernier instant où une dose garde
+le résidu au coucher sous le seuil). Restent ouvertes : fraîcheur du poids ; mode grossesse ou allaitement
+(limite 200 mg/j, demi-vie allongée, EFSA 2015) ; vitesse d'absorption par type de boisson. Détail et sources dans la synthèse, §5, et dans [`../ROADMAP.md`](../ROADMAP.md).
