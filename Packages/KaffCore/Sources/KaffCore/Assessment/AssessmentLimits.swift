@@ -21,8 +21,10 @@ public struct AssessmentLimits: Hashable, Codable, Sendable {
     }
 
     /// Dérive les seuils du profil (`peakLimitMg` = min(mg/kg × poids, plafond) × fraction au pic du modèle PK).
+    /// `bedtime` est le coucher effectif (spec §5.1) : Santé si l'option est active et une valeur déduite existe,
+    /// sinon la saisie manuelle — le widget le reçoit tel quel, sans changement de schéma.
     public init(profile: UserProfile) {
-        self.init(halfLifeHours: profile.halfLifeHours, bedtime: profile.bedtime,
+        self.init(halfLifeHours: profile.halfLifeHours, bedtime: profile.effectiveBedtime,
                   peakLimitMg: profile.peakLimitMg,
                   dailyLimitMg: profile.dailyLimitMg, bedtimeLimitMg: profile.bedtimeLimitMg)
     }

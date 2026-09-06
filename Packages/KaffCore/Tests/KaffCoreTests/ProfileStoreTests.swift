@@ -26,6 +26,20 @@ private func freshDefaults() -> UserDefaults {
     #expect(loaded.bedtime == ClockTime(hour: 22, minute: 15))
 }
 
+@Test func profileRoundTripKeepsV2Fields() throws {
+    let store = ProfileStore(defaults: freshDefaults())
+    var p = UserProfile.default
+    p.usesHealthBedtime = true
+    p.healthBedtime = ClockTime(hour: 22, minute: 30)
+    p.healthBedtimeNights = 7
+    p.notifySleepReady = true
+    p.notifyLastIntake = true
+    try store.save(p)
+    let loaded = store.loadProfile()
+    #expect(loaded == p)
+    #expect(loaded.effectiveBedtime == ClockTime(hour: 22, minute: 30))
+}
+
 @Test func customDrinksRoundTrip() throws {
     let store = ProfileStore(defaults: freshDefaults())
     let drink = Drink(id: "custom-abc", name: "Cold brew", milligrams: 200, volumeML: 300, symbol: "mug.fill", isCustom: true)

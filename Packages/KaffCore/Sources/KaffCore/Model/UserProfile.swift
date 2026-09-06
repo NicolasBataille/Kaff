@@ -18,9 +18,22 @@ public struct UserProfile: Hashable, Codable, Sendable {
     public var singleDoseMgPerKg: Double
     public var singleDoseCapMg: Double
 
+    // Champs v0.2 (spec §5.1) — tous facultatifs au décodage pour rester compatibles avec un profil v0.1.
+
+    /// L'utilisateur a choisi le coucher déduit du sommeil Santé.
+    public var usesHealthBedtime: Bool = false
+    /// Dernière valeur déduite des sessions `sleepAnalysis` (`nil` : aucune nuit exploitable).
+    public var healthBedtime: ClockTime?
+    /// Nombre de nuits sur lesquelles repose `healthBedtime` (affiché dans Réglages).
+    public var healthBedtimeNights: Int?
+    public var notifySleepReady: Bool = false
+    public var notifyLastIntake: Bool = false
+
     public init(healthKitWeightKg: Double? = nil, healthKitWeightDate: Date? = nil, manualWeightKg: Double? = nil,
                 halfLifeHours: Double, bedtime: ClockTime,
-                dailyLimitMg: Double, bedtimeLimitMg: Double, singleDoseMgPerKg: Double, singleDoseCapMg: Double) {
+                dailyLimitMg: Double, bedtimeLimitMg: Double, singleDoseMgPerKg: Double, singleDoseCapMg: Double,
+                usesHealthBedtime: Bool = false, healthBedtime: ClockTime? = nil, healthBedtimeNights: Int? = nil,
+                notifySleepReady: Bool = false, notifyLastIntake: Bool = false) {
         self.healthKitWeightKg = healthKitWeightKg
         self.healthKitWeightDate = healthKitWeightDate
         self.manualWeightKg = manualWeightKg
@@ -30,6 +43,41 @@ public struct UserProfile: Hashable, Codable, Sendable {
         self.bedtimeLimitMg = bedtimeLimitMg
         self.singleDoseMgPerKg = singleDoseMgPerKg
         self.singleDoseCapMg = singleDoseCapMg
+        self.usesHealthBedtime = usesHealthBedtime
+        self.healthBedtime = healthBedtime
+        self.healthBedtimeNights = healthBedtimeNights
+        self.notifySleepReady = notifySleepReady
+        self.notifyLastIntake = notifyLastIntake
+    }
+
+    // Clés = noms des propriétés : les anciennes pour lire un profil v0.1, les nouvelles sont celles que l'app
+    // (M6.4) écrit. L'encodage reste synthétisé ; seul le décodage est explicite.
+    private enum CodingKeys: String, CodingKey {
+        case healthKitWeightKg, healthKitWeightDate, manualWeightKg
+        case halfLifeHours, bedtime, dailyLimitMg, bedtimeLimitMg, singleDoseMgPerKg, singleDoseCapMg
+        case usesHealthBedtime, healthBedtime, healthBedtimeNights, notifySleepReady, notifyLastIntake
+    }
+
+    /// Décodage tolérant : un profil enregistré par v0.1 n'a aucune clé v0.2, elles prennent leurs valeurs par défaut.
+    /// Les clés v0.1 restent obligatoires : un blob corrompu doit échouer (et `ProfileStore` retombe sur `.default`).
+    public init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            healthKitWeightKg: try c.decodeIfPresent(Double.self, forKey: .healthKitWeightKg),
+            healthKitWeightDate: try c.decodeIfPresent(Date.self, forKey: .healthKitWeightDate),
+            manualWeightKg: try c.decodeIfPresent(Double.self, forKey: .manualWeightKg),
+            halfLifeHours: try c.decode(Double.self, forKey: .halfLifeHours),
+            bedtime: try c.decode(ClockTime.self, forKey: .bedtime),
+            dailyLimitMg: try c.decode(Double.self, forKey: .dailyLimitMg),
+            bedtimeLimitMg: try c.decode(Double.self, forKey: .bedtimeLimitMg),
+            singleDoseMgPerKg: try c.decode(Double.self, forKey: .singleDoseMgPerKg),
+            singleDoseCapMg: try c.decode(Double.self, forKey: .singleDoseCapMg),
+            usesHealthBedtime: try c.decodeIfPresent(Bool.self, forKey: .usesHealthBedtime) ?? false,
+            healthBedtime: try c.decodeIfPresent(ClockTime.self, forKey: .healthBedtime),
+            healthBedtimeNights: try c.decodeIfPresent(Int.self, forKey: .healthBedtimeNights),
+            notifySleepReady: try c.decodeIfPresent(Bool.self, forKey: .notifySleepReady) ?? false,
+            notifyLastIntake: try c.decodeIfPresent(Bool.self, forKey: .notifyLastIntake) ?? false
+        )
     }
 
     public static let `default` = UserProfile(
@@ -46,6 +94,13 @@ public struct UserProfile: Hashable, Codable, Sendable {
         singleDoseMgPerKg: 3,
         singleDoseCapMg: 200
     )
+
+    /// Coucher effectif (spec §5.1) : la valeur Santé quand l'option est active et qu'une valeur a pu être déduite,
+    /// sinon la saisie manuelle `bedtime`, jamais écrasée. C'est ce qui alimente `AssessmentLimits.bedtime`.
+    public var effectiveBedtime: ClockTime {
+        guard usesHealthBedtime, let healthBedtime else { return bedtime }
+        return healthBedtime
+    }
 
     /// Poids effectif : manuel > HealthKit > repli.
     public var weightKg: Double { manualWeightKg ?? healthKitWeightKg ?? Self.fallbackWeightKg }

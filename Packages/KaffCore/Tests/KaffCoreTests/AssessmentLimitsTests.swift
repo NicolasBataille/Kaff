@@ -19,6 +19,19 @@ import Testing
     #expect(limits.bedtimeLimitMg == profile.bedtimeLimitMg)
 }
 
+/// Coucher effectif (spec §5.1, M6.2) : l'option Santé active avec une valeur déduite alimente `limits.bedtime` ;
+/// le coucher manuel, différent, ne doit pas fuir vers le widget.
+@Test func limitsUseEffectiveBedtimeWhenHealthBedtimeIsOptedIn() {
+    var profile = UserProfile.default
+    profile.bedtime = ClockTime(hour: 23, minute: 0)
+    profile.usesHealthBedtime = true
+    profile.healthBedtime = ClockTime(hour: 22, minute: 30)
+    let limits = AssessmentLimits(profile: profile)
+    #expect(limits.bedtime == profile.effectiveBedtime)
+    #expect(limits.bedtime == ClockTime(hour: 22, minute: 30))
+    #expect(limits.bedtime != profile.bedtime)
+}
+
 @Test func limitsEncodeWithoutAnyWeight() throws {
     var profile = UserProfile.default
     profile.healthKitWeightKg = 81.5
