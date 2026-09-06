@@ -3102,9 +3102,9 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 - Create: `Packages/KaffCore/Sources/KaffCore/Model/SleepSession.swift`, `Packages/KaffCore/Sources/KaffCore/Assessment/BedtimeInference.swift`
 - Test: `Packages/KaffCore/Tests/KaffCoreTests/BedtimeInferenceTests.swift`
 
-- [ ] **Step 1** : tests RED — 23:30/00:30 → 00:00 (médiane circulaire) ; 2 nuits → `nil` ; sieste 14:00–15:30 ignorée, sieste 13:00–17:00 (> 3 h) comptée ; nuit de 15 jours exclue, nuit de 13 jours incluse ; `inBed` 23:10 + `asleepCore` 23:25 même nuit → 23:10 ; arrondi 5 min ; résultat 05:00 → `nil` ; sessions non triées ; `awake` ignoré.
-- [ ] **Step 2** : `SleepSession { start, end, kind: .inBed | .asleep }` (Hashable, Sendable) ; `BedtimeInference.estimate(sessions:now:calendar:) -> BedtimeEstimate?` (`time: ClockTime`, `nights: Int`) avec constantes sourcées (`lookbackDays = 14`, `minimumNights = 3`, `napMaxHours = 3`, `nightWindow` 19:00–04:59, `roundingMinutes = 5`).
-- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M6.1 BedtimeInference`.
+- [x] **Step 1** : tests RED — 23:30/00:30 → 00:00 (médiane circulaire) ; 2 nuits → `nil` ; sieste 14:00–15:30 ignorée, sieste 13:00–17:00 (> 3 h) comptée ; nuit de 15 jours exclue, nuit de 13 jours incluse ; `inBed` 23:10 + `asleepCore` 23:25 même nuit → 23:10 ; arrondi 5 min ; résultat 05:00 → `nil` ; sessions non triées ; `awake` ignoré.
+- [x] **Step 2** : `SleepSession { start, end, kind: .inBed | .asleep }` (Hashable, Sendable) ; `BedtimeInference.estimate(sessions:now:calendar:) -> BedtimeEstimate?` (`time: ClockTime`, `nights: Int`) avec constantes sourcées (`lookbackDays = 14`, `minimumNights = 3`, `napMaxHours = 3`, `nightWindow` 19:00–04:59, `roundingMinutes = 5`).
+- [x] **Step 3** : `swift test` vert ; commit `feat(core): M6.1 BedtimeInference`.
 
 ### Task M6.2 : profil v0.2 et coucher effectif (KaffCore)
 
@@ -3112,9 +3112,9 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 - Modify: `UserProfile.swift`, `AssessmentLimits.swift`
 - Test: `ModelTests.swift`, `AssessmentLimitsTests.swift`, `ProfileStoreTests.swift`
 
-- [ ] **Step 1** : tests RED — un JSON de profil v0.1 (sans les nouveaux champs) se décode avec `usesHealthBedtime == false`, `notifySleepReady == false`, `notifyLastIntake == false`, `healthBedtime == nil` ; `effectiveBedtime` = manuel quand l'option est inactive ou `healthBedtime` absent, = Santé sinon ; `AssessmentLimits(profile:).bedtime == profile.effectiveBedtime`.
-- [ ] **Step 2** : champs `usesHealthBedtime: Bool`, `healthBedtime: ClockTime?`, `healthBedtimeNights: Int?`, `notifySleepReady: Bool`, `notifyLastIntake: Bool` ; `init(from:)` tolérant (`decodeIfPresent`) ; `effectiveBedtime` ; `AssessmentLimits(profile:)` l'utilise.
-- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M6.2 effective bedtime in profile`.
+- [x] **Step 1** : tests RED — un JSON de profil v0.1 (sans les nouveaux champs) se décode avec `usesHealthBedtime == false`, `notifySleepReady == false`, `notifyLastIntake == false`, `healthBedtime == nil` ; `effectiveBedtime` = manuel quand l'option est inactive ou `healthBedtime` absent, = Santé sinon ; `AssessmentLimits(profile:).bedtime == profile.effectiveBedtime`.
+- [x] **Step 2** : champs `usesHealthBedtime: Bool`, `healthBedtime: ClockTime?`, `healthBedtimeNights: Int?`, `notifySleepReady: Bool`, `notifyLastIntake: Bool` ; `init(from:)` tolérant (`decodeIfPresent`) ; `effectiveBedtime` ; `AssessmentLimits(profile:)` l'utilise.
+- [x] **Step 3** : `swift test` vert ; commit `feat(core): M6.2 effective bedtime in profile`.
 
 ### Task M6.3 : `latestIntakeDate` et `NotificationPlanner` (KaffCore)
 
@@ -3123,10 +3123,10 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 - Create: `Packages/KaffCore/Sources/KaffCore/Assessment/NotificationPlanner.swift`
 - Test: `LevelAssessorTests.swift`, `NotificationPlannerTests.swift`
 
-- [ ] **Step 1** : tests RED — `latestIntakeDate(milligrams: 63, doses: [], from: 14:00, coucher 23:00, seuil 35)` : sans autre dose, en phase d'élimination `A(d) ≈ 1,0285 · D · e^(−ke·d)` donc `d > ln(1,0285 × 63 / 35) / ke ≈ 4,44 h` → **≈ 18:34 ± 3 min** (recalculer par la formule dans le test, ne pas coder la valeur en dur) ; une dose de 200 mg à 18:00 → `nil` (déjà trop tard) ; coucher passé → `nil` ; `now > coucher − tmax` (intervalle vide) → `nil` ; 20 mg → `coucher − tmax` ; la valeur retournée satisfait `A(coucher) < seuil` et `+ 2 min` ne le satisfait plus.
-- [ ] **Step 2** : implémentation (dichotomie sur `[now, coucher − tmax]`, réutiliser `dayContext`).
-- [ ] **Step 3** : tests RED `NotificationPlanner.plan(doses:limits:referenceMg:wantsSleepReady:wantsLastIntake:now:calendar:) -> [PlannedNotification]` (`kind: .sleepReady | .lastIntake`, `fireAt`, `milligrams?`) : rien si les deux options sont fausses ; `sleepReady` absent quand `sleepReadyAt <= now + 60 s` ou quand `sleepReadyAt >= prochain 04:00` (pas de vibration au milieu de la nuit : la journée caféine suivante repart de zéro) ; `lastIntake` absent quand `latestIntakeDate` est `nil` ou ≤ now + 60 s ; les deux présents dans le cas nominal, triés par date ; identifiants stables (`PlannedNotification.Kind.rawValue`).
-- [ ] **Step 4** : `swift test` vert ; commit `feat(core): M6.3 latestIntakeDate and NotificationPlanner`.
+- [x] **Step 1** : tests RED — `latestIntakeDate(milligrams: 63, doses: [], from: 14:00, coucher 23:00, seuil 35)` : sans autre dose, en phase d'élimination `A(d) ≈ 1,0285 · D · e^(−ke·d)` donc `d > ln(1,0285 × 63 / 35) / ke ≈ 4,44 h` → **≈ 18:34 ± 3 min** (recalculer par la formule dans le test, ne pas coder la valeur en dur) ; une dose de 200 mg à 18:00 → `nil` (déjà trop tard) ; coucher passé → `nil` ; `now > coucher − tmax` (intervalle vide) → `nil` ; 20 mg → `coucher − tmax` ; la valeur retournée satisfait `A(coucher) < seuil` et `+ 2 min` ne le satisfait plus.
+- [x] **Step 2** : implémentation (dichotomie sur `[now, coucher − tmax]`, réutiliser `dayContext`).
+- [x] **Step 3** : tests RED `NotificationPlanner.plan(doses:limits:referenceMg:wantsSleepReady:wantsLastIntake:now:calendar:) -> [PlannedNotification]` (`kind: .sleepReady | .lastIntake`, `fireAt`, `milligrams?`) : rien si les deux options sont fausses ; `sleepReady` absent quand `sleepReadyAt <= now + 60 s` ou quand `sleepReadyAt >= prochain 04:00` (pas de vibration au milieu de la nuit : la journée caféine suivante repart de zéro) ; `lastIntake` absent quand `latestIntakeDate` est `nil` ou ≤ now + 60 s ; les deux présents dans le cas nominal, triés par date ; identifiants stables (`PlannedNotification.Kind.rawValue`).
+- [x] **Step 4** : `swift test` vert ; commit `feat(core): M6.3 latestIntakeDate and NotificationPlanner`.
 
 ### Task M6.4 : services sommeil et notifications, `AppModel`
 
