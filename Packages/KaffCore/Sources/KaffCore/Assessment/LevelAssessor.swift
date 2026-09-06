@@ -113,13 +113,23 @@ public struct LevelAssessor: Sendable {
         return LevelStatus(ratio: value / limit, elevatedAt: elevatedAt)
     }
 
+    /// Instant à partir duquel la courbe ne fait que décroître : `now`, ou le pic de la dernière dose s'il est à venir.
+    private func decayStart(doses: [CaffeineDose], from now: Date) -> Date {
+        guard let lastDose = doses.map(\.date).max() else { return now }
+        return max(now, lastDose.addingTimeInterval(model.timeToPeakHours * 3600))
+    }
+
+    /// `true` si le niveau atteint encore le seuil coucher à `decayStart` : `sleepReadyDate` a alors quelque chose
+    /// à annoncer ; sinon elle renvoie simplement cet instant (rien n'a été dépassé).
+    public func exceedsBedtimeLimitAfterLastPeak(doses: [CaffeineDose], from now: Date) -> Bool {
+        model.amount(doses: doses, at: decayStart(doses: doses, from: now)) >= limits.bedtimeLimitMg
+    }
+
     /// Après le dernier pic la courbe est strictement décroissante : recherche par dichotomie à la minute près.
     public func sleepReadyDate(doses: [CaffeineDose], from now: Date) -> Date {
         let limit = limits.bedtimeLimitMg
-        guard let lastDose = doses.map(\.date).max() else { return now }
-        let lastPeak = lastDose.addingTimeInterval(model.timeToPeakHours * 3600)
-        let start = max(now, lastPeak)
-        guard model.amount(doses: doses, at: start) >= limit else { return start }
+        let start = decayStart(doses: doses, from: now)
+        guard exceedsBedtimeLimitAfterLastPeak(doses: doses, from: now) else { return start }
         var low = start
         var high = start.addingTimeInterval(Self.sleepSearchHorizonHours * 3600)
         // Plafond d'horizon, pas une vraie estimation : le niveau n'est pas redescendu en 72 h.

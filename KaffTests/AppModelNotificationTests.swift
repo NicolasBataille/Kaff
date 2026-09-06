@@ -54,6 +54,18 @@ struct AppModelNotificationTests {
         #expect(notifications.replacements.last?.plan.isEmpty == true)
     }
 
+    /// Autorisation retirée dans Réglages › Notifications pendant que l'app était en arrière-plan : visible au retour
+    /// au premier plan (`refresh()`), sans attendre une relance.
+    @Test func refreshRereadsAuthorization() async {
+        notifications.status = .authorized
+        let model = makeModel()
+        await model.start()
+        notifications.status = .denied
+        await model.refresh()
+        #expect(model.notificationAuthorization == .denied)
+        #expect(notifications.authorizationRequests == 0)
+    }
+
     @Test func firstActivationAsksOnce() async {
         let model = makeModel()
         await model.start()

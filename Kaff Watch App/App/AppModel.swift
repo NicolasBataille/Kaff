@@ -178,6 +178,8 @@ final class AppModel {
     /// Relit doses, poids et (option active) nuits ; une erreur de poids ou de sommeil n'empêche pas la publication.
     func refresh() async {
         lastError = nil
+        // Une autorisation retirée dans Réglages › Notifications doit apparaître au retour au premier plan.
+        notificationAuthorization = await notifications.authorization()
         let end = now()
         let start = calendar.date(byAdding: .day, value: -Self.historyDays, to: end) ?? end
         do {

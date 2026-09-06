@@ -27,8 +27,8 @@ public enum NotificationPlanner {
     /// Source: choix produit — rien à moins d'une minute, la notification arriverait après le fait.
     public static let minimumLeadSeconds: TimeInterval = 60
 
-    /// - `.sleepReady` : à `sleepReadyDate`, seulement si le niveau est encore au-dessus du seuil (date > now + délai)
-    ///   et avant le prochain 04:00 — la journée caféine suivante repart de zéro, pas de vibration en pleine nuit.
+    /// - `.sleepReady` : à `sleepReadyDate`, seulement si le seuil est (ou sera, au dernier pic) dépassé — sinon
+    ///   `sleepReadyDate` renvoie juste le pic à venir, sans rien à annoncer — et avant le prochain 04:00 — la journée caféine suivante repart de zéro, pas de vibration en pleine nuit.
     /// - `.lastIntake` : à `latestIntakeDate` pour `referenceMg`, seulement s'il existe et respecte le délai.
     /// Résultat trié par `fireAt`.
     public static func plan(doses: [CaffeineDose], limits: AssessmentLimits, referenceMg: Double,
@@ -38,7 +38,7 @@ public enum NotificationPlanner {
         let earliest = now.addingTimeInterval(minimumLeadSeconds)
         let past = doses.filter { $0.date <= now }
         let sleepReady: PlannedNotification? = {
-            guard wantsSleepReady else { return nil }
+            guard wantsSleepReady, assessor.exceedsBedtimeLimitAfterLastPeak(doses: past, from: now) else { return nil }
             let at = assessor.sleepReadyDate(doses: past, from: now)
             guard at > earliest, at < assessor.day.nextStart(after: now) else { return nil }
             return PlannedNotification(kind: .sleepReady, fireAt: at, milligrams: nil)

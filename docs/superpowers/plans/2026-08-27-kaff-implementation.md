@@ -3144,10 +3144,10 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 **Files:**
 - Modify: `Features/Settings/SettingsView.swift`, `BedtimePickerView.swift` (si nécessaire), `Route.swift`, `Resources/Localizable.xcstrings` (insertion minimale de clés, pas de réécriture), `docs/design/ui-direction.md` (§ Réglages)
 
-- [ ] **Step 1** : section Sommeil — interrupteur « Coucher depuis Santé » (déclenche `enableHealthBedtime()`), ligne Coucher : valeur effective en `Theme.sleep`, sous-titre « médiane de 12 nuits · Santé » ou « manuel » ; quand Santé est actif sans nuit : note « Aucune nuit trouvée dans Santé sur la montre. Le coucher manuel est utilisé. » ; le cadran manuel reste accessible.
-- [ ] **Step 2** : section Notifications — deux interrupteurs, note sous chacun avec la prochaine occurrence planifiée (« Prochain rappel 19:05 · Espresso 63 mg ») ou « Rien à planifier aujourd'hui » ; refus → interrupteurs grisés + note Réglages › Notifications ; haptique `.success` à l'activation.
-- [ ] **Step 3** : section Modèle — note sourcée sous la demi-vie (« Tabac ≈ 3,5 h · contraception œstroprogestative ≈ 8 h · grossesse : hors modèle », sources fact-check §3).
-- [ ] **Step 4** : vérification simulateur 46 mm + AX5 ; captures `docs/screenshots/m6-settings-*.png` ; commit `feat(app): M6.5 settings for sleep, notifications, half-life hints`.
+- [x] **Step 1** : section Sommeil — interrupteur « Coucher depuis Santé » (déclenche `enableHealthBedtime()`), ligne Coucher : valeur effective en `Theme.sleep`, sous-titre « médiane de 12 nuits · Santé » ou « manuel » ; quand Santé est actif sans nuit : note « Aucune nuit trouvée dans Santé sur la montre. Le coucher manuel est utilisé. » ; le cadran manuel reste accessible.
+- [x] **Step 2** : section Notifications — deux interrupteurs, note sous chacun avec la prochaine occurrence planifiée (« Prochain rappel 19:05 · Espresso 63 mg ») ou « Rien à planifier aujourd'hui » ; refus → interrupteurs grisés + note Réglages › Notifications ; haptique `.success` à l'activation.
+- [x] **Step 3** : section Modèle — note sourcée sous la demi-vie (« Tabac ≈ 3,5 h · contraception œstroprogestative ≈ 8 h · grossesse : hors modèle », sources fact-check §3).
+- [x] **Step 4** : vérification simulateur 46 mm + AX5 ; captures `docs/screenshots/m6-settings-*.png` ; commit `feat(app): M6.5 settings for sleep, notifications, half-life hints`.
 
 ### Task M6.6 : obsolescence du snapshot côté complication
 
@@ -3155,9 +3155,9 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 - Modify: `CacheSnapshot.swift` (`windowHours`, décodage tolérant, défaut 30), `AppModel.publish()`, `WidgetEntryData.swift` (`isStale`), `WidgetTimelinePlanner.swift`, `KaffComplication/Views/RectangularView.swift`, `InlineView.swift`
 - Test: `CacheStoreTests.swift`, `WidgetTimelinePlannerTests.swift`
 
-- [ ] **Step 1** : tests RED — snapshot v3 sans `windowHours` se décode (30) ; `entries(...)` marque `isStale` dès `now − updatedAt > windowHours`, jamais avant ; `empty` n'est pas stale.
-- [ ] **Step 2** : implémentation + rendu (« Ouvrir Kaff » en ligne secondaire du rectangulaire et de l'inline, galerie de debug mise à jour).
-- [ ] **Step 3** : tests verts ; commit `feat(widget): M6.6 stale snapshot indicator`.
+- [x] **Step 1** : tests RED — snapshot v3 sans `windowHours` se décode (30) ; `entries(...)` marque `isStale` dès `now − updatedAt > windowHours`, jamais avant ; `empty` n'est pas stale.
+- [x] **Step 2** : implémentation + rendu (« Ouvrir Kaff » en ligne secondaire du rectangulaire et de l'inline, galerie de debug mise à jour).
+- [x] **Step 3** : tests verts ; commit `feat(widget): M6.6 stale snapshot indicator`.
 
 ### Task M6.7 : vérification, revue, TestFlight 0.2.0 (4)
 

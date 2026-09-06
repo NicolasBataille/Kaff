@@ -14,6 +14,22 @@ private func plan(doses: [CaffeineDose], now: Date, sleepReady: Bool = true, las
                              now: now, calendar: TestClock.calendar)
 }
 
+/// Un décaféiné de 3 mg pris il y a 5 min : `sleepReadyDate` renvoie le pic à venir (start = max(now, dernier pic)),
+/// mais le seuil n'est jamais dépassé — rien à annoncer (retour montre réelle M6.5).
+@Test func sleepReadyOmittedWhenLimitIsNeverExceeded() {
+    let now = TestClock.date(12)
+    let doses = [CaffeineDose(date: now.addingTimeInterval(-5 * 60), milligrams: 3)]
+    #expect(plan(doses: doses, now: now, lastIntake: false).isEmpty)
+    #expect(assessor.sleepReadyDate(doses: doses, from: now) > now.addingTimeInterval(60))
+}
+
+/// Même instant, mais 200 mg : le pic à venir dépasse le seuil, la notification est planifiée.
+@Test func sleepReadyKeptWhenUpcomingPeakExceedsLimit() {
+    let now = TestClock.date(12)
+    let doses = [CaffeineDose(date: now.addingTimeInterval(-5 * 60), milligrams: 200)]
+    #expect(plan(doses: doses, now: now, lastIntake: false).map(\.kind) == [.sleepReady])
+}
+
 @Test func nothingWhenBothOptionsAreOff() {
     let doses = [CaffeineDose(date: TestClock.date(9), milligrams: 100)]
     #expect(plan(doses: doses, now: TestClock.date(12), sleepReady: false, lastIntake: false).isEmpty)
