@@ -1,6 +1,6 @@
 # Politique de confidentialité de Kaff
 
-Dernière mise à jour : 4 septembre 2026.
+Dernière mise à jour : 6 septembre 2026 (v0.2 : sommeil en option, notifications locales).
 
 Kaff est une application Apple Watch qui estime la caféine présente dans votre organisme à partir des boissons
 que vous enregistrez.
@@ -11,16 +11,25 @@ que vous enregistrez.
   « Caféine alimentaire ») sur votre montre. Kaff relit ces doses pour calculer son estimation.
 - **Poids** : Kaff lit votre poids dans Santé, uniquement pour adapter ses seuils (mg par kg). Vous pouvez saisir
   un poids manuel à la place.
-- **Réglages** : demi-vie, heure de coucher, limites, boissons personnalisées. Stockés sur la montre.
+- **Sommeil (en option, depuis la v0.2)** : si vous activez « Coucher depuis Santé » dans Réglages, Kaff lit vos
+  nuits (type « Analyse du sommeil », lecture seule) des 14 derniers jours pour en déduire votre heure de coucher
+  habituelle. Seules cette heure (arrondie à 5 min) et le nombre de nuits sont conservés dans les réglages ;
+  aucune nuit n'est stockée ni affichée. Désactivez l'option pour revenir à l'heure saisie manuellement.
+- **Réglages** : demi-vie, heure de coucher, limites, boissons personnalisées, choix de notifications. Stockés sur
+  la montre.
+- **Notifications (en option, depuis la v0.2)** : « OK pour dormir » et « Dernière prise avant le coucher » sont
+  des notifications locales calculées sur la montre ; leur texte ne contient qu'une heure, une quantité en mg et
+  le nom d'une boisson.
 
 ## Ce que Kaff ne fait pas
 
 - Kaff **n'envoie aucune donnée** : pas de serveur, pas de connexion réseau, pas de statistiques d'usage, pas de
   publicité, pas de suivi.
-- Kaff ne lit dans Santé que les deux types ci-dessus, avec votre autorisation explicite, que vous pouvez retirer
-  à tout moment dans Réglages › Santé.
+- Kaff ne lit dans Santé que les trois types ci-dessus (le sommeil seulement si vous l'activez), avec votre
+  autorisation explicite, que vous pouvez retirer à tout moment dans Réglages › Santé.
 - La complication (cadran) n'accède jamais à Santé : elle lit un instantané local (doses récentes et seuils déjà
-  calculés, jamais le poids) partagé entre l'app et la complication sur la montre.
+  calculés — dont l'heure de coucher effective —, jamais le poids ni les nuits) partagé entre l'app et la
+  complication sur la montre.
 
 ## Vos données restent les vôtres
 
