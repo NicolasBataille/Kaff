@@ -317,7 +317,8 @@ final class AppModel {
     }
 
     /// Boisson du rappel « dernier » (spec §5.2) : la favorite, sinon l'espresso du catalogue.
-    private var referenceDrink: Drink {
+    /// Lue aussi par Réglages pour la note « Prochain rappel 19:05 · Espresso 63 mg ».
+    var referenceDrink: Drink {
         favoriteDrinks.first ?? DrinkCatalog.drink(id: "espresso", custom: []) ?? Self.fallbackReferenceDrink
     }
 

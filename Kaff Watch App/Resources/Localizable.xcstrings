@@ -139,6 +139,9 @@
         }
       }
     },
+    "≈ %@ jusqu'au pic" : {
+
+    },
     "Accès Santé requis" : {
 
     },
@@ -209,6 +212,9 @@
     "Coucher" : {
 
     },
+    "Coucher depuis Santé" : {
+
+    },
     "Courbe de caféine, 12 heures passées et 6 heures projetées" : {
 
     },
@@ -221,11 +227,24 @@
     "Dernier %@ (%@) pour dormir à %@." : {
 
     },
+    "Dernière prise avant le coucher" : {
+
+    },
     "Dose" : {
 
     },
     "Dose ajoutée" : {
 
+    },
+    "Dose unique max %@ · %@ mg/kg" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dose unique max %1$@ · %2$@ mg/kg"
+          }
+        }
+      }
     },
     "Enregistrer" : {
 
@@ -251,6 +270,9 @@
     "Kaff" : {
 
     },
+    "Aucune nuit trouvée dans Santé sur la montre. Le coucher manuel est utilisé." : {
+
+    },
     "Aucune pesée récente dans Santé sur la montre. Ajoutez votre poids dans Santé sur l'iPhone, ou saisissez-le ici." : {
 
     },
@@ -261,6 +283,9 @@
 
     },
     "Kaff enregistre vos doses de caféine dans Santé et y lit votre poids pour ses seuils." : {
+
+    },
+    "Estimation indicative. Ce n'est pas un avis médical." : {
 
     },
     "Limite" : {
@@ -275,6 +300,12 @@
     "Maintenant" : {
 
     },
+    "Manuel" : {
+
+    },
+    "Médiane de %lld nuits · Santé" : {
+
+    },
     "mg" : {
 
     },
@@ -285,6 +316,12 @@
 
     },
     "Nom" : {
+
+    },
+    "Notifications" : {
+
+    },
+    "Notifications refusées. Réglages › Notifications › Kaff pour les activer." : {
 
     },
     "Nouvelle" : {
@@ -330,10 +367,26 @@
     "Poids estimé (%@)" : {
 
     },
+    "Prochain rappel %@ · %@ %@" : {
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Prochain rappel %1$@ · %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "Prochaine notification %@" : {
+
+    },
     "Réessayer" : {
 
     },
     "Réglages" : {
+
+    },
+    "Rien à planifier aujourd'hui" : {
 
     },
     "Saisir manuellement" : {
@@ -358,6 +411,9 @@
 
     },
     "Supprimer" : {
+
+    },
+    "Tabac ≈ 3,5 h · contraception œstroprogestative ≈ 8 h · grossesse : hors modèle" : {
 
     },
     "Touchez pour explorer la courbe avec la couronne" : {

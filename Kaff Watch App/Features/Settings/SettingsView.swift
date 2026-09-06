@@ -1,7 +1,7 @@
 import KaffCore
 import SwiftUI
 
-/// Réglages : poids, modèle, sommeil, limites, boissons personnalisées, mention non médicale.
+/// Réglages : poids, modèle, sommeil, notifications, limites, boissons personnalisées, mention non médicale.
 /// Les valeurs numériques s'ouvrent sur un cadran couronne (`SettingDialView`) : un `Stepper` inline
 /// capture la couronne dès qu'il défile au centre de l'écran et modifie la valeur à l'insu de l'utilisateur.
 struct SettingsView: View {
@@ -23,6 +23,10 @@ struct SettingsView: View {
         return "\(Formatters.kg(kg)) · \(Formatters.shortDate(date))"
     }
 
+    private var timeToPeakMinutes: Double {
+        PharmacokineticModel(halfLifeHours: profile.halfLifeHours).timeToPeakHours * 60
+    }
+
     var body: some View {
         Form {
             Section("Poids") {
@@ -32,31 +36,28 @@ struct SettingsView: View {
                 Toggle("Saisir manuellement", isOn: useManualWeight)
                     .tint(Theme.accent)
                 if profile.manualWeightKg != nil {
-                    row(.weight)
+                    SettingRowLink(key: .weight)
                 }
                 if profile.healthKitWeightKg == nil {
                     // La base Santé de la montre ne reçoit qu'une copie récente des données de l'iPhone :
                     // une pesée ancienne n'y figure pas, HealthKit renvoie alors zéro résultat.
-                    footnote("Aucune pesée récente dans Santé sur la montre. Ajoutez votre poids dans Santé sur l'iPhone, ou saisissez-le ici.")
+                    SettingsFootnote("Aucune pesée récente dans Santé sur la montre. Ajoutez votre poids dans Santé sur l'iPhone, ou saisissez-le ici.")
                 }
-                footnote("Dose unique max \(Formatters.mg(profile.singleDoseLimitMg)) · \(Formatters.count(profile.singleDoseMgPerKg)) mg/kg")
+                SettingsFootnote("Dose unique max \(Formatters.mg(profile.singleDoseLimitMg)) · \(Formatters.count(profile.singleDoseMgPerKg)) mg/kg")
             }
             Section("Modèle") {
-                row(.halfLife)
-                footnote("≈ \(Formatters.minutes(PharmacokineticModel(halfLifeHours: profile.halfLifeHours).timeToPeakHours * 60)) jusqu'au pic")
+                SettingRowLink(key: .halfLife)
+                SettingsFootnote("≈ \(Formatters.minutes(timeToPeakMinutes)) jusqu'au pic")
+                // Source: docs/science/fact-check-pk.md §5a–5c — tabac t½ 3,5 h vs 6,0 h (Parsons & Neims 1978) ;
+                // contraceptifs oraux 7,88 h vs 5,37 h (Abernethy & Todd 1985) ; grossesse T3 11,5–18 h (Knutti 1981,
+                // EFSA 2015), hors bornes 2–10 h du réglage. Repris dans docs/science/2026-09-04-fact-check.md
+                // (« Indices de demi-vie dans Réglages »).
+                SettingsFootnote("Tabac ≈ 3,5 h · contraception œstroprogestative ≈ 8 h · grossesse : hors modèle")
             }
-            Section("Sommeil") {
-                NavigationLink(value: Route.bedtime) {
-                    LabeledContent {
-                        Text(Formatters.time(profile.bedtime)).monospacedDigit().foregroundStyle(Theme.sleep)
-                    } label: {
-                        Label("Coucher", systemImage: "moon.zzz.fill")
-                    }
-                }
-                row(.bedtimeLimit)
-            }
+            SleepSettingsSection()
+            NotificationSettingsSection()
             Section("Limites") {
-                row(.dailyLimit)
+                SettingRowLink(key: .dailyLimit)
             }
             Section {
                 NavigationLink(value: Route.customDrinks) {
@@ -64,32 +65,9 @@ struct SettingsView: View {
                 }
             }
             Section {
-                footnote("Estimation indicative. Ce n'est pas un avis médical.")
+                SettingsFootnote("Estimation indicative. Ce n'est pas un avis médical.")
             }
         }
         .navigationTitle("Réglages")
-    }
-
-    private func row(_ key: SettingKey) -> some View {
-        NavigationLink(value: Route.setting(key)) {
-            LabeledContent {
-                Text(key.format(key.value(in: profile)))
-                    .monospacedDigit()
-                    .foregroundStyle(key.tint)
-                    .contentTransition(.numericText())
-            } label: {
-                Label(key.title, systemImage: key.symbol)
-            }
-        }
-        .animation(.default, value: profile)
-    }
-
-    private func footnote(_ text: String) -> some View {
-        Text(text)
-            .font(.caption2)
-            .foregroundStyle(.secondary)
-            .monospacedDigit()
-            .contentTransition(.numericText())
-            .animation(.default, value: text)
     }
 }
