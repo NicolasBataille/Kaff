@@ -17,6 +17,14 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
     /// Nombre d'appels à `requestAuthorization` (la feuille Santé ne doit partir que sur action de l'utilisateur).
     private(set) var authorizationRequests = 0
 
+    var sleepSessions: [SleepSession] = []
+    var sleepError: Error?
+    var sleepAuthorizationError: Error?
+    /// Nombre d'appels à `requestSleepAuthorization` (une seule fois, sur activation de l'option).
+    private(set) var sleepAuthorizationRequests = 0
+    /// Fenêtres demandées à `sleepSessions(from:to:)` ; vide tant que l'option est inactive.
+    private(set) var sleepQueries: [(start: Date, end: Date)] = []
+
     /// Simule le retard de HealthKit : le statut reste `.denied` pendant les N premières lectures après la feuille
     /// (observé en M2.3), puis passe à `.authorized`.
     var authorizedAfterChecks: Int?
@@ -60,5 +68,16 @@ final class MockHealthStore: HealthStore, @unchecked Sendable {
     func latestBodyMass() async throws -> BodyMassReading? {
         if let bodyMassError { throw bodyMassError }
         return bodyMassKg.map { BodyMassReading(kg: $0, date: bodyMassDate) }
+    }
+
+    func requestSleepAuthorization() async throws {
+        sleepAuthorizationRequests += 1
+        if let sleepAuthorizationError { throw sleepAuthorizationError }
+    }
+
+    func sleepSessions(from start: Date, to end: Date) async throws -> [SleepSession] {
+        sleepQueries.append((start: start, end: end))
+        if let sleepError { throw sleepError }
+        return sleepSessions.filter { $0.start >= start && $0.start <= end }
     }
 }

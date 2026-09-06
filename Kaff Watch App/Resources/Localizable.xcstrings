@@ -215,6 +215,12 @@
     "Curseur" : {
 
     },
+    "Dernier %@" : {
+
+    },
+    "Dernier %@ (%@) pour dormir à %@." : {
+
+    },
     "Dose" : {
 
     },
@@ -275,6 +281,9 @@
     "Modèle" : {
 
     },
+    "Niveau redescendu sous %@." : {
+
+    },
     "Nom" : {
 
     },
@@ -285,6 +294,9 @@
 
     },
     "OK" : {
+
+    },
+    "OK pour dormir" : {
 
     },
     "OK pour dormir à %@" : {

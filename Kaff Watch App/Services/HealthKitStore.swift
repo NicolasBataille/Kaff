@@ -13,6 +13,7 @@ final class HealthKitStore: HealthStore, @unchecked Sendable {
     private let store = HKHealthStore()
     private let caffeineType = HKQuantityType(.dietaryCaffeine)
     private let bodyMassType = HKQuantityType(.bodyMass)
+    private let sleepType = HKCategoryType(.sleepAnalysis)
     private let milligram = HKUnit.gramUnit(with: .milli)
 
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
@@ -70,6 +71,31 @@ final class HealthKitStore: HealthStore, @unchecked Sendable {
             limit: 1)
         guard let sample = try await descriptor.result(for: store).first else { return nil }
         return BodyMassReading(kg: sample.quantity.doubleValue(for: .gramUnit(with: .kilo)), date: sample.startDate)
+    }
+
+    func requestSleepAuthorization() async throws {
+        try await store.requestAuthorization(toShare: [], read: [sleepType])
+    }
+
+    func sleepSessions(from start: Date, to end: Date) async throws -> [SleepSession] {
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [.categorySample(type: sleepType, predicate: predicate)],
+            sortDescriptors: [SortDescriptor(\.startDate, order: .forward)])
+        return try await descriptor.result(for: store).compactMap(session(from:))
+    }
+
+    /// `inBed` et les phases `asleep*` seulement ; `awake` (et toute valeur inconnue) est ignoré (spec §5.1).
+    private func session(from sample: HKCategorySample) -> SleepSession? {
+        guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else { return nil }
+        let kind: SleepSession.Kind
+        switch value {
+        case .inBed: kind = .inBed
+        case .asleepUnspecified, .asleepCore, .asleepDeep, .asleepREM: kind = .asleep
+        case .awake: return nil
+        @unknown default: return nil
+        }
+        return SleepSession(start: sample.startDate, end: sample.endDate, kind: kind)
     }
 
     private func dose(from sample: HKQuantitySample) -> CaffeineDose {

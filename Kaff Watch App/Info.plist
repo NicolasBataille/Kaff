@@ -34,7 +34,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.</string>
+	<string>Kaff lit vos doses de caféine, votre poids et, si vous l'activez, vos nuits (pour déduire l'heure de coucher) afin d'estimer votre niveau.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Kaff enregistre les doses de caféine que vous loguez.</string>
 	<key>WKApplication</key>

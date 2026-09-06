@@ -8,6 +8,7 @@ import Testing
 struct AppModelHistoryTests {
     let health = MockHealthStore()
     let widgets = SpyWidgetReloader()
+    let notifications = MockNotificationScheduler()
     let defaults: UserDefaults
     let calendar: Calendar
     /// 2026-08-28 12:00, Europe/Paris.
@@ -25,7 +26,7 @@ struct AppModelHistoryTests {
 
     func makeModel() -> AppModel {
         AppModel(health: health, profileStore: ProfileStore(defaults: defaults),
-                 cacheStore: CacheStore(defaults: defaults), widgets: widgets,
+                 cacheStore: CacheStore(defaults: defaults), widgets: widgets, notifications: notifications,
                  calendar: calendar, now: { now }, authorizationRetryDelay: .zero)
     }
 

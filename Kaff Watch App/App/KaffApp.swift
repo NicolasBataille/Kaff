@@ -12,7 +12,8 @@ struct KaffApp: App {
             health: HealthKitStore(),
             profileStore: profileStore,
             cacheStore: CacheStore(defaults: sharedDefaults),
-            widgets: WidgetCenterReloader())
+            widgets: WidgetCenterReloader(),
+            notifications: UserNotificationScheduler())
     }()
 
     var body: some Scene {

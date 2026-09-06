@@ -58,7 +58,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         WKApplication: true
         WKWatchOnly: true   # pas de WKRunsIndependentlyOfCompanionApp : App Store Connect refuse les deux ensemble (90751)
-        NSHealthShareUsageDescription: Kaff lit vos doses de caféine et votre poids pour estimer votre niveau.
+        NSHealthShareUsageDescription: Kaff lit vos doses de caféine, votre poids et, si vous l'activez, vos nuits (pour déduire l'heure de coucher) afin d'estimer votre niveau.
         NSHealthUpdateUsageDescription: Kaff enregistre les doses de caféine que vous loguez.
         # TestFlight / App Store : aucun chiffrement propriétaire, évite la question d'export à chaque build.
         ITSAppUsesNonExemptEncryption: false

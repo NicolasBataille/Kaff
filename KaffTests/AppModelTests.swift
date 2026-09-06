@@ -7,6 +7,7 @@ import Testing
 struct AppModelTests {
     let health = MockHealthStore()
     let widgets = SpyWidgetReloader()
+    let notifications = MockNotificationScheduler()
     let defaults: UserDefaults
     let now = Date(timeIntervalSince1970: 1_800_000_000)
 
@@ -18,7 +19,7 @@ struct AppModelTests {
 
     func makeModel() -> AppModel {
         AppModel(health: health, profileStore: ProfileStore(defaults: defaults),
-                 cacheStore: CacheStore(defaults: defaults), widgets: widgets,
+                 cacheStore: CacheStore(defaults: defaults), widgets: widgets, notifications: notifications,
                  now: { now }, authorizationRetryDelay: .zero)
     }
 

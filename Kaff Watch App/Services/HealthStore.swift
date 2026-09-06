@@ -15,6 +15,12 @@ protocol HealthStore: Sendable {
     func delete(doseID: UUID) async throws
     /// Dernière pesée présente dans la base Santé **de la montre** (copie partielle et récente de celle de l'iPhone).
     func latestBodyMass() async throws -> BodyMassReading?
+    /// Demande la lecture seule de `sleepAnalysis`, séparément des doses : la feuille ne part que quand l'utilisateur
+    /// active « Coucher depuis Santé ». Même contrainte que `requestAuthorization()` (action de l'utilisateur, app au
+    /// premier plan) ; HealthKit masque le statut de lecture, un refus ressemble à « aucune nuit ».
+    func requestSleepAuthorization() async throws
+    /// Sessions `sleepAnalysis` de la base Santé **de la montre**, réduites aux types que `BedtimeInference` exploite.
+    func sleepSessions(from start: Date, to end: Date) async throws -> [SleepSession]
 }
 
 /// Une pesée lue dans HealthKit.
