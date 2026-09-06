@@ -31,8 +31,8 @@ locales opt-in (§7.6). Toujours hors périmètre : app iPhone, FC/VFC, grossess
 | Complication | WidgetKit, familles `accessory*`, timeline précalculée | ClockKit est déprécié ; la décroissance entre doses est déterministe |
 | Génération projet | XcodeGen (`project.yml`) | `.xcodeproj` reproductible, pas de conflits de merge |
 | Logique métier | Package Swift pur `KaffCore`, testé sous macOS | TDD et couverture 80 % à bas coût |
-| Coucher (v0.2) | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle | Le fact-check (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile ; le sommeil n'est jamais affiché |
-| Notifications (v0.2) | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
+| Coucher (v0.2) — *décision d'agent du 2026-09-06, à confirmer par l'utilisateur* | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle. Revient partiellement sur « pas de sommeil » (2026-08-27) : lu uniquement pour le coucher, jamais affiché | Le fact-check commandé par l'utilisateur (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile |
+| Notifications (v0.2) — *décision d'agent du 2026-09-06, à confirmer par l'utilisateur* | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
 
 ## 3. Architecture
 
@@ -183,9 +183,10 @@ jamais un diagnostic de refus (HealthKit masque le statut de lecture).
 dose de `D` mg garde `A_total(coucher) < seuil coucher`. Contrainte réelle : le maximum de la
 courbe **après** le coucher doit rester sous le seuil ; pour `t ≤ coucher − tmax` ce maximum est
 `A_total(coucher)`, croissant en `t` → dichotomie à la minute près sur `[now, coucher − tmax]`.
-Résultats : `nil` si le coucher est passé dans la journée caféine ou si même `now` dépasse le
-seuil (« plus de caféine aujourd'hui ») ; `coucher − tmax` si la dose passe partout (petite
-dose). Une prise plus tardive que `coucher − tmax` culmine pendant le sommeil : jamais proposée.
+Résultats : `nil` si le coucher est passé dans la journée caféine, si `now > coucher − tmax`
+(intervalle vide) ou si même `now` dépasse le seuil (« plus de caféine aujourd'hui ») ;
+`coucher − tmax` si la dose passe partout (petite dose). Ordre de grandeur : 63 mg seuls,
+seuil 35 mg, t½ 5 h → `ln(1,0285 × 63/35)/ke ≈ 4,44 h` avant le coucher (18:34 pour 23:00). Une prise plus tardive que `coucher − tmax` culmine pendant le sommeil : jamais proposée.
 
 Dose de référence de la notification : la boisson favorite de l'utilisateur (première de
 `favoriteDrinks`), sinon l'espresso du catalogue (63 mg).
@@ -225,7 +226,8 @@ Chaque dose enregistrée dans HealthKit porte les métadonnées
 6. **Notifications (v0.2, Réglages)** — deux interrupteurs indépendants, chacun déclenche la
    demande d'autorisation `UNUserNotificationCenter` la première fois :
    - « OK pour dormir » : une notification à `sleepReadyAt` quand le niveau est encore au-dessus
-     du seuil coucher (« Niveau redescendu sous 35 mg : OK pour dormir »).
+     du seuil coucher (« Niveau redescendu sous 35 mg : OK pour dormir ») ; jamais si
+     `sleepReadyAt` tombe après le prochain 04:00 (pas de vibration en pleine nuit).
    - « Dernière prise avant le coucher » : une notification à `latestIntakeDate` pour la dose de
      référence (§5.2), texte « Dernier espresso (63 mg) pour dormir à 23:00 ».
    Planification : à chaque publication du snapshot (log, suppression, réglage, premier plan),
