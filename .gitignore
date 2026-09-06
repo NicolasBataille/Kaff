@@ -25,3 +25,6 @@ playground.xcworkspace
 # Local config (Team ID)
 Config/Local.xcconfig
 .osgrep
+
+# Worktrees des sous-agents Claude Code
+.claude/worktrees/
