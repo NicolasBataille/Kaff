@@ -28,7 +28,8 @@ struct KaffApp: App {
         if ProcessInfo.processInfo.environment["KAFF_WIDGET_GALLERY"] != nil {
             NavigationStack { WidgetGalleryView() }
         } else {
-            sizedRoot
+            // `SIMCTL_CHILD_KAFF_SEED_SLEEP=1` : sept nuits écrites dans la base Santé du simulateur (vide sinon).
+            sizedRoot.task { if DebugSleepSeeder.isRequested { await DebugSleepSeeder.seedIfNeeded() } }
         }
         #else
         sizedRoot
