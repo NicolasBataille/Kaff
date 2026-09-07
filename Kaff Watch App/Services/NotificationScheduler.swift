@@ -61,6 +61,17 @@ final class UserNotificationScheduler: NotificationScheduler {
                 logger.error("Planification impossible (\(item.kind.rawValue, privacy: .public)): \(error.localizedDescription)")
             }
         }
+        await logPending(center)
+    }
+
+    /// Trace ce que le centre retient réellement (vérification simulateur : `log stream --level debug`).
+    private func logPending(_ center: UNUserNotificationCenter) async {
+        let requests = await center.pendingNotificationRequests().filter { $0.identifier.hasPrefix(Self.identifierPrefix) }
+        let summary = requests.map { request in
+            let fireAt = (request.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
+            return "\(request.identifier) @ \(fireAt.map { Formatters.time($0) } ?? "—")"
+        }
+        logger.debug("En attente (\(requests.count, privacy: .public)) : \(summary.joined(separator: ", "), privacy: .public)")
     }
 
     static func authorization(from status: UNAuthorizationStatus) -> NotificationAuthorization {
@@ -78,7 +89,10 @@ final class UserNotificationScheduler: NotificationScheduler {
         body.title = title(for: item, content: content)
         body.body = text(for: item, content: content)
         body.sound = .default
-        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: item.fireAt)
+        // `fireAt` est un instant absolu : le fuseau est figé dans le déclencheur, sinon un changement de fuseau
+        // (voyage, heure d'hiver) entre la planification et l'envoi décalerait l'heure réelle (revue M6.7).
+        var components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: item.fireAt)
+        components.timeZone = TimeZone.current
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
         return UNNotificationRequest(identifier: identifierPrefix + item.kind.rawValue, content: body, trigger: trigger)
     }

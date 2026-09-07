@@ -109,6 +109,10 @@ struct AppModelNotificationTests {
         await model.setNotifications(sleepReady: true, lastIntake: false)
         #expect(model.lastError == "Autorisation des notifications impossible")
         #expect(model.notificationAuthorization == .notDetermined)
+        // Revue M6.7 : sans réponse du système, les drapeaux restent éteints (rien ne serait jamais livré).
+        #expect(model.profile.notifySleepReady == false)
+        #expect(model.profile.notifyLastIntake == false)
+        #expect(notifications.replacements.count == 1)   // seule la publication de start()
     }
 
     @Test func grantedPublishesPlannerPlanWithEspressoFallback() async throws {

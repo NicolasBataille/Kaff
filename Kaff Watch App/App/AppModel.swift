@@ -203,7 +203,7 @@ final class AppModel {
                reading.kg != profile.healthKitWeightKg || reading.date != profile.healthKitWeightDate {
                 profile.healthKitWeightKg = reading.kg
                 profile.healthKitWeightDate = reading.date
-                try profileStore.save(profile)
+                saveProfile()
             }
         } catch {
             report("Lecture du poids impossible", error)
@@ -308,7 +308,9 @@ final class AppModel {
             do {
                 notificationAuthorization = try await notifications.requestAuthorization()
             } catch {
+                // Sans réponse du système, rien ne change : activer les drapeaux planifierait dans le vide (revue M6.7).
                 report("Autorisation des notifications impossible", error)
+                return
             }
         }
         let denied = notificationAuthorization == .denied
@@ -333,7 +335,9 @@ final class AppModel {
     /// Fenêtre des doses conservées dans le snapshot widget.
     // Source: 10 demi-vies → contribution résiduelle < 0,1 % ; plancher 30 h pour couvrir une journée caféine de 25 h
     // (changement d'heure) avec marge.
-    static func cacheWindowHours(halfLifeHours: Double) -> Double { max(30, 10 * halfLifeHours) }
+    static func cacheWindowHours(halfLifeHours: Double) -> Double {
+        max(CacheSnapshot.defaultWindowHours, 10 * halfLifeHours)
+    }
 
     /// Écrit le snapshot (fenêtre `cacheWindowHours`, transmise au widget comme seuil d'obsolescence), demande le
     /// rechargement des complications, puis remplace les notifications en attente par le plan courant — même vide,
