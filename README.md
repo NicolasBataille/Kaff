@@ -176,7 +176,7 @@ Kaff/
 ├── Packages/KaffCore/       # logique pure et testée : modèle PK, seuils, timeline, catalogue
 ├── KaffUI/                  # thème, anneau, formats — compilés dans l'app et dans l'extension
 ├── Kaff Watch App/          # SwiftUI : écrans, AppModel @Observable, services HealthKit et cache
-├── KaffComplication/        # extension WidgetKit, quatre familles accessory, deep link kaff://log
+├── KaffComplication/        # extension WidgetKit, quatre familles accessory, deep link kaff://home
 ├── KaffTests/               # tests de l'app avec stores simulés
 ├── docs/                    # science, figures, roadmap, spec, direction UI, captures
 ├── project.yml              # XcodeGen — le .xcodeproj n'est jamais édité à la main

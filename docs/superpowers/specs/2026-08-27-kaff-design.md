@@ -239,7 +239,9 @@ Chaque dose enregistrée dans HealthKit porte les métadonnées
    interrupteur retire ses notifications. Limitation connue : sans ouverture de l'app, le plan
    du jour n'est pas recalculé pour le lendemain (pas de tâche de fond en v0.2).
 
-Deep link `kaff://log` (tap complication) ouvre directement QuickLog — Boisson.
+Deep link `kaff://home` (tap complication) ouvre l'écran principal (Home), pile de navigation vidée — décision
+utilisateur du 2026-09-07 ; jusqu'à v0.1 le tap ouvrait directement QuickLog — Boisson via `kaff://log`, qui
+reste géré.
 
 ## 8. Complication (`KaffComplication`)
 

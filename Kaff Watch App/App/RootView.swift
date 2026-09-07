@@ -1,11 +1,16 @@
 import SwiftUI
 
 /// Racine : autorisation → pages Home/Historique, pile de navigation pilotée par `AppModel.path`,
-/// deep link `kaff://log`, alerte sur `lastError`, reprise au retour au premier plan.
+/// deep links `kaff://home` (complication → écran principal) et `kaff://log` (choix de boisson), alerte sur
+/// `lastError`, reprise au retour au premier plan.
 struct RootView: View {
+    /// Pages verticales de la racine.
+    enum Page: Hashable { case home, history }
+
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
     @Namespace private var zoom
+    @State private var page: Page = .home
 
     var body: some View {
         @Bindable var model = model
@@ -27,8 +32,17 @@ struct RootView: View {
             }
         }
         .onOpenURL { url in
-            guard url.scheme == "kaff", url.host == "log", model.authorization == .authorized else { return }
-            model.path = [.logDrink]
+            guard url.scheme == "kaff", model.authorization == .authorized else { return }
+            switch url.host {
+            case "home":
+                // Tap sur la complication : retour à l'écran principal, quel que soit l'écran laissé ouvert.
+                model.path = []
+                page = .home
+            case "log":
+                model.path = [.logDrink]
+            default:
+                break
+            }
         }
         .alert("Erreur", isPresented: Binding(get: { model.lastError != nil },
                                               set: { if !$0 { model.clearError() } })) {
@@ -43,9 +57,9 @@ struct RootView: View {
         case .unknown:
             ProgressView()
         case .authorized:
-            TabView {
-                HomeView()
-                HistoryView()
+            TabView(selection: $page) {
+                HomeView().tag(Page.home)
+                HistoryView().tag(Page.history)
             }
             .tabViewStyle(.verticalPage)
         case .notDetermined, .denied, .unavailable:

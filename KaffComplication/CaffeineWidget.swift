@@ -2,7 +2,8 @@ import KaffCore
 import SwiftUI
 import WidgetKit
 
-/// Complication « Caféine » : anneau et jetons partagés avec l'app (`KaffUI`), timeline précalculée, tap → `kaff://log`.
+/// Complication « Caféine » : anneau et jetons partagés avec l'app (`KaffUI`), timeline précalculée, tap → `kaff://home`
+/// (écran principal, demande utilisateur du 2026-09-07 ; avant : `kaff://log` ouvrait directement le choix de boisson).
 struct CaffeineWidget: Widget {
     static let kind = "fr.nikou.kaff.level"
 
@@ -10,7 +11,7 @@ struct CaffeineWidget: Widget {
         StaticConfiguration(kind: Self.kind, provider: CaffeineTimelineProvider()) { entry in
             CaffeineWidgetView(data: entry.data)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .widgetURL(URL(string: "kaff://log"))
+                .widgetURL(URL(string: "kaff://home"))
         }
         .configurationDisplayName("Caféine")
         .description("Niveau de caféine estimé, mis à jour toutes les 15 minutes.")
