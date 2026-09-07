@@ -147,9 +147,8 @@ public struct LevelAssessor: Sendable {
     /// dépasse déjà le seuil (« plus de caféine aujourd'hui »). Une limite ≤ 0 (profil corrompu) désactive la recherche.
     public func latestIntakeDate(milligrams: Double, doses: [CaffeineDose], from now: Date) -> Date? {
         let limit = limits.bedtimeLimitMg
-        guard limit > 0, let bedtime = dayContext(at: now).bedtime else { return nil }
-        let upper = bedtime.addingTimeInterval(-model.timeToPeakHours * 3600)
-        guard upper >= now else { return nil }
+        guard limit > 0, let bedtime = dayContext(at: now).bedtime,
+              let upper = unconstrainedIntakeBound(from: now), upper >= now else { return nil }
         let past = doses.filter { $0.date <= now }
         // Sur [now, coucher − tmax], A_total(coucher) est croissante en t (la dose a moins de temps pour s'éliminer).
         let projected: (Date) -> Double = { t in
@@ -158,6 +157,12 @@ public struct LevelAssessor: Sendable {
         guard projected(now) < limit else { return nil }
         guard projected(upper) >= limit else { return upper }
         return Self.lastMinute(below: limit, in: now...upper, value: projected)
+    }
+
+    /// `coucher − tmax` : borne haute de `latestIntakeDate`, retournée telle quelle quand la dose passe partout ;
+    /// `nil` quand le coucher est déjà passé dans la journée caféine.
+    public func unconstrainedIntakeBound(from now: Date) -> Date? {
+        dayContext(at: now).bedtime?.addingTimeInterval(-model.timeToPeakHours * 3600)
     }
 
     /// Dichotomie à la minute près sur une fonction croissante : dernier instant de `range` où `value < limit`.

@@ -231,6 +231,8 @@ Chaque dose enregistrée dans HealthKit porte les métadonnées
      `sleepReadyAt` tombe après le prochain 04:00 (pas de vibration en pleine nuit).
    - « Dernière prise avant le coucher » : une notification à `latestIntakeDate` pour la dose de
      référence (§5.2), texte « Dernier espresso (63 mg) pour dormir à 23:00 ».
+     Omise quand `latestIntakeDate` vaut la borne `coucher − tmax` : la dose de référence passe de toute façon
+     (décaféiné, petite dose), il n'y a rien à annoncer.
    Planification : à chaque publication du snapshot (log, suppression, réglage, premier plan),
    Kaff remplace ses notifications en attente par le plan de `NotificationPlanner` (KaffCore,
    pure) ; rien n'est planifié dans le passé ni à moins d'une minute ; désactiver un

@@ -30,6 +30,22 @@ private func plan(doses: [CaffeineDose], now: Date, sleepReady: Bool = true, las
     #expect(plan(doses: doses, now: now, lastIntake: false).map(\.kind) == [.sleepReady])
 }
 
+/// Décaféiné de 3 mg comme boisson de référence : `latestIntakeDate` vaut la borne `coucher − tmax` (la dose passe
+/// partout), un rappel « dernier décaféiné à 22:15 » n'apporterait rien (observé sur simulateur en M6.7).
+@Test func lastIntakeOmittedWhenReferenceDosePassesAnyway() throws {
+    let now = TestClock.date(14)
+    let unconstrained = NotificationPlanner.plan(doses: [], limits: limits, referenceMg: 3,
+                                                 wantsSleepReady: false, wantsLastIntake: true,
+                                                 now: now, calendar: TestClock.calendar)
+    #expect(unconstrained.isEmpty)
+    let bound = try #require(assessor.unconstrainedIntakeBound(from: now))
+    #expect(assessor.latestIntakeDate(milligrams: 3, doses: [], from: now) == bound)
+    // Un espresso reste contraint : le rappel existe et tombe avant la borne.
+    let constrained = plan(doses: [], now: now, sleepReady: false)
+    #expect(constrained.map(\.kind) == [.lastIntake])
+    #expect(try #require(constrained.first?.fireAt) < bound)
+}
+
 @Test func nothingWhenBothOptionsAreOff() {
     let doses = [CaffeineDose(date: TestClock.date(9), milligrams: 100)]
     #expect(plan(doses: doses, now: TestClock.date(12), sleepReady: false, lastIntake: false).isEmpty)

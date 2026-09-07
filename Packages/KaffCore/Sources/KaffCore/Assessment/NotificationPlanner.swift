@@ -29,7 +29,9 @@ public enum NotificationPlanner {
 
     /// - `.sleepReady` : à `sleepReadyDate`, seulement si le seuil est (ou sera, au dernier pic) dépassé — sinon
     ///   `sleepReadyDate` renvoie juste le pic à venir, sans rien à annoncer — et avant le prochain 04:00 — la journée caféine suivante repart de zéro, pas de vibration en pleine nuit.
-    /// - `.lastIntake` : à `latestIntakeDate` pour `referenceMg`, seulement s'il existe et respecte le délai.
+    /// - `.lastIntake` : à `latestIntakeDate` pour `referenceMg`, seulement s'il existe, respecte le délai et est
+    ///   strictement avant `coucher − tmax` : à cette borne la dose passe de toute façon (petite dose, décaféiné),
+    ///   la contrainte ne mord pas et il n'y a rien à annoncer (observé sur simulateur en M6.7).
     /// Résultat trié par `fireAt`.
     public static func plan(doses: [CaffeineDose], limits: AssessmentLimits, referenceMg: Double,
                             wantsSleepReady: Bool, wantsLastIntake: Bool,
@@ -46,7 +48,7 @@ public enum NotificationPlanner {
         let lastIntake: PlannedNotification? = {
             guard wantsLastIntake,
                   let at = assessor.latestIntakeDate(milligrams: referenceMg, doses: past, from: now),
-                  at > earliest else { return nil }
+                  at > earliest, let bound = assessor.unconstrainedIntakeBound(from: now), at < bound else { return nil }
             return PlannedNotification(kind: .lastIntake, fireAt: at, milligrams: referenceMg)
         }()
         return [sleepReady, lastIntake].compactMap { $0 }.sorted { $0.fireAt < $1.fireAt }
