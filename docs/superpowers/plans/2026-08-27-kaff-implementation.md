@@ -3161,10 +3161,10 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 
 ### Task M6.7 : vérification, revue, TestFlight 0.2.0 (4)
 
-- [ ] **Step 1** : simulateur — semis DEBUG `KAFF_SEED_SLEEP=1` (écrit 7 nuits `sleepAnalysis` dans la base du simulateur au lancement, autorisation d'écriture demandée seulement en DEBUG) ; activer « Coucher depuis Santé », vérifier la valeur ; activer les deux notifications, vérifier leur arrivée (`xcrun simctl` ou attente courte avec `now` décalé) ; complication obsolète après modification de `updatedAt`.
-- [ ] **Step 2** : agents `code-reviewer` (tout M6) et `security-reviewer` (`Services/`, `AppModel`) ; corriger CRITICAL/HIGH.
-- [ ] **Step 3** : couverture `KaffCore` ≥ 90 %, app non-vue ≥ 80 %.
-- [ ] **Step 4** : docs — README (section « et le sommeil ? »), `docs/science/README.md` (backlog → fait), `docs/PRIVACY.md` (sommeil lu, jamais affiché ; notifications locales), ROADMAP M6 ✅ + journal, plan coché.
+- [x] **Step 1** : simulateur — semis DEBUG `KAFF_SEED_SLEEP=1` (écrit 7 nuits `sleepAnalysis` dans la base du simulateur au lancement, autorisation d'écriture demandée seulement en DEBUG) ; activer « Coucher depuis Santé », vérifier la valeur ; activer les deux notifications, vérifier leur arrivée (`xcrun simctl` ou attente courte avec `now` décalé) ; complication obsolète après modification de `updatedAt`. *(Fait le 2026-09-07 : `DebugSleepSeeder`, 23:20 · 7 nuits déduit, snapshot `bedtime 23:20` / `windowHours 50`, galerie obsolète capturée ; notifications vérifiées par les requêtes en attente dans le log — `lastIntake @ 22:35` — la bannière livrée n'a pas été observée sur simulateur.)*
+- [x] **Step 2** : agents `code-reviewer` (tout M6) et `security-reviewer` (`Services/`, `AppModel`) ; corriger CRITICAL/HIGH. *(0 CRITICAL ; 2 HIGH corrigés : fragments de nuit fusionnés, drapeaux non activés sans réponse système ; MEDIUM : fuseau du déclencheur, `PRIVACY.md` ; LOW : fenêtre décodée bornée, plancher partagé, `saveProfile`.)*
+- [x] **Step 3** : couverture `KaffCore` ≥ 90 %, app non-vue ≥ 80 %. *(core 99,3 % lignes, 115 tests ; app : `AppModel` 96 %, `NotificationScheduler` 85 %, `HealthKitStore` 65 % (HealthKit réel), 54 tests.)*
+- [x] **Step 4** : docs — README (section « et le sommeil ? »), `docs/science/README.md` (backlog → fait), `docs/PRIVACY.md` (sommeil lu, jamais affiché ; notifications locales), ROADMAP M6 ✅ + journal, plan coché.
 - [ ] **Step 5** : `CURRENT_PROJECT_VERSION 4`, `make testflight`, tag `v0.2.0` après validation sur la montre de l'utilisateur.
 
 ---
