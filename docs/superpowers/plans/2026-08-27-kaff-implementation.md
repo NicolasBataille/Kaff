@@ -3181,9 +3181,9 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 - Create: `Model/DisplayUnit.swift`
 - Test: `PharmacokineticScienceTests.swift`, `ModelTests.swift`, `AssessmentLimitsTests.swift`, `CacheStoreTests.swift`, `ProfileStoreTests.swift`
 
-- [ ] **Step 1** : tests RED — `distributionLitresPerKg == 0.67` ; `UserProfile.distributionLitres` = 0,67 × poids arrondi à 0,5 L (70 kg → 47,0 ; 72 kg → 48,0 (48,24 → 48,0) ; repli 70 kg) ; `peakLimitMgPerLitre` ≈ 4,04 pour 50, 60 et 66 kg (± 0,05) et décroissant au-delà (70 kg → ≈ 3,85) ; `bedtimeLimitMgPerLitre` = 35 / litres ; un profil v0.2 sans `complicationUnit` décode en `.milligrams` ; un snapshot v3 sans `distributionLitres`/`complicationUnit` décode avec 47,0 L (repli 70 kg) et `.milligrams` ; round-trips.
-- [ ] **Step 2** : `DisplayUnit` (`milligrams`, `milligramsPerLitre`, `Codable` par `rawValue`), constantes sourcées, champs et décodage tolérant, `LevelAssessment.currentMgPerLitre(litres:)` (ou équivalent pur).
-- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M7.1 plasma concentration and display unit`.
+- [x] **Step 1** : tests RED — `distributionLitresPerKg == 0.67` ; `UserProfile.distributionLitres` = 0,67 × poids arrondi à 0,5 L (70 kg → 47,0 ; 72 kg → 48,0 (48,24 → 48,0) ; repli 70 kg) ; `peakLimitMgPerLitre` ≈ 4,04 pour 50, 60 et 66 kg (± 0,05) et décroissant au-delà (70 kg → ≈ 3,85) ; `bedtimeLimitMgPerLitre` = 35 / litres ; un profil v0.2 sans `complicationUnit` décode en `.milligrams` ; un snapshot v3 sans `distributionLitres`/`complicationUnit` décode avec 47,0 L (repli 70 kg) et `.milligrams` ; round-trips.
+- [x] **Step 2** : `DisplayUnit` (`milligrams`, `milligramsPerLitre`, `Codable` par `rawValue`), constantes sourcées, champs et décodage tolérant, `LevelAssessment.currentMgPerLitre(litres:)` (ou équivalent pur).
+- [x] **Step 3** : `swift test` vert ; commit `feat(core): M7.1 plasma concentration and display unit`.
 
 ### Task M7.2 : entrée de complication en mg/L (KaffCore)
 
@@ -3191,9 +3191,9 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 - Modify: `Timeline/WidgetEntryData.swift`, `Timeline/WidgetTimelinePlanner.swift`
 - Test: `WidgetTimelinePlannerTests.swift`
 
-- [ ] **Step 1** : tests RED — `WidgetEntryData.milligramsPerLitre == milligrams / limits.distributionLitres`, `unit == limits.complicationUnit` ; `ringProgress`/`ringOverflow` identiques quelle que soit l'unité (même snapshot, unité changée) ; `empty` → 0 mg/L, `.milligrams`.
-- [ ] **Step 2** : implémentation, valeurs par défaut pour les appels existants.
-- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M7.2 widget entry concentration`.
+- [x] **Step 1** : tests RED — `WidgetEntryData.milligramsPerLitre == milligrams / limits.distributionLitres`, `unit == limits.complicationUnit` ; `ringProgress`/`ringOverflow` identiques quelle que soit l'unité (même snapshot, unité changée) ; `empty` → 0 mg/L, `.milligrams`.
+- [x] **Step 2** : implémentation, valeurs par défaut pour les appels existants.
+- [x] **Step 3** : `swift test` vert ; commit `feat(core): M7.2 widget entry concentration`.
 
 ### Task M7.3 : science et formats
 

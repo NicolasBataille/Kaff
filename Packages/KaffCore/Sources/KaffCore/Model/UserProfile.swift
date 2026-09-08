@@ -126,7 +126,7 @@ public struct UserProfile: Hashable, Codable, Sendable {
 
     // MARK: Concentration plasmatique estimée (spec §5.3)
 
-    /// Pas d'arrondi du volume de distribution (L).
+    /// Granularité d'arrondi du volume de distribution (L).
     /// Source: choix produit — arrondi qui masque le poids exact dans l'App Group (le widget reçoit ce volume, pas le poids)
     public static let distributionRoundingLitres = 0.5
 
