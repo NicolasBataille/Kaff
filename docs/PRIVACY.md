@@ -1,6 +1,6 @@
 # Politique de confidentialité de Kaff
 
-Dernière mise à jour : 6 septembre 2026 (v0.2 : sommeil en option, notifications locales).
+Dernière mise à jour : 8 septembre 2026 (v0.3 : concentration estimée, volume de distribution transmis à la complication).
 
 Kaff est une application Apple Watch qui estime la caféine présente dans votre organisme à partir des boissons
 que vous enregistrez.
@@ -28,8 +28,9 @@ que vous enregistrez.
 - Kaff ne lit dans Santé que les trois types ci-dessus (le sommeil seulement si vous l'activez), avec votre
   autorisation explicite, que vous pouvez retirer à tout moment dans Réglages › Santé.
 - La complication (cadran) n'accède jamais à Santé : elle lit un instantané local (doses récentes et seuils déjà
-  calculés — dont l'heure de coucher effective —, jamais le poids ni les nuits) partagé entre l'app et la
-  complication sur la montre.
+  calculés — dont l'heure de coucher effective et, depuis la v0.3, le volume de distribution arrondi à 0,5 L
+  qui sert à afficher la concentration en mg/L —, jamais le poids exact ni les nuits) partagé entre l'app et
+  la complication sur la montre.
 
 ## Vos données restent les vôtres
 

@@ -122,6 +122,19 @@ coucher (jamais après 04:00), et **« Dernière prise avant le coucher »**, ca
 le dernier instant où la prendre laisse encore le niveau sous le seuil à l'heure du coucher. Un espresso
 (63 mg) avec un seuil de 35 mg et une demi-vie de 5 h, c'est environ 4 h 30 avant.
 
+### 5 ter. Et en mg/L ? (v0.3)
+
+Kaff affiche d'abord des **mg dans l'organisme**, parce que c'est ce que le modèle calcule sans dépendre de
+ta corpulence. Mais une concentration parle davantage à certains : Kaff donne aussi la **concentration
+plasmatique estimée**, `C = A / (0,67 L/kg × poids)`. Pour 70 kg, l'organisme « dilue » la caféine dans
+≈ 47 L : 180 mg font ≈ 3,9 mg/L. Ce sont les **mêmes seuils** vus autrement, puisque la limite se divise par
+le même volume : l'anneau et le statut ne changent pas, seul le nombre change. Le cumul de la journée reste
+en mg (c'est une quantité bue, pas une concentration). Les repères de toxicité de la littérature
+(symptômes à partir de 15 mg/L, toxique au-delà de 50, létal au-delà de 80) sont affichés à titre
+indicatif dans la feuille de statut : le statut « trop haut » se déclenche bien avant. L'unité de la
+complication se choisit dans Réglages › Affichage. Détail et sources dans
+[docs/science/](docs/science/2026-09-04-fact-check.md) §7.
+
 ### 6. La complication sait déjà tout
 
 Puisque la courbe est déterministe, Kaff calcule d'avance la timeline de la complication : une entrée tous les
