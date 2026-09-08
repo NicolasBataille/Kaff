@@ -35,11 +35,14 @@ public enum WidgetTimelinePlanner {
     private static func entry(at date: Date, doses: [CaffeineDose], assessor: LevelAssessor,
                               snapshot: CacheSnapshot) -> WidgetEntryData {
         let a = assessor.assess(doses: doses, at: date)
+        let limits = snapshot.limits
         return WidgetEntryData(date: date, milligrams: a.currentMg, status: a.status,
-                               limitMg: assessor.limits.peakLimitMg,
+                               limitMg: limits.peakLimitMg,
                                sleepReadyAt: a.sleepReadyAt, isSleepReady: a.isSleepReady, hasData: true,
                                sparkline: sparkline(doses: doses, from: date, model: assessor.model),
-                               isStale: isStale(snapshot, at: date))
+                               isStale: isStale(snapshot, at: date),
+                               milligramsPerLitre: a.currentMgPerLitre(litres: limits.distributionLitres),
+                               unit: limits.complicationUnit)
     }
 
     /// Niveaux bruts (sans évaluation de statut) : `amount` renvoie 0 pour une dose postérieure à l'instant échantillonné,
