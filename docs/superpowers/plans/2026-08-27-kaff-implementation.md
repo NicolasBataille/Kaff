@@ -3200,8 +3200,8 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 **Files:**
 - Modify: `docs/science/2026-09-04-fact-check.md` (addendum 2026-09-08), `docs/science/README.md`, `KaffUI/Formatters.swift` (`mgPerLitre`, une décimale, « 3,9 mg/L »)
 
-- [ ] **Step 1** : addendum sourcé (Vd 0,67 L/kg EFSA 2015 / Abernethy & Todd 1985 ; contrôle 4,04 mg/L ; repères 15/50/80 mg/L Willson 2018 + Frontiers Toxicology 2026 ; pourquoi ce n'est pas un quatrième seuil).
-- [ ] **Step 2** : `Formatters.mgPerLitre` ; commit `docs(science): M7.3 plasma concentration addendum`.
+- [x] **Step 1** : addendum sourcé (Vd 0,67 L/kg EFSA 2015 / Abernethy & Todd 1985 ; contrôle 4,04 mg/L ; repères 15/50/80 mg/L Willson 2018 + Frontiers Toxicology 2026 ; pourquoi ce n'est pas un quatrième seuil).
+- [x] **Step 2** : `Formatters.mgPerLitre` ; commit `docs(science): M7.3 plasma concentration addendum`.
 
 ### Task M7.4 : UI — Affichage, concentration, grain de café (design Fable)
 
