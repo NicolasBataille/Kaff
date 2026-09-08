@@ -1,8 +1,9 @@
 import Foundation
 
 /// Seuils et paramètres dérivés du profil, seuls nécessaires à `LevelAssessor`. C'est ce que reçoit la complication
-/// via le snapshot de l'App Group : la limite de pic est déjà calculée, le poids ne quitte jamais l'app
-/// (revue sécurité M5.4).
+/// via le snapshot de l'App Group : la limite de pic est déjà calculée, le poids brut ne quitte pas l'app
+/// (revue sécurité M5.4). Depuis v0.3 (spec §2, §5.3) le volume de distribution `distributionLitres` — 0,67 × poids
+/// arrondi à 0,5 L, soit le poids à ± 1 kg près — traverse l'App Group : le widget en a besoin pour afficher des mg/L.
 public struct AssessmentLimits: Hashable, Codable, Sendable {
     public let halfLifeHours: Double
     public let bedtime: ClockTime
@@ -10,14 +11,25 @@ public struct AssessmentLimits: Hashable, Codable, Sendable {
     public let peakLimitMg: Double
     public let dailyLimitMg: Double
     public let bedtimeLimitMg: Double
+    /// Volume de distribution V (L), dénominateur de toute concentration : C = mg / V (spec §5.3).
+    public let distributionLitres: Double
+    /// Unité affichée par la complication ; l'anneau n'en dépend jamais (C / C_limite = A / A_limite).
+    public let complicationUnit: DisplayUnit
+
+    /// Volume quand le snapshot n'en porte pas (blob v3 antérieur à M7.1) : celui du poids de repli, 70 kg → 47,0 L.
+    public static let defaultDistributionLitres = UserProfile.default.distributionLitres
 
     public init(halfLifeHours: Double, bedtime: ClockTime, peakLimitMg: Double,
-                dailyLimitMg: Double, bedtimeLimitMg: Double) {
+                dailyLimitMg: Double, bedtimeLimitMg: Double,
+                distributionLitres: Double = AssessmentLimits.defaultDistributionLitres,
+                complicationUnit: DisplayUnit = .milligrams) {
         self.halfLifeHours = halfLifeHours
         self.bedtime = bedtime
         self.peakLimitMg = peakLimitMg
         self.dailyLimitMg = dailyLimitMg
         self.bedtimeLimitMg = bedtimeLimitMg
+        self.distributionLitres = distributionLitres
+        self.complicationUnit = complicationUnit
     }
 
     /// Dérive les seuils du profil (`peakLimitMg` = min(mg/kg × poids, plafond) × fraction au pic du modèle PK).
@@ -26,6 +38,35 @@ public struct AssessmentLimits: Hashable, Codable, Sendable {
     public init(profile: UserProfile) {
         self.init(halfLifeHours: profile.halfLifeHours, bedtime: profile.effectiveBedtime,
                   peakLimitMg: profile.peakLimitMg,
-                  dailyLimitMg: profile.dailyLimitMg, bedtimeLimitMg: profile.bedtimeLimitMg)
+                  dailyLimitMg: profile.dailyLimitMg, bedtimeLimitMg: profile.bedtimeLimitMg,
+                  distributionLitres: profile.distributionLitres, complicationUnit: profile.complicationUnit)
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case halfLifeHours, bedtime, peakLimitMg, dailyLimitMg, bedtimeLimitMg
+        case distributionLitres, complicationUnit
+    }
+
+    /// Décodage tolérant : `distributionLitres` et `complicationUnit` sont absents des blobs v3 écrits avant M7.1
+    /// (même clé `cache.snapshot.v3`). Un volume altéré (≤ 0 ou non fini) retombe sur le volume par défaut plutôt que
+    /// de produire une division par zéro ou une concentration infinie dans le widget.
+    public init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let litres = try c.decodeIfPresent(Double.self, forKey: .distributionLitres) ?? Self.defaultDistributionLitres
+        self.init(
+            halfLifeHours: try c.decode(Double.self, forKey: .halfLifeHours),
+            bedtime: try c.decode(ClockTime.self, forKey: .bedtime),
+            peakLimitMg: try c.decode(Double.self, forKey: .peakLimitMg),
+            dailyLimitMg: try c.decode(Double.self, forKey: .dailyLimitMg),
+            bedtimeLimitMg: try c.decode(Double.self, forKey: .bedtimeLimitMg),
+            distributionLitres: litres.isFinite && litres > 0 ? litres : Self.defaultDistributionLitres,
+            complicationUnit: try c.decodeIfPresent(DisplayUnit.self, forKey: .complicationUnit) ?? .milligrams
+        )
+    }
+
+    /// Limite de pic en concentration (mg/L) : `peakLimitMg / distributionLitres`.
+    public var peakLimitMgPerLitre: Double { peakLimitMg / distributionLitres }
+
+    /// Seuil de coucher en concentration (mg/L) : `bedtimeLimitMg / distributionLitres`.
+    public var bedtimeLimitMgPerLitre: Double { bedtimeLimitMg / distributionLitres }
 }

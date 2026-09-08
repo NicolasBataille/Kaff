@@ -101,3 +101,64 @@ import Testing
                              updatedAt: now.addingTimeInterval(-31 * 3600), windowHours: 80)
     #expect(WidgetTimelinePlanner.firstEntry(snapshot: wide, now: now, calendar: TestClock.calendar).isStale == false)
 }
+
+// MARK: Concentration et unité (M7.2, spec §5.3 et §8)
+
+private func snapshotForUnit(_ unit: DisplayUnit, doses: [CaffeineDose], now: Date) -> CacheSnapshot {
+    var profile = UserProfile.default
+    profile.manualWeightKg = 60   // 40 L
+    profile.complicationUnit = unit
+    return CacheSnapshot(doses: doses, limits: AssessmentLimits(profile: profile), updatedAt: now)
+}
+
+/// Chaque entrée porte `milligrams / distributionLitres` (non arrondi : la mise en forme à une décimale est celle du
+/// widget) et l'unité du snapshot.
+@Test func entriesCarryConcentrationAndUnitFromTheSnapshot() {
+    let now = TestClock.date(8)
+    let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120), CaffeineDose(date: now, milligrams: 250)]
+    let snapshot = snapshotForUnit(.milligramsPerLitre, doses: doses, now: now)
+    #expect(snapshot.limits.distributionLitres == 40)
+    let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
+    #expect(entries.allSatisfy { $0.unit == .milligramsPerLitre })
+    #expect(entries.allSatisfy { $0.milligramsPerLitre == $0.milligrams / snapshot.limits.distributionLitres })
+    // Pic ≈ (250 × 0,903 + reste des 120 ≈ 97) / 40 ≈ 8,1 mg/L, jamais nul sur l'horizon.
+    let peak = entries.max { $0.milligramsPerLitre < $1.milligramsPerLitre }!
+    #expect(abs(peak.milligramsPerLitre - 8.1) < 0.2)
+    #expect(entries.allSatisfy { $0.milligramsPerLitre > 0 })
+    let first = WidgetTimelinePlanner.firstEntry(snapshot: snapshot, now: now, calendar: TestClock.calendar)
+    #expect(first == entries.first)
+    #expect(first.unit == .milligramsPerLitre && first.milligramsPerLitre == first.milligrams / 40)
+}
+
+/// L'anneau ne change jamais avec l'unité (spec §5.3) : même snapshot en mg et en mg/L → mêmes `milligrams`,
+/// `limitMg`, `status`, `sparkline`, donc même `milligrams / limitMg` (le `ringProgress` du widget).
+@Test func ringIsIndependentOfTheDisplayUnit() {
+    let now = TestClock.date(8)
+    let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120), CaffeineDose(date: now, milligrams: 250)]
+    let inMg = WidgetTimelinePlanner.entries(snapshot: snapshotForUnit(.milligrams, doses: doses, now: now),
+                                             now: now, calendar: TestClock.calendar)
+    let inMgPerL = WidgetTimelinePlanner.entries(snapshot: snapshotForUnit(.milligramsPerLitre, doses: doses, now: now),
+                                                 now: now, calendar: TestClock.calendar)
+    // Grille 15 min sur 12 h = 49 points, plus les transitions (identiques dans les deux unités).
+    #expect(inMg.count == inMgPerL.count && inMg.count >= 49)
+    for (a, b) in zip(inMg, inMgPerL) {
+        #expect(a.date == b.date)
+        #expect(a.milligrams == b.milligrams)
+        #expect(a.limitMg == b.limitMg)
+        #expect(a.status == b.status)
+        #expect(a.sparkline == b.sparkline)
+        #expect(a.sleepReadyAt == b.sleepReadyAt && a.isSleepReady == b.isSleepReady && a.isStale == b.isStale)
+        #expect(a.milligrams / a.limitMg == b.milligrams / b.limitMg)
+        #expect(a.milligramsPerLitre == b.milligramsPerLitre)
+        #expect(a.unit == .milligrams && b.unit == .milligramsPerLitre)
+    }
+}
+
+@Test func emptyEntryHasNoConcentrationAndMilligramsUnit() {
+    let now = TestClock.date(8)
+    let empty = WidgetEntryData.empty(at: now)
+    #expect(empty.milligramsPerLitre == 0)
+    #expect(empty.unit == .milligrams)
+    let noSnapshot = WidgetTimelinePlanner.entries(snapshot: nil, now: now, calendar: TestClock.calendar)
+    #expect(noSnapshot.first?.milligramsPerLitre == 0 && noSnapshot.first?.unit == .milligrams)
+}

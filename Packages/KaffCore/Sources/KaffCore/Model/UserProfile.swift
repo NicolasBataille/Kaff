@@ -29,11 +29,17 @@ public struct UserProfile: Hashable, Codable, Sendable {
     public var notifySleepReady: Bool = false
     public var notifyLastIntake: Bool = false
 
+    // Champ v0.3 (spec §5.3) — facultatif au décodage pour rester compatible avec un profil v0.2.
+
+    /// Unité affichée par la complication (Réglages › Affichage), indépendante de Home.
+    public var complicationUnit: DisplayUnit = .milligrams
+
     public init(healthKitWeightKg: Double? = nil, healthKitWeightDate: Date? = nil, manualWeightKg: Double? = nil,
                 halfLifeHours: Double, bedtime: ClockTime,
                 dailyLimitMg: Double, bedtimeLimitMg: Double, singleDoseMgPerKg: Double, singleDoseCapMg: Double,
                 usesHealthBedtime: Bool = false, healthBedtime: ClockTime? = nil, healthBedtimeNights: Int? = nil,
-                notifySleepReady: Bool = false, notifyLastIntake: Bool = false) {
+                notifySleepReady: Bool = false, notifyLastIntake: Bool = false,
+                complicationUnit: DisplayUnit = .milligrams) {
         self.healthKitWeightKg = healthKitWeightKg
         self.healthKitWeightDate = healthKitWeightDate
         self.manualWeightKg = manualWeightKg
@@ -48,18 +54,21 @@ public struct UserProfile: Hashable, Codable, Sendable {
         self.healthBedtimeNights = healthBedtimeNights
         self.notifySleepReady = notifySleepReady
         self.notifyLastIntake = notifyLastIntake
+        self.complicationUnit = complicationUnit
     }
 
     // Clés = noms des propriétés : les anciennes pour lire un profil v0.1, les nouvelles sont celles que l'app
-    // (M6.4) écrit. L'encodage reste synthétisé ; seul le décodage est explicite.
+    // (M6.4, M7) écrit. L'encodage reste synthétisé ; seul le décodage est explicite.
     private enum CodingKeys: String, CodingKey {
         case healthKitWeightKg, healthKitWeightDate, manualWeightKg
         case halfLifeHours, bedtime, dailyLimitMg, bedtimeLimitMg, singleDoseMgPerKg, singleDoseCapMg
         case usesHealthBedtime, healthBedtime, healthBedtimeNights, notifySleepReady, notifyLastIntake
+        case complicationUnit
     }
 
-    /// Décodage tolérant : un profil enregistré par v0.1 n'a aucune clé v0.2, elles prennent leurs valeurs par défaut.
-    /// Les clés v0.1 restent obligatoires : un blob corrompu doit échouer (et `ProfileStore` retombe sur `.default`).
+    /// Décodage tolérant : un profil enregistré par v0.1 n'a aucune clé v0.2 (ni v0.3), elles prennent leurs valeurs
+    /// par défaut. Les clés v0.1 restent obligatoires : un blob corrompu doit échouer (et `ProfileStore` retombe sur
+    /// `.default`).
     public init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         self.init(
@@ -76,7 +85,8 @@ public struct UserProfile: Hashable, Codable, Sendable {
             healthBedtime: try c.decodeIfPresent(ClockTime.self, forKey: .healthBedtime),
             healthBedtimeNights: try c.decodeIfPresent(Int.self, forKey: .healthBedtimeNights),
             notifySleepReady: try c.decodeIfPresent(Bool.self, forKey: .notifySleepReady) ?? false,
-            notifyLastIntake: try c.decodeIfPresent(Bool.self, forKey: .notifyLastIntake) ?? false
+            notifyLastIntake: try c.decodeIfPresent(Bool.self, forKey: .notifyLastIntake) ?? false,
+            complicationUnit: try c.decodeIfPresent(DisplayUnit.self, forKey: .complicationUnit) ?? .milligrams
         )
     }
 
@@ -113,6 +123,26 @@ public struct UserProfile: Hashable, Codable, Sendable {
     /// Charge corporelle maximale : Cmax d'une dose unique à la limite (EFSA 2015 §5.1.3 : des prises répétées
     /// ne doivent pas dépasser la concentration maximale d'une dose de 200 mg).
     public var peakLimitMg: Double { singleDoseLimitMg * PharmacokineticModel(halfLifeHours: halfLifeHours).peakFraction }
+
+    // MARK: Concentration plasmatique estimée (spec §5.3)
+
+    /// Pas d'arrondi du volume de distribution (L).
+    /// Source: choix produit — arrondi qui masque le poids exact dans l'App Group (le widget reçoit ce volume, pas le poids)
+    public static let distributionRoundingLitres = 0.5
+
+    /// Volume de distribution V = Vd × poids (L), arrondi au `distributionRoundingLitres` le plus proche : 70 kg → 47,0 L.
+    /// C'est la seule trace du poids qui traverse l'App Group (`AssessmentLimits.distributionLitres`).
+    public var distributionLitres: Double {
+        let step = Self.distributionRoundingLitres
+        return (PharmacokineticModel.distributionLitresPerKg * weightKg / step).rounded() * step
+    }
+
+    /// Limite de pic en concentration (mg/L) : `peakLimitMg / V`. Sous le plafond de 200 mg, ≈ 3 mg/kg × pic / 0,67
+    /// ≈ 4,04 mg/L quel que soit le poids ; au-delà elle décroît avec le poids.
+    public var peakLimitMgPerLitre: Double { peakLimitMg / distributionLitres }
+
+    /// Seuil de coucher en concentration (mg/L) : `bedtimeLimitMg / V`.
+    public var bedtimeLimitMgPerLitre: Double { bedtimeLimitMg / distributionLitres }
 
     public enum Bounds {
         public static let weightKg = 30.0...250.0

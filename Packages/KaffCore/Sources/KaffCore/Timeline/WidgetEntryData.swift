@@ -18,10 +18,15 @@ public struct WidgetEntryData: Hashable, Sendable {
     /// une dose non transmise ne peut plus être connue. Le rectangulaire et l'inline affichent alors « Ouvrir Kaff »
     /// en ligne secondaire ; la valeur reste juste (la caféine connue a décru). `false` sans snapshot.
     public let isStale: Bool
+    /// Concentration plasmatique estimée (spec §5.3) : `milligrams / limits.distributionLitres`, non arrondie
+    /// (la mise en forme à une décimale est celle du widget). L'anneau reste sur `milligrams / limitMg`.
+    public let milligramsPerLitre: Double
+    /// Unité à afficher, `limits.complicationUnit` (spec §8) ; ne change ni le nombre en mg ni l'anneau.
+    public let unit: DisplayUnit
 
     public init(date: Date, milligrams: Double, status: LevelStatus, limitMg: Double,
                 sleepReadyAt: Date, isSleepReady: Bool, hasData: Bool, sparkline: [Double] = [],
-                isStale: Bool = false) {
+                isStale: Bool = false, milligramsPerLitre: Double = 0, unit: DisplayUnit = .milligrams) {
         self.date = date
         self.milligrams = milligrams
         self.status = status
@@ -31,11 +36,14 @@ public struct WidgetEntryData: Hashable, Sendable {
         self.hasData = hasData
         self.sparkline = sparkline
         self.isStale = isStale
+        self.milligramsPerLitre = milligramsPerLitre
+        self.unit = unit
     }
 
     public static func empty(at date: Date) -> WidgetEntryData {
         WidgetEntryData(date: date, milligrams: 0, status: .ok, limitMg: UserProfile.default.peakLimitMg,
                         sleepReadyAt: date, isSleepReady: true, hasData: false,
-                        sparkline: Array(repeating: 0, count: WidgetTimelinePlanner.sparklineSamples))
+                        sparkline: Array(repeating: 0, count: WidgetTimelinePlanner.sparklineSamples),
+                        milligramsPerLitre: 0, unit: .milligrams)
     }
 }

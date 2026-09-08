@@ -10,6 +10,10 @@ public struct PharmacokineticModel: Hashable, Sendable {
     /// 3,2–4,0 h⁻¹ gomme (Kamimori 2002) — 5 h⁻¹ calé sur une boisson chaude ; tmax résultant 34–52 min sur t½ 2–10 h.
     public static let absorptionRatePerHour = 5.0
 
+    /// Volume de distribution apparent (L/kg) : C(t) = A(t) / (Vd × poids) (spec §5.3).
+    /// Source: EFSA 2015 (d'après Abernethy & Todd 1985) ; IOM 2001 : 0,7 L/kg ; fact-check-pk.md §6
+    public static let distributionLitresPerKg = 0.67
+
     public let halfLifeHours: Double
 
     /// Invariant : `halfLifeHours` > 0 et ≠ ln2/ka (≈ 0,139 h) ; garanti par `UserProfile.Bounds.halfLifeHours` (2–10 h).
