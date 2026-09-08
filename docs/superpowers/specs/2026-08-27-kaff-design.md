@@ -31,8 +31,9 @@ locales opt-in (§7.6). Toujours hors périmètre : app iPhone, FC/VFC, grossess
 | Complication | WidgetKit, familles `accessory*`, timeline précalculée | ClockKit est déprécié ; la décroissance entre doses est déterministe |
 | Génération projet | XcodeGen (`project.yml`) | `.xcodeproj` reproductible, pas de conflits de merge |
 | Logique métier | Package Swift pur `KaffCore`, testé sous macOS | TDD et couverture 80 % à bas coût |
-| Coucher (v0.2) — *décision d'agent du 2026-09-06, à confirmer par l'utilisateur* | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle. Revient partiellement sur « pas de sommeil » (2026-08-27) : lu uniquement pour le coucher, jamais affiché | Le fact-check commandé par l'utilisateur (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile |
-| Notifications (v0.2) — *décision d'agent du 2026-09-06, à confirmer par l'utilisateur* | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
+| Coucher (v0.2) — validé par l'utilisateur le 2026-09-08 | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle. Revient partiellement sur « pas de sommeil » (2026-08-27) : lu uniquement pour le coucher, jamais affiché | Le fact-check commandé par l'utilisateur (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile |
+| Notifications (v0.2) — validé par l'utilisateur le 2026-09-08 | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
+| Licence (2026-09-08) | PolyForm Strict 1.0.0 : source disponible, usage personnel non commercial seulement ; redistribution, modification distribuée et usage commercial interdits ; copyright Nicolas Bataille | Demande utilisateur : que le code ne puisse pas être repris ou réutilisé impunément ; une licence établie vaut mieux qu'un texte maison |
 
 ## 3. Architecture
 
