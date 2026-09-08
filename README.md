@@ -162,6 +162,9 @@ dose unique, pas la dose elle-même) et quelques attributions rectifiées.
 
 ## Installer
 
+> Section de travail de l'auteur. Compiler ou exécuter Kaff à partir de ce dépôt demande son autorisation
+> écrite (voir [Licence](#licence)) ; pour tester l'app, passez par TestFlight sur invitation.
+
 Prérequis : Xcode 26.6 avec le SDK watchOS 26, [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 (`brew install xcodegen`), et un compte développeur Apple pour une montre physique.
 
