@@ -52,3 +52,13 @@ func peakTimeAndFractionStayInPublishedRanges(halfLife: Double) {
     #expect(abs(peakMg / (PharmacokineticModel.distributionLitresPerKg * 70) - 3.85) < 0.01)
     #expect(abs(peakMg / profile.distributionLitres - 3.93) < 0.01)
 }
+
+/// Repères de toxicité (Willson 2018 ; Frontiers Toxicology 2026) : ordonnés, et tous bien au-dessus de la limite de pic
+/// (≈ 4 mg/L) — ce sont des repères, jamais le seuil qui colore l'anneau.
+@Test func toxicityReferencesAreOrderedAndFarAboveThePeakLimit() {
+    #expect(ConcentrationReference.symptomsMgPerLitre == 15)
+    #expect(ConcentrationReference.symptomsMgPerLitre < ConcentrationReference.toxicMgPerLitre)
+    #expect(ConcentrationReference.toxicMgPerLitre < ConcentrationReference.lethalMgPerLitre)
+    #expect(ConcentrationReference.symptomsMgPerLitre > 3 * UserProfile.default.peakLimitMgPerLitre)
+}
+

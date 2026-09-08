@@ -13,7 +13,7 @@ extension WidgetEntryData {
     /// « mg » / « mg/L », étiquette logée dans l'ouverture de l'anneau ou dans la jauge du coin.
     var unitLabel: String { unit.label }
     /// « 142 mg » / « 3,1 mg/L » pour les familles à une ligne (rectangulaire, inline).
-    var valueWithUnit: String { "\(valueText) \(unitLabel)" }
+    var valueWithUnit: String { "\(valueText)\u{A0}\(unitLabel)" }   // insécable, comme `Formatters.mgPerLitre`
     /// Gris « anneau vide » sans snapshot ou à zéro, sinon la couleur de statut (comme Home).
     var tint: Color { hasData && milligrams >= 0.5 ? status.color : Theme.idle }
     var ringProgress: Double { limitMg > 0 ? min(milligrams / limitMg, 1) : 0 }

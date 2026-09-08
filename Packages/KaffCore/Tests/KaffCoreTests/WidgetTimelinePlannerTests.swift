@@ -162,3 +162,16 @@ private func snapshotForUnit(_ unit: DisplayUnit, doses: [CaffeineDose], now: Da
     let noSnapshot = WidgetTimelinePlanner.entries(snapshot: nil, now: now, calendar: TestClock.calendar)
     #expect(noSnapshot.first?.milligramsPerLitre == 0 && noSnapshot.first?.unit == .milligrams)
 }
+
+/// Identité algébrique de la spec §5.3 : C / C_limite = A / A_limite, le même volume divisant les deux membres.
+@Test func concentrationRatioEqualsMilligramRatio() {
+    let now = TestClock.date(8)
+    let doses = [CaffeineDose(date: TestClock.date(7), milligrams: 120), CaffeineDose(date: now, milligrams: 250)]
+    let snapshot = snapshotForUnit(.milligramsPerLitre, doses: doses, now: now)
+    let entries = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now, calendar: TestClock.calendar)
+    for e in entries where e.milligrams > 0 {
+        let concentrationRatio = e.milligramsPerLitre / snapshot.limits.peakLimitMgPerLitre
+        #expect(abs(concentrationRatio - e.milligrams / e.limitMg) < 1e-9)
+    }
+}
+

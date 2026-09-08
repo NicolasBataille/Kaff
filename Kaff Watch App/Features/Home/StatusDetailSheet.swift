@@ -10,14 +10,8 @@ struct StatusDetailSheet: View {
     /// Le badge « poids estimé » mène aux Réglages : la feuille n'a pas de destination, Home ferme et pousse la route.
     var openSettings: () -> Void = {}
 
-    // Source: Willson 2018, « The clinical toxicology of caffeine », Toxicol Rep ; revue Frontiers in Toxicology 2026
-    // (DOI 10.3389/ftox.2026.1933375) ; docs/science/2026-09-04-fact-check.md « Repères de toxicité ». Symptômes
-    // d'intoxication ≥ 15 mg/L, concentrations toxiques > 50 mg/L, létales > 80 mg/L. Repères, pas des seuils.
-    private enum Toxicity {
-        static let symptomsMgPerLitre = 15.0
-        static let toxicMgPerLitre = 50.0
-        static let lethalMgPerLitre = 80.0
-    }
+    /// Repères de toxicité : constantes sourcées dans `KaffCore` (`ConcentrationReference`), testées là-bas.
+    private typealias Toxicity = ConcentrationReference
 
     private struct Check: Identifiable {
         let id: String
@@ -88,6 +82,8 @@ struct StatusDetailSheet: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel(check))
+        // Le bouton « poids estimé » est absorbé par la combinaison : l'accès aux Réglages passe par une action nommée.
+        .accessibilityAction(named: Text("Régler le poids")) { if check.concentration != nil && profile.isWeightEstimated { openSettings() } }
     }
 
     /// « 3,2 mg/L · limite 4,0 », badge « poids estimé » à côté quand le poids est celui de repli (spec §9) ;
@@ -123,7 +119,8 @@ struct StatusDetailSheet: View {
 
     private func accessibilityLabel(_ check: Check) -> Text {
         if let concentration = check.concentration {
-            return Text("\(check.title) : \(Formatters.mg(check.value)) sur \(Formatters.mg(check.limit)), soit \(Formatters.mgPerLitre(concentration.value)) sur \(Formatters.mgPerLitre(concentration.limit)), \(check.status.accessibilityLabel)")
+            let estimated = profile.isWeightEstimated ? ", poids estimé" : ""
+            return Text("\(check.title) : \(Formatters.mg(check.value)) sur \(Formatters.mg(check.limit)), soit \(Formatters.mgPerLitre(concentration.value)) sur \(Formatters.mgPerLitre(concentration.limit))\(estimated), \(check.status.accessibilityLabel)")
         }
         return Text("\(check.title) : \(Formatters.mg(check.value)) sur \(Formatters.mg(check.limit)), \(check.status.accessibilityLabel)")
     }
