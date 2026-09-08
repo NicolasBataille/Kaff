@@ -24,7 +24,7 @@ struct DisplaySettingsSection: View {
             .animation(.default, value: profile.complicationUnit)
             // Haptique sur la ligne persistante (pas sur la liste qui se ferme) : le profil change après le retour.
             .sensoryFeedback(.selection, trigger: profile.complicationUnit)
-            // Volume de distribution : 0,67 L/kg × poids (EFSA 2015), arrondi à 0,5 L par KaffCore (spec §5.3).
+            // Volume de distribution : 0,67 L/kg × poids (EFSA 2015), arrondi à 2 L par KaffCore (spec §5.3).
             SettingsFootnote("Concentration plasmatique estimée : \(Formatters.litresPerKg(PharmacokineticModel.distributionLitresPerKg)) × poids ≈ \(Formatters.litres(profile.distributionLitres))")
             nowFootnote
             if profile.isWeightEstimated {

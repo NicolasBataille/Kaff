@@ -49,7 +49,7 @@ private func freshDefaults() -> UserDefaults {
     let loaded = store.loadProfile()
     #expect(loaded == p)
     #expect(loaded.complicationUnit == .milligramsPerLitre)
-    #expect(loaded.distributionLitres == 43.5)   // 0,67 × 65 = 43,55 → 43,5
+    #expect(loaded.distributionLitres == 44.0)   // 0,67 × 65 = 43,55 → 44 (pas de 2 L)
 }
 
 @Test func customDrinksRoundTrip() throws {

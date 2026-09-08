@@ -75,13 +75,13 @@ import Testing
     #expect(limits.bedtimeLimitMgPerLitre == profile.bedtimeLimitMgPerLitre)
 }
 
-/// Le poids est flouté par l'arrondi à 0,5 L : 81,5 kg → 54,605 → 54,5 L ; c'est ce volume, pas le poids, qui traverse
+/// Le poids est flouté par l'arrondi à 2 L : 81,5 kg → 54,605 → 54 L ; c'est ce volume, pas le poids, qui traverse
 /// l'App Group (spec §2, invariant M5.4 révisé).
 @Test func limitsExposeRoundedVolumeInsteadOfWeight() throws {
     var profile = UserProfile.default
     profile.healthKitWeightKg = 81.5
     let json = String(decoding: try JSONEncoder().encode(AssessmentLimits(profile: profile)), as: UTF8.self)
-    #expect(json.contains("\"distributionLitres\":54.5"))
+    #expect(json.contains("\"distributionLitres\":54,") || json.contains("\"distributionLitres\":54}"))
     #expect(!json.contains("81.5"))
     #expect(json.contains("\"complicationUnit\":\"milligrams\""))
 }
@@ -89,7 +89,7 @@ import Testing
 @Test func memberwiseLimitsDefaultToFallbackVolumeAndMilligrams() {
     let limits = AssessmentLimits(halfLifeHours: 5, bedtime: ClockTime(hour: 23, minute: 0),
                                   peakLimitMg: 180, dailyLimitMg: 400, bedtimeLimitMg: 35)
-    #expect(limits.distributionLitres == 47.0)
+    #expect(limits.distributionLitres == 46.0)
     #expect(limits.distributionLitres == UserProfile.default.distributionLitres)
     #expect(limits.complicationUnit == .milligrams)
 }

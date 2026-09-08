@@ -31,7 +31,7 @@ struct StatusDetailSheet: View {
     }
 
     private var checks: [Check] {
-        // Volume de distribution : 0,67 L/kg × poids (EFSA 2015), arrondi à 0,5 L par KaffCore.
+        // Volume de distribution : 0,67 L/kg × poids (EFSA 2015), arrondi à 2 L par KaffCore.
         let litres = profile.distributionLitres
         return [
             Check(id: "peak", title: "Pic", symbol: "waveform.path.ecg",

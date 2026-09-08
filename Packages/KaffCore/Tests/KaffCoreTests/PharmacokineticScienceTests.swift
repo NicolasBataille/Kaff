@@ -43,11 +43,12 @@ func peakTimeAndFractionStayInPublishedRanges(halfLife: Double) {
     #expect(PharmacokineticModel.distributionLitresPerKg == 0.67)
 }
 
-/// Contrôle de la spec §5.3 : 200 mg à 70 kg → Cmax ≈ 180,6 / 47 ≈ 3,84 mg/L, cohérent avec les Cmax mesurées
-/// après une dose de ce type (≈ 4–5 mg/L, borne basse une fois le volume arrondi à 47 L).
+/// Contrôle de la spec §5.3 : 200 mg à 70 kg → Cmax ≈ 180,6 / 46,9 ≈ 3,85 mg/L (3,93 avec le volume arrondi à 46 L),
+/// cohérent avec les Cmax mesurées après une dose de ce type (≈ 4–5 mg/L).
 @Test func twoHundredMilligramsAtSeventyKilosPeaksNearFourMilligramsPerLitre() {
     let profile = UserProfile.default   // poids de repli 70 kg
     let model = PharmacokineticModel(halfLifeHours: profile.halfLifeHours)
     let peakMg = model.amount(dose: 200, hoursSince: model.timeToPeakHours)
-    #expect(abs(peakMg / profile.distributionLitres - 3.84) < 0.01)
+    #expect(abs(peakMg / (PharmacokineticModel.distributionLitresPerKg * 70) - 3.85) < 0.01)
+    #expect(abs(peakMg / profile.distributionLitres - 3.93) < 0.01)
 }

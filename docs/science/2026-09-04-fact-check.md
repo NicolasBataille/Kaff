@@ -130,7 +130,7 @@ cette métrique », et laisser choisir l'unité de la complication.
 §4.2, d'après Abernethy & Todd 1985 ; IOM 2001 donne 0,7 ; plage publiée 0,5–0,75 — voir
 [`fact-check-pk.md`](fact-check-pk.md) §6). Le Vd n'est pas modifié par le tabac ni la contraception
 orale (Parsons 1978, Abernethy 1985) ; il est plus faible chez la personne âgée (Blanchard & Sawers 1983).
-Pour 70 kg, `V ≈ 46,9 L` ; l'app arrondit `V` à 0,5 L près avant de le transmettre à la complication.
+Pour 70 kg, `V ≈ 46,9 L` ; l'app arrondit `V` à 2 L près (≈ 3 kg, revue sécurité M7.5) avant de le transmettre à la complication.
 
 **Contrôle de cohérence.** 200 mg ingérés → `Cmax ≈ 180,6 mg / 46,9 L ≈ 3,85 mg/L`, dans la plage des Cmax
 mesurées après une dose de cet ordre (≈ 4–5 mg/L dans les études d'interaction où la caféine sert de sonde

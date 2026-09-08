@@ -10,7 +10,7 @@ enum Formatters {
     /// Espace insécable : le nombre ne se sépare jamais de son unité en fin de ligne.
     static func mgPerLitre(_ value: Double) -> String { "\(mgPerLitreValue(value))\u{A0}mg/L" }
     static func mgPerLitreValue(_ value: Double) -> String { value.formatted(.number.precision(.fractionLength(1))) }
-    /// « 47 L » / « 46,5 L » — volume de distribution, arrondi à 0,5 L par `UserProfile.distributionLitres`.
+    /// « 47 L » / « 46,5 L » — volume de distribution, arrondi à 2 L par `UserProfile.distributionLitres`.
     static func litres(_ value: Double) -> String { "\(count(value))\u{A0}L" }
     /// « 0,67 L/kg » — volume de distribution par kilogramme (deux décimales, la constante en a deux).
     static func litresPerKg(_ value: Double) -> String { "\(value.formatted(.number.precision(.fractionLength(0...2))))\u{A0}L/kg" }

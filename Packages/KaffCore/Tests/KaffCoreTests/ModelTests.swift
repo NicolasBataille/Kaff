@@ -152,40 +152,53 @@ private let profileV1JSON = """
 
 // MARK: - Concentration plasmatique et unité de la complication (M7.1, spec §5.3)
 
-/// `distributionLitres` = 0,67 L/kg × poids, arrondi au 0,5 L le plus proche (le poids exact ne traverse pas l'App Group).
-/// 72 kg → 48,24 → 48,0 ; 61 kg → 40,87 → 41,0 ; 50 kg → 33,5 exact ; 60 kg → 40,2 → 40,0.
-@Test(arguments: [(70.0, 47.0), (72.0, 48.0), (61.0, 41.0), (50.0, 33.5), (60.0, 40.0)])
-func distributionLitresIsVdTimesWeightRoundedToHalfLitre(weightKg: Double, litres: Double) {
+/// `distributionLitres` = 0,67 L/kg × poids, arrondi aux 2 L les plus proches (revue sécurité M7.5 : un pas de 2 L vaut
+/// ≈ 3 kg, un poids saisi au kilo près n'est plus inversible depuis l'App Group).
+/// 70 kg → 46,9 → 46 ; 72 kg → 48,24 → 48 ; 61 kg → 40,87 → 40 ; 50 kg → 33,5 → 34 ; 60 kg → 40,2 → 40.
+@Test(arguments: [(70.0, 46.0), (72.0, 48.0), (61.0, 40.0), (50.0, 34.0), (60.0, 40.0)])
+func distributionLitresIsVdTimesWeightRoundedToTwoLitres(weightKg: Double, litres: Double) {
     var p = UserProfile.default
     p.manualWeightKg = weightKg
     #expect(p.distributionLitres == litres)
-    #expect(UserProfile.distributionRoundingLitres == 0.5)
+    #expect(UserProfile.distributionRoundingLitres == 2.0)
+}
+
+/// Revue sécurité M7.5 : deux poids consécutifs au kilo près partagent un volume dans au moins un cas sur trois
+/// (30–250 kg), donc le volume seul ne rend pas le poids exact.
+@Test func consecutiveWeightsCollideOnTheRoundedVolume() {
+    var collisions = 0
+    for kg in 30..<250 {
+        var a = UserProfile.default; a.manualWeightKg = Double(kg)
+        var b = UserProfile.default; b.manualWeightKg = Double(kg + 1)
+        if a.distributionLitres == b.distributionLitres { collisions += 1 }
+    }
+    #expect(collisions > 220 / 3)
 }
 
 @Test func distributionLitresUsesFallbackWeightWhenNoneIsKnown() {
     let p = UserProfile.default
     #expect(p.isWeightEstimated)
-    #expect(p.distributionLitres == 47.0)
+    #expect(p.distributionLitres == 46.0)
 }
 
 /// Sous le plafond de 200 mg, `peakLimitMg / V` = 3 mg/kg × poids × pic / (0,67 × poids) ≈ 3 × 0,903 / 0,67 ≈ 4,04 mg/L,
-/// indépendant du poids à l'arrondi de 0,5 L près (60 et 66 kg arrondissent le volume vers le bas : 4,06 ; d'où ± 0,05).
+/// indépendant du poids à l'arrondi de 2 L près (50 kg → 34 L : 3,98 ; 60 et 66 kg → 40 et 44 L : 4,06 ; d'où ± 0,1).
 /// Au-delà du plafond (66,7 kg), le numérateur est figé à 180,6 mg et la concentration limite décroît avec le poids.
 @Test(arguments: [50.0, 60.0, 66.0])
 func peakLimitConcentrationIsConstantBelowTheSingleDoseCap(weightKg: Double) {
     var p = UserProfile.default
     p.manualWeightKg = weightKg
-    #expect(abs(p.peakLimitMgPerLitre - 4.04) < 0.05, "\(weightKg) kg → \(p.peakLimitMgPerLitre) mg/L")
+    #expect(abs(p.peakLimitMgPerLitre - 4.04) < 0.1, "\(weightKg) kg → \(p.peakLimitMgPerLitre) mg/L")
 }
 
 @Test func peakLimitConcentrationDecreasesWithWeightAboveTheCap() {
     var p = UserProfile.default
-    p.manualWeightKg = 70
-    #expect(abs(p.peakLimitMgPerLitre - 3.85) < 0.02)
+    p.manualWeightKg = 70   // 46,9 → 46 L : 180,6 / 46 ≈ 3,93 (3,85 sans arrondi)
+    #expect(abs(p.peakLimitMgPerLitre - 180.6 / 46) < 0.01)
     let seventy = p.peakLimitMgPerLitre
-    p.manualWeightKg = 90   // 60,3 → 60,5 L
+    p.manualWeightKg = 90   // 60,3 → 60 L
     #expect(p.peakLimitMgPerLitre < seventy)
-    #expect(abs(p.peakLimitMgPerLitre - 180.6 / 60.5) < 0.01)
+    #expect(abs(p.peakLimitMgPerLitre - 180.6 / 60) < 0.01)
 }
 
 @Test func bedtimeLimitConcentrationIsBedtimeLimitOverVolume() {
@@ -240,4 +253,15 @@ private let profileV02JSON = """
     let c = p.clamped()
     #expect(c.complicationUnit == .milligramsPerLitre)
     #expect(c.halfLifeHours == UserProfile.Bounds.halfLifeHours.upperBound)
+}
+
+/// Revue sécurité M7.5 : une unité inconnue (version future, blob altéré) ne doit pas faire échouer tout le profil.
+@Test func unknownComplicationUnitDecodesAsMilligrams() throws {
+    var p = UserProfile.default
+    p.complicationUnit = .milligramsPerLitre
+    var json = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(p)) as? [String: Any])
+    json["complicationUnit"] = "nanograms"
+    let decoded = try JSONDecoder().decode(UserProfile.self, from: JSONSerialization.data(withJSONObject: json))
+    #expect(decoded.complicationUnit == .milligrams)
+    #expect(decoded.bedtime == p.bedtime)
 }

@@ -87,7 +87,7 @@ func invalidWindowHoursFallsBackToDefault(bad: Double) throws {
 // MARK: - Volume de distribution et unité (M7.1)
 
 /// M7.1 : `distributionLitres` et `complicationUnit` s'ajoutent aux `limits` de la v3 sans changer de clé ; un blob v3
-/// antérieur se relit avec 47,0 L (repli 70 kg) et l'unité mg.
+/// antérieur se relit avec 46 L (repli 70 kg) et l'unité mg.
 @Test func v3BlobWithoutVolumeAndUnitDecodesWithDefaults() throws {
     let defaults = freshDefaults()
     var profile = UserProfile.default
@@ -102,7 +102,7 @@ func invalidWindowHoursFallsBackToDefault(bad: Double) throws {
     json["limits"] = limits
     defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: CacheStore.key)
     let read = try #require(CacheStore(defaults: defaults).read())
-    #expect(read.limits.distributionLitres == 47.0)
+    #expect(read.limits.distributionLitres == 46.0)
     #expect(read.limits.complicationUnit == .milligrams)
     #expect(read.limits.peakLimitMg == snapshot.limits.peakLimitMg)
     #expect(read.limits.bedtime == snapshot.limits.bedtime)
@@ -121,8 +121,8 @@ func invalidDistributionLitresFallsBackToDefault(bad: Double) throws {
     json["limits"] = limits
     defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: CacheStore.key)
     let read = CacheStore(defaults: defaults).read()
-    #expect(read == nil || read?.limits.distributionLitres == 47.0)
-    if bad.isFinite { #expect(read?.limits.distributionLitres == 47.0) }
+    #expect(read == nil || read?.limits.distributionLitres == 46.0)
+    if bad.isFinite { #expect(read?.limits.distributionLitres == 46.0) }
 }
 
 @Test func volumeAndUnitRoundTripThroughTheCache() throws {
@@ -136,4 +136,19 @@ func invalidDistributionLitresFallsBackToDefault(bad: Double) throws {
     #expect(read == snapshot)
     #expect(read.limits.distributionLitres == 48.0)
     #expect(read.limits.complicationUnit == .milligramsPerLitre)
+}
+
+/// Revue sécurité M7.5 : une unité inconnue dans le blob ne doit pas faire perdre tout le snapshot au widget.
+@Test func unknownUnitInSnapshotFallsBackToMilligrams() throws {
+    let defaults = freshDefaults()
+    let snapshot = CacheSnapshot(doses: [CaffeineDose(date: TestClock.date(9), milligrams: 63)],
+                                 limits: AssessmentLimits(profile: .default), updatedAt: TestClock.date(10))
+    var json = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(snapshot)) as? [String: Any])
+    var limits = try #require(json["limits"] as? [String: Any])
+    limits["complicationUnit"] = "nanograms"
+    json["limits"] = limits
+    defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: CacheStore.key)
+    let read = try #require(CacheStore(defaults: defaults).read())
+    #expect(read.limits.complicationUnit == .milligrams)
+    #expect(read.doses == snapshot.doses)
 }

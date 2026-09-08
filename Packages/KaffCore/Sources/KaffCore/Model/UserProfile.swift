@@ -86,7 +86,8 @@ public struct UserProfile: Hashable, Codable, Sendable {
             healthBedtimeNights: try c.decodeIfPresent(Int.self, forKey: .healthBedtimeNights),
             notifySleepReady: try c.decodeIfPresent(Bool.self, forKey: .notifySleepReady) ?? false,
             notifyLastIntake: try c.decodeIfPresent(Bool.self, forKey: .notifyLastIntake) ?? false,
-            complicationUnit: try c.decodeIfPresent(DisplayUnit.self, forKey: .complicationUnit) ?? .milligrams
+            // Valeur inconnue (version future, blob altéré) → unité par défaut plutôt que perdre tout le profil.
+            complicationUnit: try c.decodeIfPresent(String.self, forKey: .complicationUnit).flatMap(DisplayUnit.init(rawValue:)) ?? .milligrams
         )
     }
 
@@ -127,10 +128,12 @@ public struct UserProfile: Hashable, Codable, Sendable {
     // MARK: Concentration plasmatique estimée (spec §5.3)
 
     /// Granularité d'arrondi du volume de distribution (L).
-    /// Source: choix produit — arrondi qui masque le poids exact dans l'App Group (le widget reçoit ce volume, pas le poids)
-    public static let distributionRoundingLitres = 0.5
+    /// Source: choix produit (revue sécurité M7.5) — un pas de 2 L vaut ≈ 3 kg de poids (2 / 0,67) : un poids saisi au kilo
+    /// près n'est plus inversible depuis l'App Group (à 0,5 L, chaque kilo donnait un volume distinct). Le volume reste
+    /// à ± 2 % près, négligeable devant la variabilité du Vd publié (0,5–0,75 L/kg).
+    public static let distributionRoundingLitres = 2.0
 
-    /// Volume de distribution V = Vd × poids (L), arrondi au `distributionRoundingLitres` le plus proche : 70 kg → 47,0 L.
+    /// Volume de distribution V = Vd × poids (L), arrondi au `distributionRoundingLitres` le plus proche : 70 kg → 46,9 → 46 L.
     /// C'est la seule trace du poids qui traverse l'App Group (`AssessmentLimits.distributionLitres`).
     public var distributionLitres: Double {
         let step = Self.distributionRoundingLitres

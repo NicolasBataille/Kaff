@@ -127,7 +127,7 @@ le dernier instant où la prendre laisse encore le niveau sous le seuil à l'heu
 Kaff affiche d'abord des **mg dans l'organisme**, parce que c'est ce que le modèle calcule sans dépendre de
 ta corpulence. Mais une concentration parle davantage à certains : Kaff donne aussi la **concentration
 plasmatique estimée**, `C = A / (0,67 L/kg × poids)`. Pour 70 kg, l'organisme « dilue » la caféine dans
-≈ 47 L : 180 mg font ≈ 3,9 mg/L. Ce sont les **mêmes seuils** vus autrement, puisque la limite se divise par
+≈ 46 L : 180 mg font ≈ 3,9 mg/L. Ce sont les **mêmes seuils** vus autrement, puisque la limite se divise par
 le même volume : l'anneau et le statut ne changent pas, seul le nombre change. Le cumul de la journée reste
 en mg (c'est une quantité bue, pas une concentration). Les repères de toxicité de la littérature
 (symptômes à partir de 15 mg/L, toxique au-delà de 50, létal au-delà de 80) sont affichés à titre

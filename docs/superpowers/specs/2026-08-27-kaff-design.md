@@ -34,7 +34,7 @@ locales opt-in (§7.6). Toujours hors périmètre : app iPhone, FC/VFC, grossess
 | Coucher (v0.2) — validé par l'utilisateur le 2026-09-08 | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle. Revient partiellement sur « pas de sommeil » (2026-08-27) : lu uniquement pour le coucher, jamais affiché | Le fact-check commandé par l'utilisateur (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile |
 | Notifications (v0.2) — validé par l'utilisateur le 2026-09-08 | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
 | Licence (2026-09-08) | PolyForm Strict 1.0.0 : source disponible, usage personnel non commercial seulement ; redistribution, modification distribuée et usage commercial interdits ; copyright Nicolas Bataille | Demande utilisateur : que le code ne puisse pas être repris ou réutilisé impunément ; une licence établie vaut mieux qu'un texte maison |
-| Concentration (v0.3) — *décision d'agent du 2026-09-08, à confirmer par l'utilisateur* | Concentration plasmatique estimée `C = A / (0,67 L/kg × poids)` affichée en plus des mg ; l'unité de la complication (mg ou mg/L) est un réglage. **Revient sur l'invariant M5.4 « plus aucun poids dans l'App Group »** : le widget reçoit `distributionLitres` (= 0,67 × poids, arrondi à 0,5 L), le poids à ± 1 kg près | Demande utilisateur ; le widget calcule sa timeline lui-même, l'app ne peut pas précalculer la concentration à sa place. Conteneur signé par la même équipe, risque pratique faible, mais invariant modifié |
+| Concentration (v0.3) — *décision d'agent du 2026-09-08, à confirmer par l'utilisateur* | Concentration plasmatique estimée `C = A / (0,67 L/kg × poids)` affichée en plus des mg ; l'unité de la complication (mg ou mg/L) est un réglage. **Revient sur l'invariant M5.4 « plus aucun poids dans l'App Group »** : le widget reçoit `distributionLitres` (= 0,67 × poids, arrondi à 2 L, soit ≈ 3 kg d'ambiguïté ; revue sécurité M7.5 : à 0,5 L chaque kilo donnait un volume distinct). Noté : `peakLimitMg` rendait déjà le poids inversible sous 66,7 kg depuis M5.6 (3 mg/kg × poids), assumé | Demande utilisateur ; le widget calcule sa timeline lui-même, l'app ne peut pas précalculer la concentration à sa place. Conteneur signé par la même équipe, risque pratique faible, mais invariant modifié |
 
 ## 3. Architecture
 
@@ -225,7 +225,7 @@ Règles :
   (Réglages › Affichage), indépendamment de Home.
 
 Types : `PharmacokineticModel.distributionLitresPerKg = 0.67` ; `UserProfile.distributionLitres`
-(dérivé, arrondi à 0,5 L) ; `UserProfile.complicationUnit: DisplayUnit` (`.milligrams` par défaut,
+(dérivé, arrondi à 2 L) ; `UserProfile.complicationUnit: DisplayUnit` (`.milligrams` par défaut,
 `.milligramsPerLitre`), décodage tolérant ; `AssessmentLimits.distributionLitres` et
 `.complicationUnit` (décodage tolérant, clé `cache.snapshot.v3` inchangée) ; `WidgetEntryData`
 porte `milligramsPerLitre` et `unit`.
@@ -263,7 +263,7 @@ Chaque dose enregistrée dans HealthKit porte les métadonnées
    coucher (v0.2 : interrupteur « Coucher depuis Santé », valeur déduite + nombre de nuits,
    repli manuel visible), seuils, boissons personnalisées, mention non médicale.
    v0.3 : section **Affichage** — « Unité de la complication » (mg / mg/L) ; note « concentration
-   plasmatique estimée, Vd 0,67 L/kg × poids » avec le volume calculé (« ≈ 47 L »).
+   plasmatique estimée, Vd 0,67 L/kg × poids » avec le volume calculé (« ≈ 46 L »).
 6. **Notifications (v0.2, Réglages)** — deux interrupteurs indépendants, chacun déclenche la
    demande d'autorisation `UNUserNotificationCenter` la première fois :
    - « OK pour dormir » : une notification à `sleepReadyAt` quand le niveau est encore au-dessus

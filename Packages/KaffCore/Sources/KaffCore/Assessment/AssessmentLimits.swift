@@ -3,7 +3,7 @@ import Foundation
 /// Seuils et paramètres dérivés du profil, seuls nécessaires à `LevelAssessor`. C'est ce que reçoit la complication
 /// via le snapshot de l'App Group : la limite de pic est déjà calculée, le poids brut ne quitte pas l'app
 /// (revue sécurité M5.4). Depuis v0.3 (spec §2, §5.3) le volume de distribution `distributionLitres` — 0,67 × poids
-/// arrondi à 0,5 L, soit le poids à ± 1 kg près — traverse l'App Group : le widget en a besoin pour afficher des mg/L.
+/// arrondi à 2 L, soit une ambiguïté d'≈ 3 kg sur le poids — traverse l'App Group ; `peakLimitMg` (3 mg/kg × poids sous 200 mg) donnait déjà le poids sous 66,7 kg depuis M5.6, choix assumé : conteneur signé par la même équipe : le widget en a besoin pour afficher des mg/L.
 public struct AssessmentLimits: Hashable, Codable, Sendable {
     public let halfLifeHours: Double
     public let bedtime: ClockTime
@@ -16,7 +16,7 @@ public struct AssessmentLimits: Hashable, Codable, Sendable {
     /// Unité affichée par la complication ; l'anneau n'en dépend jamais (C / C_limite = A / A_limite).
     public let complicationUnit: DisplayUnit
 
-    /// Volume quand le snapshot n'en porte pas (blob v3 antérieur à M7.1) : celui du poids de repli, 70 kg → 47,0 L.
+    /// Volume quand le snapshot n'en porte pas (blob v3 antérieur à M7.1) : celui du poids de repli, 70 kg → 46 L.
     public static let defaultDistributionLitres = UserProfile.default.distributionLitres
 
     public init(halfLifeHours: Double, bedtime: ClockTime, peakLimitMg: Double,
@@ -60,7 +60,8 @@ public struct AssessmentLimits: Hashable, Codable, Sendable {
             dailyLimitMg: try c.decode(Double.self, forKey: .dailyLimitMg),
             bedtimeLimitMg: try c.decode(Double.self, forKey: .bedtimeLimitMg),
             distributionLitres: litres.isFinite && litres > 0 ? litres : Self.defaultDistributionLitres,
-            complicationUnit: try c.decodeIfPresent(DisplayUnit.self, forKey: .complicationUnit) ?? .milligrams
+            // Valeur inconnue → unité par défaut plutôt que perdre tout le snapshot (revue sécurité M7.5).
+            complicationUnit: try c.decodeIfPresent(String.self, forKey: .complicationUnit).flatMap(DisplayUnit.init(rawValue:)) ?? .milligrams
         )
     }
 
