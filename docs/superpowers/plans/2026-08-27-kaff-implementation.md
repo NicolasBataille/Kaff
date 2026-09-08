@@ -3167,6 +3167,60 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 - [x] **Step 4** : docs — README (section « et le sommeil ? »), `docs/science/README.md` (backlog → fait), `docs/PRIVACY.md` (sommeil lu, jamais affiché ; notifications locales), ROADMAP M6 ✅ + journal, plan coché.
 - [ ] **Step 5** : `CURRENT_PROJECT_VERSION 4`, `make testflight`, tag `v0.2.0` après validation sur la montre de l'utilisateur.
 
+## M7 — v0.3 : concentration mg/L, unité de la complication, grain de café (ajouté le 2026-09-08)
+
+Cadre : spec §2 (ligne « Concentration (v0.3) », décision d'agent à confirmer : `distributionLitres` entre dans
+l'App Group), §5.3, §7.5 (Affichage), §8 (unité, grain), §9. Branche `feat/v0.3` (depuis `feat/v0.2`, non taguée),
+`MARKETING_VERSION 0.3.0`, builds à partir de (6). Science : `docs/science/2026-09-04-fact-check.md` addendum
+du 2026-09-08 (Vd, conversion, repères de toxicité).
+
+### Task M7.1 : concentration dans KaffCore (Vd, unité, limites, snapshot)
+
+**Files:**
+- Modify: `Pharmacokinetics/PharmacokineticModel.swift`, `Model/UserProfile.swift`, `Assessment/AssessmentLimits.swift`, `Assessment/LevelAssessment.swift`
+- Create: `Model/DisplayUnit.swift`
+- Test: `PharmacokineticScienceTests.swift`, `ModelTests.swift`, `AssessmentLimitsTests.swift`, `CacheStoreTests.swift`, `ProfileStoreTests.swift`
+
+- [ ] **Step 1** : tests RED — `distributionLitresPerKg == 0.67` ; `UserProfile.distributionLitres` = 0,67 × poids arrondi à 0,5 L (70 kg → 47,0 ; 72 kg → 48,0 (48,24 → 48,0) ; repli 70 kg) ; `peakLimitMgPerLitre` ≈ 4,04 pour 50, 60 et 66 kg (± 0,05) et décroissant au-delà (70 kg → ≈ 3,85) ; `bedtimeLimitMgPerLitre` = 35 / litres ; un profil v0.2 sans `complicationUnit` décode en `.milligrams` ; un snapshot v3 sans `distributionLitres`/`complicationUnit` décode avec 47,0 L (repli 70 kg) et `.milligrams` ; round-trips.
+- [ ] **Step 2** : `DisplayUnit` (`milligrams`, `milligramsPerLitre`, `Codable` par `rawValue`), constantes sourcées, champs et décodage tolérant, `LevelAssessment.currentMgPerLitre(litres:)` (ou équivalent pur).
+- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M7.1 plasma concentration and display unit`.
+
+### Task M7.2 : entrée de complication en mg/L (KaffCore)
+
+**Files:**
+- Modify: `Timeline/WidgetEntryData.swift`, `Timeline/WidgetTimelinePlanner.swift`
+- Test: `WidgetTimelinePlannerTests.swift`
+
+- [ ] **Step 1** : tests RED — `WidgetEntryData.milligramsPerLitre == milligrams / limits.distributionLitres`, `unit == limits.complicationUnit` ; `ringProgress`/`ringOverflow` identiques quelle que soit l'unité (même snapshot, unité changée) ; `empty` → 0 mg/L, `.milligrams`.
+- [ ] **Step 2** : implémentation, valeurs par défaut pour les appels existants.
+- [ ] **Step 3** : `swift test` vert ; commit `feat(core): M7.2 widget entry concentration`.
+
+### Task M7.3 : science et formats
+
+**Files:**
+- Modify: `docs/science/2026-09-04-fact-check.md` (addendum 2026-09-08), `docs/science/README.md`, `KaffUI/Formatters.swift` (`mgPerLitre`, une décimale, « 3,9 mg/L »)
+
+- [ ] **Step 1** : addendum sourcé (Vd 0,67 L/kg EFSA 2015 / Abernethy & Todd 1985 ; contrôle 4,04 mg/L ; repères 15/50/80 mg/L Willson 2018 + Frontiers Toxicology 2026 ; pourquoi ce n'est pas un quatrième seuil).
+- [ ] **Step 2** : `Formatters.mgPerLitre` ; commit `docs(science): M7.3 plasma concentration addendum`.
+
+### Task M7.4 : UI — Affichage, concentration, grain de café (design Fable)
+
+**Files:**
+- Create: `KaffUI/CoffeeBeanShape.swift`
+- Modify: `KaffUI/KaffRingView.swift` (fond grain optionnel), `Features/Home/StatusPillView.swift`, `StatusDetailSheet.swift`, `Features/Settings/SettingsView.swift` (+ `DisplaySettingsSection.swift`), `KaffComplication/Views/*` (unité), `WidgetEntryData+UI.swift`, `App/WidgetGalleryView.swift`, `Resources/Localizable.xcstrings`, `docs/design/ui-direction.md`
+
+- [ ] **Step 1** : `CoffeeBeanShape` (`Shape` en `Path`, ellipse + sillon central courbe), derrière l'anneau dans `KaffRingView` (option `showsBean`), opacité `Theme.Ring.beanOpacity` (0,08–0,12 à valider sur la circulaire ≈ 50 pt, mode `.accented`, luminance réduite, 42 mm).
+- [ ] **Step 2** : Home — pastille et feuille de statut affichent « 3,2 mg/L · limite 4,0 », badge « poids estimé » à côté de toute concentration, note de toxicité (≥ 15 mg/L) en bas de la feuille.
+- [ ] **Step 3** : Réglages › Affichage — sélecteur « Unité de la complication » (mg / mg/L), note « concentration plasmatique estimée · 0,67 L/kg × poids ≈ 47 L ».
+- [ ] **Step 4** : complication — circulaire/coin/rectangulaire/inline suivent `unit` (nombre à une décimale + « mg/L »), galerie de debug étendue ; captures `docs/screenshots/m7-*.png` ; `make test` vert ; commit `feat(app): M7.4 concentration display, complication unit, coffee bean`.
+
+### Task M7.5 : vérification, revue, TestFlight 0.3.0 (6)
+
+- [ ] **Step 1** : simulateur — bascule d'unité et rendu de la complication (galerie + snapshot `distributionLitres`), AX5.
+- [ ] **Step 2** : agents `code-reviewer` + `security-reviewer` (nouveau champ dans l'App Group : vérifier que seul `distributionLitres` arrondi y entre) ; corriger CRITICAL/HIGH.
+- [ ] **Step 3** : couverture core ≥ 90 %, app non-vue ≥ 80 % ; docs (README « et en mg/L ? », PRIVACY : volume de distribution dans l'instantané, ROADMAP, plan).
+- [ ] **Step 4** : `CURRENT_PROJECT_VERSION 6`, `make testflight` — sert aussi de nouvel envoi après le délai `BETA_CONTRACT_MISSING` (voir journal 2026-09-08) ; soumission du groupe externe ; tag `v0.3.0` après validation sur la montre (v0.2.0 non taguée, fusionnée d'un bloc).
+
 ---
 
 ## Auto-revue du plan (faite le 2026-08-27)

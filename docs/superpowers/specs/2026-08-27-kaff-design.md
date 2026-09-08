@@ -34,6 +34,7 @@ locales opt-in (§7.6). Toujours hors périmètre : app iPhone, FC/VFC, grossess
 | Coucher (v0.2) — validé par l'utilisateur le 2026-09-08 | Médiane circulaire des 14 dernières nuits Santé, opt-in, repli sur la valeur manuelle. Revient partiellement sur « pas de sommeil » (2026-08-27) : lu uniquement pour le coucher, jamais affiché | Le fact-check commandé par l'utilisateur (`docs/science/2026-09-04-fact-check.md` §5) ne retient que le sommeil comme métrique utile |
 | Notifications (v0.2) — validé par l'utilisateur le 2026-09-08 | Locales, opt-in, replanifiées à chaque publication du snapshot ; jamais de fond HealthKit | Aucune permission de plus que nécessaire ; contenu calculé par `KaffCore` |
 | Licence (2026-09-08) | PolyForm Strict 1.0.0 : source disponible, usage personnel non commercial seulement ; redistribution, modification distribuée et usage commercial interdits ; copyright Nicolas Bataille | Demande utilisateur : que le code ne puisse pas être repris ou réutilisé impunément ; une licence établie vaut mieux qu'un texte maison |
+| Concentration (v0.3) — *décision d'agent du 2026-09-08, à confirmer par l'utilisateur* | Concentration plasmatique estimée `C = A / (0,67 L/kg × poids)` affichée en plus des mg ; l'unité de la complication (mg ou mg/L) est un réglage. **Revient sur l'invariant M5.4 « plus aucun poids dans l'App Group »** : le widget reçoit `distributionLitres` (= 0,67 × poids, arrondi à 0,5 L), le poids à ± 1 kg près | Demande utilisateur ; le widget calcule sa timeline lui-même, l'app ne peut pas précalculer la concentration à sa place. Conteneur signé par la même équipe, risque pratique faible, mais invariant modifié |
 
 ## 3. Architecture
 
@@ -193,6 +194,42 @@ seuil 35 mg, t½ 5 h → `ln(1,0285 × 63/35)/ke ≈ 4,44 h` avant le coucher (1
 Dose de référence de la notification : la boisson favorite de l'utilisateur (première de
 `favoriteDrinks`), sinon l'espresso du catalogue (63 mg).
 
+### 5.3 Concentration plasmatique estimée (v0.3)
+
+Modèle à un compartiment : `C(t) = A(t) / V`, avec `V = Vd × poids` et **Vd = 0,67 L/kg**
+(EFSA 2015, d'après Abernethy & Todd 1985 ; IOM 2001 : 0,7 ; revue `docs/science/fact-check-pk.md` §6).
+Pour 70 kg, `V ≈ 46,9 L` : 200 mg ingérés donnent `Cmax ≈ 180,6 / 46,9 ≈ 3,85 mg/L`, cohérent avec les
+Cmax mesurées après une dose de ce type (≈ 4–5 mg/L).
+
+Règles :
+- **Mêmes vérifications, même statut.** La concentration ne crée pas de quatrième vérification ni de
+  deuxième table de seuils : `C / C_limite = A / A_limite` puisque les deux divisent par le même `V`.
+  L'anneau ne change donc jamais avec l'unité ; seuls le nombre et son étiquette changent (test :
+  `WidgetEntryData.ringProgress` indépendant de l'unité).
+- Seules les vérifications **pic** et **coucher** ont une lecture en mg/L (`peakLimitMg / V`,
+  `bedtimeLimitMg / V`). Le cumul journalier de 400 mg est une quantité ingérée : jamais affiché en mg/L.
+- Contrôle : pour un poids ≤ 66,7 kg, `peakLimitMg / V` est constant ≈ **4,04 mg/L**
+  (3 mg/kg × 0,903 / 0,67) — la limite EFSA de 3 mg/kg est nativement une concentration ; au-delà du
+  plafond de 200 mg elle décroît avec le poids.
+- **Repères de toxicité, informatifs seulement** (feuille de statut, note en bas, source en commentaire
+  de code) : ≥ 15 mg/L symptômes d'intoxication, ≥ 50 mg/L toxique, ≥ 80 mg/L létal (Willson 2018,
+  *The clinical toxicology of caffeine*, Toxicol Rep ; revue Frontiers in Toxicology 2026). Le statut
+  `high` se déclenche bien avant ; le modèle est documenté non linéaire au-delà de 500 mg. La dose
+  maximale saisissable (1 000 mg) donne ≈ 19 mg/L à 70 kg : la ligne des 15 mg/L est atteignable dans
+  l'app, elle est affichée comme repère, pas comme seuil.
+- Nom affiché : « concentration plasmatique estimée », jamais « dosage ». Quand le poids est celui de
+  repli (70 kg), la valeur en mg/L est doublement estimée : le badge « poids estimé » accompagne toute
+  valeur en mg/L.
+- Affichage dans l'app : Home garde les mg en héros ; la pastille de statut et la feuille de statut
+  donnent la concentration (« 3,2 mg/L · limite 4,0 »). La complication suit `complicationUnit`
+  (Réglages › Affichage), indépendamment de Home.
+
+Types : `PharmacokineticModel.distributionLitresPerKg = 0.67` ; `UserProfile.distributionLitres`
+(dérivé, arrondi à 0,5 L) ; `UserProfile.complicationUnit: DisplayUnit` (`.milligrams` par défaut,
+`.milligramsPerLitre`), décodage tolérant ; `AssessmentLimits.distributionLitres` et
+`.complicationUnit` (décodage tolérant, clé `cache.snapshot.v3` inchangée) ; `WidgetEntryData`
+porte `milligramsPerLitre` et `unit`.
+
 ## 6. Catalogue de boissons
 
 Prédéfinies (mg pour un volume standard, réglables) : espresso 63 mg/30 ml,
@@ -225,6 +262,8 @@ Chaque dose enregistrée dans HealthKit porte les métadonnées
    tabac ≈ 3,5 h, contraception œstroprogestative ≈ 8 h, grossesse hors modèle), heure de
    coucher (v0.2 : interrupteur « Coucher depuis Santé », valeur déduite + nombre de nuits,
    repli manuel visible), seuils, boissons personnalisées, mention non médicale.
+   v0.3 : section **Affichage** — « Unité de la complication » (mg / mg/L) ; note « concentration
+   plasmatique estimée, Vd 0,67 L/kg × poids » avec le volume calculé (« ≈ 47 L »).
 6. **Notifications (v0.2, Réglages)** — deux interrupteurs indépendants, chacun déclenche la
    demande d'autorisation `UNUserNotificationCenter` la première fois :
    - « OK pour dormir » : une notification à `sleepReadyAt` quand le niveau est encore au-dessus
@@ -256,6 +295,11 @@ reste géré.
 - Rechargement : `WidgetCenter.shared.reloadAllTimelines()` après chaque écriture /
   suppression / changement de réglage.
 - Sans données ou sans autorisation : jauge vide, texte « Ouvrir Kaff ».
+- **Unité (v0.3)** : `WidgetEntryData.unit` suit `limits.complicationUnit` ; en mg/L le nombre est
+  `milligrams / distributionLitres` à une décimale, l'étiquette « mg/L », l'anneau inchangé.
+- **Grain de café (v0.3)** : forme vectorielle `CoffeeBeanShape` (KaffUI, pas d'asset), rendue derrière
+  l'anneau dans `KaffRingView` (option), fondue (opacité ≈ 0,08–0,12, à valider sur la circulaire
+  ≈ 50 pt : le nombre doit rester lisible), en mode `.accented` et en luminance réduite.
 - **Obsolescence (v0.2)** : `WidgetEntryData.isStale` vrai quand `now − snapshot.updatedAt`
   dépasse la fenêtre des doses du snapshot (`CacheSnapshot.windowHours`, écrite par l'app :
   `max(30, 10 × t½)`) — le widget ne peut alors plus connaître de dose non transmise. Rendu
@@ -274,6 +318,7 @@ reste géré.
 | Sommeil absent ou < 3 nuits (v0.2) | Interrupteur reste actif, note « Aucune nuit trouvée dans Santé sur la montre », coucher manuel utilisé et affiché comme tel |
 | Notifications refusées (v0.2) | Interrupteurs désactivés, note avec le chemin Réglages › Notifications ; aucune re-demande automatique |
 | Lecture du sommeil en erreur (v0.2) | `lastError` « Lecture du sommeil impossible », dernière valeur déduite conservée |
+| Poids de repli et affichage mg/L (v0.3) | Valeur affichée quand même (70 kg), badge « poids estimé » à côté de toute concentration, lien Réglages |
 
 ## 10. Tests
 
