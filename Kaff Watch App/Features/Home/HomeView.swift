@@ -106,7 +106,11 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showStatusDetail) {
             NavigationStack {
-                StatusDetailSheet(assessment: shown, profile: model.profile)
+                StatusDetailSheet(assessment: shown, profile: model.profile) {
+                    // Badge « poids estimé » : la feuille se ferme, les Réglages s'ouvrent (spec §9).
+                    showStatusDetail = false
+                    model.path.append(.settings)
+                }
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Fermer", systemImage: "xmark") { showStatusDetail = false }
@@ -130,7 +134,7 @@ struct HomeView: View {
                     .frame(width: ringSize * 1.5, height: ringSize * 1.5)
                     .animation(Motion.colour(reduceMotion: reduceMotion), value: tint)
             }
-            ring(mg: mg, tint: tint, lineWidth: Theme.Ring.lineWidth)
+            ring(mg: mg, tint: tint, lineWidth: Theme.Ring.lineWidth, showsBean: true)
                 .frame(width: ringSize, height: ringSize)
             VStack(spacing: -2) {
                 heroNumber(mg, font: Theme.Typography.hero)
@@ -177,11 +181,12 @@ struct HomeView: View {
         .accessibilityLabel("\(Formatters.relative(minutes: scrubOffsetMinutes)) : \(Formatters.mgValue(assessment.currentMg)) milligrammes, \(assessment.status.accessibilityLabel)")
     }
 
-    private func ring(mg: Double, tint: Color, lineWidth: Double) -> some View {
+    /// `showsBean` : grain de café en filigrane, sur le héros seulement (bruit sur le mini-anneau du mode scrub).
+    private func ring(mg: Double, tint: Color, lineWidth: Double, showsBean: Bool = false) -> some View {
         // Charge corporelle rapportée à la limite de pic (Cmax d'une dose unique), pas à la dose ingérée (M5.6).
         let limit = max(model.profile.peakLimitMg, 1)
         return KaffRingView(progress: min(mg / limit, 1), overflowProgress: max(mg / limit - 1, 0),
-                            tint: tint, lineWidth: lineWidth, isAnimated: !isLuminanceReduced)
+                            tint: tint, lineWidth: lineWidth, isAnimated: !isLuminanceReduced, showsBean: showsBean)
             .matchedGeometryEffect(id: "ring", in: morph)
     }
 
@@ -249,11 +254,7 @@ struct HomeView: View {
     @ViewBuilder private var weightBadge: some View {
         if model.profile.isWeightEstimated {
             NavigationLink(value: Route.settings) {
-                Label("Poids estimé (\(Formatters.kg(model.profile.weightKg)))", systemImage: "scalemass")
-                    .font(.caption2)
-                    .foregroundStyle(Theme.Status.elevated)
-                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
-                    .minimumScaleFactor(0.8)
+                EstimatedWeightLabel(weightKg: model.profile.weightKg)
                     .multilineTextAlignment(.center)
             }
             .buttonStyle(.plain)

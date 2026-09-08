@@ -31,6 +31,13 @@ enum Theme {
         /// Mini-anneau de la complication rectangulaire.
         static let miniComplicationSize = 34.0
         static let miniLineWidth = 3.5
+        /// Filigrane grain de café derrière l'anneau (spec §8, v0.3). Plage du brief 0,08–0,12 ; 0,10 validé sur la
+        /// circulaire ≈ 50 pt (trois chiffres, proxy teinté désaturé, AX5) : le nombre reste lisible.
+        static let beanOpacity = 0.10
+        /// Retrait du grain à l'intérieur de la piste, en multiples de l'épaisseur du trait.
+        static let beanInset = 1.6
+        /// Grain derrière le nombre de la complication de coin (≈ 46 pt de côté, nombre en `.title3`).
+        static let cornerBeanSize = 30.0
     }
 
     enum Typography {

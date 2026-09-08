@@ -58,7 +58,7 @@ struct ManualDoseView: View {
     private var dial: some View {
         ZStack {
             KaffRingView(progress: min(milligrams / limitMg, 1), overflowProgress: max(milligrams / limitMg - 1, 0),
-                         tint: status.color, lineWidth: Theme.Ring.lineWidth * 0.75)
+                         tint: status.color, lineWidth: Theme.Ring.lineWidth * 0.75, showsBean: true)
                 .frame(width: ringSize, height: ringSize)
             VStack(spacing: -3) {
                 Text(Formatters.mgValue(milligrams))

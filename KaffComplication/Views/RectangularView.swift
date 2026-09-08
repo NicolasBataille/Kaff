@@ -3,7 +3,8 @@ import KaffCore
 import SwiftUI
 import WidgetKit
 
-/// Mini-anneau + « 142 mg · OK » + « Sommeil 05:12 » (« Ouvrir Kaff » si obsolète) + sparkline 6 h (brief §4).
+/// Mini-anneau + « 142 mg · OK » (ou « 3,1 mg/L · OK ») + « Sommeil 05:12 » (« Ouvrir Kaff » si obsolète)
+/// + sparkline 6 h (brief §4). Pas de grain sur le mini-anneau : bruit à 34 pt.
 struct RectangularView: View {
     let data: WidgetEntryData
 
@@ -49,7 +50,7 @@ struct RectangularView: View {
 
     private var headline: some View {
         HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text(Formatters.mg(data.milligrams))
+            Text(verbatim: data.valueWithUnit)
                 .font(Theme.Typography.complication)
                 .monospacedDigit()
             Text("· \(data.status.label)")
