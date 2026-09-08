@@ -3209,10 +3209,10 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 - Create: `KaffUI/CoffeeBeanShape.swift`
 - Modify: `KaffUI/KaffRingView.swift` (fond grain optionnel), `Features/Home/StatusPillView.swift`, `StatusDetailSheet.swift`, `Features/Settings/SettingsView.swift` (+ `DisplaySettingsSection.swift`), `KaffComplication/Views/*` (unité), `WidgetEntryData+UI.swift`, `App/WidgetGalleryView.swift`, `Resources/Localizable.xcstrings`, `docs/design/ui-direction.md`
 
-- [ ] **Step 1** : `CoffeeBeanShape` (`Shape` en `Path`, ellipse + sillon central courbe), derrière l'anneau dans `KaffRingView` (option `showsBean`), opacité `Theme.Ring.beanOpacity` (0,08–0,12 à valider sur la circulaire ≈ 50 pt, mode `.accented`, luminance réduite, 42 mm).
-- [ ] **Step 2** : Home — pastille et feuille de statut affichent « 3,2 mg/L · limite 4,0 », badge « poids estimé » à côté de toute concentration, note de toxicité (≥ 15 mg/L) en bas de la feuille.
-- [ ] **Step 3** : Réglages › Affichage — sélecteur « Unité de la complication » (mg / mg/L), note « concentration plasmatique estimée · 0,67 L/kg × poids ≈ 47 L ».
-- [ ] **Step 4** : complication — circulaire/coin/rectangulaire/inline suivent `unit` (nombre à une décimale + « mg/L »), galerie de debug étendue ; captures `docs/screenshots/m7-*.png` ; `make test` vert ; commit `feat(app): M7.4 concentration display, complication unit, coffee bean`.
+- [x] **Step 1** : `CoffeeBeanShape` (`Shape` en `Path`, ellipse + sillon central courbe), derrière l'anneau dans `KaffRingView` (option `showsBean`), opacité `Theme.Ring.beanOpacity` (0,08–0,12 à valider sur la circulaire ≈ 50 pt, mode `.accented`, luminance réduite, 42 mm).
+- [x] **Step 2** : Home — pastille et feuille de statut affichent « 3,2 mg/L · limite 4,0 », badge « poids estimé » à côté de toute concentration, note de toxicité (≥ 15 mg/L) en bas de la feuille.
+- [x] **Step 3** : Réglages › Affichage — sélecteur « Unité de la complication » (mg / mg/L), note « concentration plasmatique estimée · 0,67 L/kg × poids ≈ 47 L ».
+- [x] **Step 4** : complication — circulaire/coin/rectangulaire/inline suivent `unit` (nombre à une décimale + « mg/L »), galerie de debug étendue ; captures `docs/screenshots/m7-*.png` ; `make test` vert ; commit `feat(app): M7.4 concentration display, complication unit, coffee bean`.
 
 ### Task M7.5 : vérification, revue, TestFlight 0.3.0 (6)
 
