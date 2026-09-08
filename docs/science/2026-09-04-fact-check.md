@@ -120,3 +120,40 @@ espresso 48–322 mg selon le café (Crozier 2012, Ludwig 2014), cappuccino 85�
   corroborés par la fiche « EFSA explains » du 27/05/2015 et la reprise du VKM 2015. Les deux copies concordent.
 - Clark & Landolt 2017, Nehlig 2018, Koenig 2013 : résumés seulement. Fredholm 1999, Landolt 1995 : non
   consultés en ligne.
+
+## 7. Addendum du 2026-09-08 — concentration plasmatique estimée (v0.3)
+
+Demande utilisateur : afficher « la mesure par litre » en plus des mg, « avec les seuils recommandés pour
+cette métrique », et laisser choisir l'unité de la complication.
+
+**Conversion.** Modèle à un compartiment : `C(t) = A(t) / V`, `V = Vd × poids`, **Vd = 0,67 L/kg** (EFSA 2015
+§4.2, d'après Abernethy & Todd 1985 ; IOM 2001 donne 0,7 ; plage publiée 0,5–0,75 — voir
+[`fact-check-pk.md`](fact-check-pk.md) §6). Le Vd n'est pas modifié par le tabac ni la contraception
+orale (Parsons 1978, Abernethy 1985) ; il est plus faible chez la personne âgée (Blanchard & Sawers 1983).
+Pour 70 kg, `V ≈ 46,9 L` ; l'app arrondit `V` à 0,5 L près avant de le transmettre à la complication.
+
+**Contrôle de cohérence.** 200 mg ingérés → `Cmax ≈ 180,6 mg / 46,9 L ≈ 3,85 mg/L`, dans la plage des Cmax
+mesurées après une dose de cet ordre (≈ 4–5 mg/L dans les études d'interaction où la caféine sert de sonde
+CYP1A2). Pour un poids ≤ 66,7 kg, la limite de pic vaut `3 mg/kg × peakFraction / 0,67 ≈ 4,04 mg/L` quel que
+soit le poids : la limite EFSA de 3 mg/kg est nativement une concentration. Au-delà du plafond de 200 mg,
+elle décroît avec le poids (70 kg : 3,85 mg/L).
+
+**Seuils.** Il n'existe pas de recommandation de sécurité formulée en mg/L pour la population générale :
+l'EFSA raisonne en mg/kg et en mg/jour, et c'est précisément ce que l'app applique déjà. La concentration
+n'est donc pas une quatrième vérification : `C / C_limite = A / A_limite` (même `V` des deux côtés), le
+statut et l'anneau sont identiques dans les deux unités. Seules les vérifications **pic** et **coucher**
+ont une lecture en mg/L ; le cumul journalier (400 mg) est une quantité ingérée et n'en a pas.
+
+**Repères de toxicité (informatifs).** Willson C., *The clinical toxicology of caffeine: A review and case
+study*, Toxicology Reports 2018 (5:1140-1152, DOI 10.1016/j.toxrep.2018.11.002) et la revue *Toxicology of
+caffeine poisoning: molecular mechanisms, toxicokinetic profiles, and clinical implications*, Frontiers in
+Toxicology 2026 (DOI 10.3389/ftox.2026.1933375) : toxicité symptomatique à partir de **15 mg/L**
+(agitation, vomissements, tachyarythmies), concentrations **> 50 mg/L** toxiques, **> 80 mg/L** associées à
+des issues fatales (fibrillation ventriculaire ; séries médico-légales suédoises, Banerjee 2014). Ces valeurs
+sont affichées comme repères dans la feuille de statut, pas comme seuils : le statut « trop haut » se
+déclenche dès ≈ 4 mg/L, et le modèle est documenté non linéaire au-delà de 500 mg (§4). La dose maximale
+saisissable (1 000 mg) donnerait ≈ 19 mg/L à 70 kg, la ligne des 15 mg/L est donc atteignable dans l'app.
+
+**Réserves.** La concentration est doublement estimée quand le poids est celui de repli (70 kg) : le badge
+« poids estimé » accompagne toute valeur en mg/L. Concentration plasmatique ≠ concentration salivaire
+(rapport ≈ 0,7–0,8) ni cérébrale ; l'app parle de « concentration plasmatique estimée », jamais de dosage.

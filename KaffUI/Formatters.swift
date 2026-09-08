@@ -6,6 +6,9 @@ enum Formatters {
     static func mg(_ value: Double) -> String { "\(mgValue(value)) mg" }
     static func mgValue(_ value: Double) -> String { "\(Int(value.rounded()))" }
     static func ml(_ value: Double) -> String { "\(Int(value.rounded())) ml" }
+    /// « 3,9 mg/L » — concentration plasmatique estimée (spec §5.3), une décimale, séparateur de la locale.
+    static func mgPerLitre(_ value: Double) -> String { "\(mgPerLitreValue(value)) mg/L" }
+    static func mgPerLitreValue(_ value: Double) -> String { value.formatted(.number.precision(.fractionLength(1))) }
     /// « 08:53 » (toujours deux chiffres, comme la barre d'état).
     static func time(_ date: Date) -> String {
         date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))

@@ -91,7 +91,7 @@ dose à 95 % et 105 % de la limite).
 
 ## Pistes ouvertes par la revue
 
-Faites en v0.2 (M6, 2026-09-06) : heure de coucher réelle lue dans `sleepAnalysis` (médiane circulaire des
+Faite en v0.3 (M7, 2026-09-08) : concentration plasmatique estimée en mg/L (`C = A / (0,67 L/kg × poids)`, synthèse §7 — mêmes seuils, repères de toxicité 15/50/80 mg/L informatifs). Faites en v0.2 (M6, 2026-09-06) : heure de coucher réelle lue dans `sleepAnalysis` (médiane circulaire des
 14 dernières nuits, en option, spec §5.1) ; indices de demi-vie dans Réglages (tabac, contraception, grossesse
 hors modèle) ; notification « dernière prise avant le coucher » (spec §5.2, dernier instant où une dose garde
 le résidu au coucher sous le seuil). Restent ouvertes : fraîcheur du poids ; mode grossesse ou allaitement
