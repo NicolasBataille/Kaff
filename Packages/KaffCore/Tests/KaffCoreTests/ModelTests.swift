@@ -149,3 +149,95 @@ private let profileV1JSON = """
     #expect(c.healthBedtime == ClockTime(hour: 21, minute: 50))
     #expect(c.healthBedtimeNights == 12)
 }
+
+// MARK: - Concentration plasmatique et unité de la complication (M7.1, spec §5.3)
+
+/// `distributionLitres` = 0,67 L/kg × poids, arrondi au 0,5 L le plus proche (le poids exact ne traverse pas l'App Group).
+/// 72 kg → 48,24 → 48,0 ; 61 kg → 40,87 → 41,0 ; 50 kg → 33,5 exact ; 60 kg → 40,2 → 40,0.
+@Test(arguments: [(70.0, 47.0), (72.0, 48.0), (61.0, 41.0), (50.0, 33.5), (60.0, 40.0)])
+func distributionLitresIsVdTimesWeightRoundedToHalfLitre(weightKg: Double, litres: Double) {
+    var p = UserProfile.default
+    p.manualWeightKg = weightKg
+    #expect(p.distributionLitres == litres)
+    #expect(UserProfile.distributionRoundingLitres == 0.5)
+}
+
+@Test func distributionLitresUsesFallbackWeightWhenNoneIsKnown() {
+    let p = UserProfile.default
+    #expect(p.isWeightEstimated)
+    #expect(p.distributionLitres == 47.0)
+}
+
+/// Sous le plafond de 200 mg, `peakLimitMg / V` = 3 mg/kg × poids × pic / (0,67 × poids) ≈ 3 × 0,903 / 0,67 ≈ 4,04 mg/L,
+/// indépendant du poids à l'arrondi de 0,5 L près (60 et 66 kg arrondissent le volume vers le bas : 4,06 ; d'où ± 0,05).
+/// Au-delà du plafond (66,7 kg), le numérateur est figé à 180,6 mg et la concentration limite décroît avec le poids.
+@Test(arguments: [50.0, 60.0, 66.0])
+func peakLimitConcentrationIsConstantBelowTheSingleDoseCap(weightKg: Double) {
+    var p = UserProfile.default
+    p.manualWeightKg = weightKg
+    #expect(abs(p.peakLimitMgPerLitre - 4.04) < 0.05, "\(weightKg) kg → \(p.peakLimitMgPerLitre) mg/L")
+}
+
+@Test func peakLimitConcentrationDecreasesWithWeightAboveTheCap() {
+    var p = UserProfile.default
+    p.manualWeightKg = 70
+    #expect(abs(p.peakLimitMgPerLitre - 3.85) < 0.02)
+    let seventy = p.peakLimitMgPerLitre
+    p.manualWeightKg = 90   // 60,3 → 60,5 L
+    #expect(p.peakLimitMgPerLitre < seventy)
+    #expect(abs(p.peakLimitMgPerLitre - 180.6 / 60.5) < 0.01)
+}
+
+@Test func bedtimeLimitConcentrationIsBedtimeLimitOverVolume() {
+    var p = UserProfile.default
+    p.manualWeightKg = 60
+    #expect(p.bedtimeLimitMg == 35)
+    #expect(p.bedtimeLimitMgPerLitre == 35 / 40.0)
+    #expect(p.bedtimeLimitMgPerLitre == p.bedtimeLimitMg / p.distributionLitres)
+}
+
+/// JSON tel que v0.2 l'écrivait : toutes les clés M6.2, aucune clé `complicationUnit`.
+private let profileV02JSON = """
+{"manualWeightKg":72,"halfLifeHours":6,"bedtime":{"hour":22,"minute":45},"dailyLimitMg":300,
+ "bedtimeLimitMg":40,"singleDoseMgPerKg":3,"singleDoseCapMg":200,
+ "usesHealthBedtime":true,"healthBedtime":{"hour":22,"minute":30},"healthBedtimeNights":5,
+ "notifySleepReady":true,"notifyLastIntake":false}
+"""
+
+@Test func profileV02JSONDecodesWithMilligramsUnit() throws {
+    let p = try JSONDecoder().decode(UserProfile.self, from: Data(profileV02JSON.utf8))
+    #expect(p.complicationUnit == .milligrams)
+    #expect(p.manualWeightKg == 72)
+    #expect(p.halfLifeHours == 6)
+    #expect(p.bedtime == ClockTime(hour: 22, minute: 45))
+    #expect(p.dailyLimitMg == 300 && p.bedtimeLimitMg == 40)
+    #expect(p.usesHealthBedtime && p.healthBedtime == ClockTime(hour: 22, minute: 30) && p.healthBedtimeNights == 5)
+    #expect(p.notifySleepReady && !p.notifyLastIntake)
+    #expect(p.distributionLitres == 48.0)
+}
+
+@Test func complicationUnitSurvivesCodableRoundTrip() throws {
+    var p = UserProfile.default
+    p.complicationUnit = .milligramsPerLitre
+    let data = try JSONEncoder().encode(p)
+    #expect(String(decoding: data, as: UTF8.self).contains("\"complicationUnit\":\"milligramsPerLitre\""))
+    let decoded = try JSONDecoder().decode(UserProfile.self, from: data)
+    #expect(decoded == p)
+    #expect(decoded.complicationUnit == .milligramsPerLitre)
+}
+
+@Test func displayUnitIsCodableByRawValueAndEnumerable() throws {
+    #expect(DisplayUnit.allCases == [.milligrams, .milligramsPerLitre])
+    #expect(UserProfile.default.complicationUnit == .milligrams)
+    let encoded = try JSONEncoder().encode([DisplayUnit.milligrams, .milligramsPerLitre])
+    #expect(String(decoding: encoded, as: UTF8.self) == "[\"milligrams\",\"milligramsPerLitre\"]")
+}
+
+@Test func clampedKeepsComplicationUnit() {
+    var p = UserProfile.default
+    p.complicationUnit = .milligramsPerLitre
+    p.halfLifeHours = 40
+    let c = p.clamped()
+    #expect(c.complicationUnit == .milligramsPerLitre)
+    #expect(c.halfLifeHours == UserProfile.Bounds.halfLifeHours.upperBound)
+}

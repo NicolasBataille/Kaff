@@ -1,7 +1,8 @@
 import Foundation
 
 /// Ce que le widget a besoin de connaître : les doses récentes et les seuils dérivés du profil
-/// (jamais le profil brut : le poids reste dans l'app).
+/// (jamais le profil brut : le poids reste dans l'app ; seul `AssessmentLimits.distributionLitres`, arrondi à 0,5 L,
+/// en est dérivé depuis v0.3).
 public struct CacheSnapshot: Hashable, Codable, Sendable {
     /// Fenêtre des doses quand l'app n'en a pas écrit (blob v3 antérieur à M6.6).
     /// Source: plancher de `AppModel.cacheWindowHours` (`max(30, 10 × t½)`).

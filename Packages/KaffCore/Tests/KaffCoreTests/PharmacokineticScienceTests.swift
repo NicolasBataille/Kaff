@@ -35,3 +35,19 @@ func peakTimeAndFractionStayInPublishedRanges(halfLife: Double) {
     }
     #expect(abs(eliminated - dose) < 0.005 * dose)
 }
+
+// MARK: - Concentration plasmatique (M7.1, spec §5.3)
+
+/// Vd = 0,67 L/kg (EFSA 2015, d'après Abernethy & Todd 1985 ; IOM 2001 : 0,7 L/kg ; fact-check-pk.md §6).
+@Test func distributionVolumePerKilogramIsEFSAValue() {
+    #expect(PharmacokineticModel.distributionLitresPerKg == 0.67)
+}
+
+/// Contrôle de la spec §5.3 : 200 mg à 70 kg → Cmax ≈ 180,6 / 47 ≈ 3,84 mg/L, cohérent avec les Cmax mesurées
+/// après une dose de ce type (≈ 4–5 mg/L, borne basse une fois le volume arrondi à 47 L).
+@Test func twoHundredMilligramsAtSeventyKilosPeaksNearFourMilligramsPerLitre() {
+    let profile = UserProfile.default   // poids de repli 70 kg
+    let model = PharmacokineticModel(halfLifeHours: profile.halfLifeHours)
+    let peakMg = model.amount(dose: 200, hoursSince: model.timeToPeakHours)
+    #expect(abs(peakMg / profile.distributionLitres - 3.84) < 0.01)
+}
