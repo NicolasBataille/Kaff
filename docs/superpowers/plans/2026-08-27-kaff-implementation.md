@@ -3216,9 +3216,9 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 
 ### Task M7.5 : vérification, revue, TestFlight 0.3.0 (6)
 
-- [ ] **Step 1** : simulateur — bascule d'unité et rendu de la complication (galerie + snapshot `distributionLitres`), AX5.
-- [ ] **Step 2** : agents `code-reviewer` + `security-reviewer` (nouveau champ dans l'App Group : vérifier que seul `distributionLitres` arrondi y entre) ; corriger CRITICAL/HIGH.
-- [ ] **Step 3** : couverture core ≥ 90 %, app non-vue ≥ 80 % ; docs (README « et en mg/L ? », PRIVACY : volume de distribution dans l'instantané, ROADMAP, plan).
+- [x] **Step 1** : simulateur — bascule d'unité et rendu de la complication (galerie + snapshot `distributionLitres`), AX5. *(Fait en M7.4 sur Series 11 46/42 mm : parcours dose → feuille → Affichage → mg/L, galerie mg/mg/L/grain/accentué, AX5 ; snapshot vérifié par test core plutôt que plist.)*
+- [x] **Step 2** : agents `code-reviewer` + `security-reviewer` (nouveau champ dans l'App Group : vérifier que seul `distributionLitres` arrondi y entre) ; corriger CRITICAL/HIGH. *(0 CRITICAL ; sécurité HIGH : arrondi 0,5 L inversible au kilo → 2 L ; MEDIUM : unité inconnue faisait tomber snapshot/profil → décodage tolérant ; code MEDIUM : VoiceOver « poids estimé » + action Réglages ; LOW : constantes de toxicité dans KaffCore, insécable, test d'identité C/C_lim = A/A_lim.)*
+- [x] **Step 3** : couverture core ≥ 90 %, app non-vue ≥ 80 % ; docs (README « et en mg/L ? », PRIVACY : volume de distribution dans l'instantané, ROADMAP, plan). *(core 99,4 % lignes, 143 tests ; app 54 tests, `AppModel` 96 %.)*
 - [ ] **Step 4** : `CURRENT_PROJECT_VERSION 6`, `make testflight` — sert aussi de nouvel envoi après le délai `BETA_CONTRACT_MISSING` (voir journal 2026-09-08) ; soumission du groupe externe ; tag `v0.3.0` après validation sur la montre (v0.2.0 non taguée, fusionnée d'un bloc).
 
 ---
