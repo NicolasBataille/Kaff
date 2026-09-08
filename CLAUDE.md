@@ -5,7 +5,7 @@ l'organisme et l'expose en complication. Détails : `docs/superpowers/specs/2026
 
 ## Où sont les choses
 
-- `docs/ROADMAP.md` — état des jalons (M0→M5) + journal. **Source de vérité du suivi.**
+- `docs/ROADMAP.md` — état des jalons (M0→M7) + journal. **Source de vérité du suivi.**
 - `docs/superpowers/plans/2026-08-27-kaff-implementation.md` — tâches détaillées avec cases à cocher.
 - `Packages/KaffCore` — logique pure (PK, seuils, timeline, catalogue). Testé avec `swift test`.
 - `Kaff Watch App/` — SwiftUI, services HealthKit/cache/profil, ViewModels `@Observable`.

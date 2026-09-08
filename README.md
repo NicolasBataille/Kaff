@@ -107,7 +107,7 @@ flowchart LR
 ```
 
 Les doses et le poids vivent dans Santé, sauvegardés avec ton iPhone et réutilisables par n'importe quelle autre
-app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, jamais le poids) dans l'App Group ;
+app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, un volume de distribution arrondi mais jamais le poids exact) dans l'App Group ;
 la complication ne lit que ça et ne touche jamais HealthKit. Kaff n'envoie rien nulle part : pas de réseau, pas de statistiques.
 
 ### 5 bis. Et le sommeil ? (v0.2)
