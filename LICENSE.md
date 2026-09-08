@@ -1,73 +1,63 @@
+# Licence — Tous droits réservés (source consultable, usage interdit)
+
 Kaff — estimation de la caféine sur Apple Watch
 Copyright © 2026 Nicolas Bataille. Tous droits réservés.
 
-Ce logiciel est mis à disposition sous la licence PolyForm Strict 1.0.0 reproduite ci-dessous
-(texte officiel : https://polyformproject.org/licenses/strict/1.0.0). En résumé, sans valeur
-juridique propre : vous pouvez lire, compiler et utiliser ce code pour un usage personnel ou non
-commercial ; vous ne pouvez ni le redistribuer, ni distribuer une version modifiée ou dérivée, ni
-l'utiliser à des fins commerciales, sans l'accord écrit de l'auteur. Seul le texte anglais
-ci-dessous fait foi.
+## 1. Objet
 
-Required Notice: Copyright Nicolas Bataille (https://github.com/NicolasBataille/Kaff)
+Ce dépôt est publié **à titre de consultation uniquement**. Le code source, les documents, les figures,
+les icônes et toute autre ressource qu'il contient (ensemble, « le Contenu ») restent la propriété exclusive
+de Nicolas Bataille (« l'Auteur ») et sont protégés par le droit d'auteur (Code de la propriété
+intellectuelle, articles L111-1 et suivants, L122-4, L335-2 et suivants) et par les conventions
+internationales applicables.
+
+## 2. Ce qui est interdit
+
+Sauf autorisation écrite et préalable de l'Auteur, il est interdit, en tout ou partie, directement ou
+indirectement, à des fins commerciales ou non :
+
+- de copier, reproduire, télécharger ou extraire le Contenu en dehors de la simple lecture dans le dépôt ;
+- de compiler, exécuter, installer ou faire fonctionner le logiciel à partir de ce Contenu ;
+- de modifier, traduire, adapter, décompiler ou créer des œuvres dérivées du Contenu ;
+- de distribuer, publier, transmettre, vendre, louer, prêter, concéder en licence ou sous-licence le Contenu ;
+- d'utiliser le Contenu, ses algorithmes, ses constantes, ses textes ou son design pour concevoir, entraîner
+  ou alimenter un autre logiciel, un service, un modèle ou un jeu de données ;
+- de retirer ou d'altérer les mentions de copyright ou de licence.
+
+## 3. Ce qui est permis
+
+- **Lire** le Contenu dans le dépôt GitHub, et l'y citer brièvement (courts extraits, avec attribution
+  « Kaff © 2026 Nicolas Bataille » et lien vers le dépôt) dans le cadre du droit de courte citation.
+- Les seules opérations rendues techniquement possibles par GitHub sur un dépôt public (affichage, fork,
+  étoile) le sont dans les limites des conditions d'utilisation de GitHub ; un fork ne confère **aucun**
+  droit d'usage, de modification ni de redistribution au-delà de la consultation.
+- Tester l'application par le canal officiel (TestFlight, sur invitation de l'Auteur), sans accès au code.
+
+## 4. Absence de garantie
+
+Le Contenu est fourni « en l'état », sans garantie d'aucune sorte. L'Auteur ne saurait être tenu
+responsable d'un quelconque dommage lié à sa consultation. L'application est une estimation indicative, pas
+un avis médical.
+
+## 5. Violation
+
+Toute utilisation non autorisée constitue une contrefaçon susceptible d'engager la responsabilité civile et
+pénale de son auteur. L'Auteur se réserve le droit d'exercer toute action utile, y compris le retrait du
+contenu contrefaisant (DMCA / notification aux hébergeurs).
+
+## 6. Demandes d'autorisation
+
+Toute demande d'autorisation (usage, contribution, réutilisation) se fait par écrit via les issues du dépôt
+https://github.com/NicolasBataille/Kaff ou l'adresse indiquée sur le profil GitHub de l'Auteur.
 
 ---
 
-# PolyForm Strict License 1.0.0
+## English summary (the French text above prevails)
 
-<https://polyformproject.org/licenses/strict/1.0.0>
-
-## Acceptance
-
-In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
-
-## Copyright License
-
-The licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose, other than distributing the software or making changes or new works based on the software.
-
-## Patent License
-
-The licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.
-
-## Noncommercial Purposes
-
-Any noncommercial purpose is a permitted purpose.
-
-## Personal Uses
-
-Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.
-
-## Noncommercial Organizations
-
-Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.
-
-## Fair Use
-
-You may have "fair use" rights for the software under the law. These terms do not limit them.
-
-## No Other Rights
-
-These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else. These terms do not imply any other licenses.
-
-## Patent Defense
-
-If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
-
-## Violations
-
-The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice. Otherwise, all your licenses end immediately.
-
-## No Liability
-
-As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.
-
-## Definitions
-
-The licensor is the individual or entity offering these terms, and the software is the software the licensor makes available under these terms.
-
-You refers to the individual or entity agreeing to these terms.
-
-Your company is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization. Control means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise. Control can be direct or indirect.
-
-Your licenses are all the licenses granted to you for the software under these terms.
-
-Use means anything you do with the software requiring one of your licenses.
+**All rights reserved. Source visible, use prohibited.** Copyright © 2026 Nicolas Bataille. This repository
+is published for reading only. Without the Author's prior written permission you may not copy, reproduce,
+download for use, compile, run, modify, translate, create derivative works from, distribute, publish, sell,
+license, or use any part of this repository's contents (code, documents, figures, icons), for any purpose,
+commercial or not, including to build or train other software, services, models or datasets. Reading the
+code on GitHub and short attributed quotations are permitted; a GitHub fork grants no rights beyond viewing.
+No warranty. Unauthorized use is copyright infringement and will be pursued.

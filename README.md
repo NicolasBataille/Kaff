@@ -219,8 +219,8 @@ Swift 6 strict concurrency, Swift Testing, Swift Charts, Liquid Glass, couronne 
 
 ## Licence
 
-Copyright © 2026 Nicolas Bataille. Code publié sous la licence
-[PolyForm Strict 1.0.0](LICENSE.md) : vous pouvez lire, compiler et utiliser Kaff pour un usage
-personnel ou non commercial. Redistribuer le code, en diffuser une version modifiée ou dérivée, ou
-l'utiliser à des fins commerciales demande l'accord écrit de l'auteur. Le texte officiel anglais
-dans `LICENSE.md` fait foi.
+Copyright © 2026 Nicolas Bataille. **Tous droits réservés** — ce dépôt est publié à titre de
+consultation uniquement ([LICENSE.md](LICENSE.md)). Sans autorisation écrite de l'auteur, il est interdit
+de copier, reproduire, compiler, exécuter, modifier, redistribuer ou réutiliser le code, les documents et
+les ressources de ce dépôt, à quelque fin que ce soit. Lire le code et le citer brièvement avec attribution
+reste permis ; l'app se teste par TestFlight sur invitation.
