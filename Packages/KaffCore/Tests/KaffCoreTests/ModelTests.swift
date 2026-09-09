@@ -150,10 +150,10 @@ private let profileV1JSON = """
     #expect(c.healthBedtimeNights == 12)
 }
 
-// MARK: - Concentration plasmatique et unité de la complication (M7.1, spec §5.3)
+// MARK: - Concentration plasmatique (spec §5.3) — réservé, non affiché en v0.3 (idée en backlog)
 
 /// `distributionLitres` = 0,67 L/kg × poids, arrondi aux 2 L les plus proches (revue sécurité M7.5 : un pas de 2 L vaut
-/// ≈ 3 kg, un poids saisi au kilo près n'est plus inversible depuis l'App Group).
+/// ≈ 3 kg, un poids saisi au kilo près ne serait pas inversible si le volume quittait un jour l'app).
 /// 70 kg → 46,9 → 46 ; 72 kg → 48,24 → 48 ; 61 kg → 40,87 → 40 ; 50 kg → 33,5 → 34 ; 60 kg → 40,2 → 40.
 @Test(arguments: [(70.0, 46.0), (72.0, 48.0), (61.0, 40.0), (50.0, 34.0), (60.0, 40.0)])
 func distributionLitresIsVdTimesWeightRoundedToTwoLitres(weightKg: Double, litres: Double) {
@@ -209,7 +209,7 @@ func peakLimitConcentrationIsConstantBelowTheSingleDoseCap(weightKg: Double) {
     #expect(p.bedtimeLimitMgPerLitre == p.bedtimeLimitMg / p.distributionLitres)
 }
 
-/// JSON tel que v0.2 l'écrivait : toutes les clés M6.2, aucune clé `complicationUnit`.
+/// JSON tel que v0.2 l'écrivait : toutes les clés M6.2, rien de plus.
 private let profileV02JSON = """
 {"manualWeightKg":72,"halfLifeHours":6,"bedtime":{"hour":22,"minute":45},"dailyLimitMg":300,
  "bedtimeLimitMg":40,"singleDoseMgPerKg":3,"singleDoseCapMg":200,
@@ -217,9 +217,8 @@ private let profileV02JSON = """
  "notifySleepReady":true,"notifyLastIntake":false}
 """
 
-@Test func profileV02JSONDecodesWithMilligramsUnit() throws {
+@Test func profileV02JSONDecodes() throws {
     let p = try JSONDecoder().decode(UserProfile.self, from: Data(profileV02JSON.utf8))
-    #expect(p.complicationUnit == .milligrams)
     #expect(p.manualWeightKg == 72)
     #expect(p.halfLifeHours == 6)
     #expect(p.bedtime == ClockTime(hour: 22, minute: 45))
@@ -229,39 +228,12 @@ private let profileV02JSON = """
     #expect(p.distributionLitres == 48.0)
 }
 
-@Test func complicationUnitSurvivesCodableRoundTrip() throws {
-    var p = UserProfile.default
-    p.complicationUnit = .milligramsPerLitre
-    let data = try JSONEncoder().encode(p)
-    #expect(String(decoding: data, as: UTF8.self).contains("\"complicationUnit\":\"milligramsPerLitre\""))
-    let decoded = try JSONDecoder().decode(UserProfile.self, from: data)
-    #expect(decoded == p)
-    #expect(decoded.complicationUnit == .milligramsPerLitre)
-}
-
-@Test func displayUnitIsCodableByRawValueAndEnumerable() throws {
-    #expect(DisplayUnit.allCases == [.milligrams, .milligramsPerLitre])
-    #expect(UserProfile.default.complicationUnit == .milligrams)
-    let encoded = try JSONEncoder().encode([DisplayUnit.milligrams, .milligramsPerLitre])
-    #expect(String(decoding: encoded, as: UTF8.self) == "[\"milligrams\",\"milligramsPerLitre\"]")
-}
-
-@Test func clampedKeepsComplicationUnit() {
-    var p = UserProfile.default
-    p.complicationUnit = .milligramsPerLitre
-    p.halfLifeHours = 40
-    let c = p.clamped()
-    #expect(c.complicationUnit == .milligramsPerLitre)
-    #expect(c.halfLifeHours == UserProfile.Bounds.halfLifeHours.upperBound)
-}
-
-/// Revue sécurité M7.5 : une unité inconnue (version future, blob altéré) ne doit pas faire échouer tout le profil.
-@Test func unknownComplicationUnitDecodesAsMilligrams() throws {
-    var p = UserProfile.default
-    p.complicationUnit = .milligramsPerLitre
-    var json = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(p)) as? [String: Any])
-    json["complicationUnit"] = "nanograms"
-    let decoded = try JSONDecoder().decode(UserProfile.self, from: JSONSerialization.data(withJSONObject: json))
-    #expect(decoded.complicationUnit == .milligrams)
-    #expect(decoded.bedtime == p.bedtime)
+/// Un profil écrit par un build v0.3 intermédiaire porte `complicationUnit` ; la clé est ignorée, le reste se relit.
+@Test func profileWithLegacyComplicationUnitKeyDecodes() throws {
+    var json = try #require(try JSONSerialization.jsonObject(with: Data(profileV02JSON.utf8)) as? [String: Any])
+    json["complicationUnit"] = "milligramsPerLitre"
+    let p = try JSONDecoder().decode(UserProfile.self, from: JSONSerialization.data(withJSONObject: json))
+    #expect(p.manualWeightKg == 72 && p.bedtime == ClockTime(hour: 22, minute: 45))
+    let reencoded = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(p)) as? [String: Any])
+    #expect(reencoded["complicationUnit"] == nil)
 }

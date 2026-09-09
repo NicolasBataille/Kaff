@@ -4,68 +4,6 @@
     "" : {
 
     },
-    "%@ : %@ sur %@, soit %@ sur %@, %@" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ : %2$@ sur %3$@, soit %4$@ sur %5$@, %6$@"
-          }
-        }
-      }
-    },
-    "%@ · limite %@" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ · limite %2$@"
-          }
-        }
-      }
-    },
-    "Affichage" : {
-
-    },
-    "Concentration plasmatique estimée : %@ × poids ≈ %@" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Concentration plasmatique estimée : %1$@ × poids ≈ %2$@"
-          }
-        }
-      }
-    },
-    "Concentration plasmatique estimée · %@ × poids ≈ %@. Repères : symptômes ≥ %@ mg/L, toxique ≥ %@, létal ≥ %@." : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Concentration plasmatique estimée · %1$@ × poids ≈ %2$@. Repères : symptômes ≥ %3$@ mg/L, toxique ≥ %4$@, létal ≥ %5$@."
-          }
-        }
-      }
-    },
-    "Maintenant %@ · %@" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Maintenant %1$@ · %2$@"
-          }
-        }
-      }
-    },
-    "Poids estimé" : {
-
-    },
-    "Unité" : {
-
-    },
-    "Unité de la complication" : {
-
-    },
     "· %@" : {
 
     },

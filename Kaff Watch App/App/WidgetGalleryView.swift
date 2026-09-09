@@ -7,8 +7,8 @@ import WidgetKit
 /// familles de complication avec le snapshot courant de l'App Group, aux dimensions approximatives d'un cadran 46 mm.
 /// Le simulateur watchOS ne permet pas d'ajouter un cadran à complications (galerie inopérante) ; cette galerie
 /// vérifie le rendu des vues, pas l'hébergement WidgetKit (`widgetLabel`, mode `.accented`, timeline).
-/// v0.3 : échantillons en mg/L, approximation du mode teinté (environnement `.accented` + désaturation — l'hôte
-/// seul teinte réellement), et le grain de café seul pour juger sa forme.
+/// v0.3 : approximation du mode teinté (environnement `.accented` + désaturation — l'hôte seul teinte réellement),
+/// et le grain de café seul pour juger sa forme.
 struct WidgetGalleryView: View {
     /// Source: HIG « Complications », 45/46 mm — valeurs arrondies, indicatives.
     private enum Size {
@@ -33,11 +33,10 @@ struct WidgetGalleryView: View {
         let limits = snapshot?.limits ?? AssessmentLimits(profile: .default)
         let now = Date.now
         let live = WidgetTimelinePlanner.entries(snapshot: snapshot, now: now).first ?? .empty(at: now)
-        // Entrées synthétiques (élevé, trop haut, obsolète, sans données, mg/L) pour voir chaque teinte et unité.
-        func synthetic(_ mg: Double, hoursAgo: Double, updatedHoursAgo: Double = 0,
-                       unit: DisplayUnit = .milligrams) -> WidgetEntryData {
+        // Entrées synthétiques (élevé, trop haut, obsolète, sans données) pour voir chaque teinte.
+        func synthetic(_ mg: Double, hoursAgo: Double, updatedHoursAgo: Double = 0) -> WidgetEntryData {
             let s = CacheSnapshot(doses: [CaffeineDose(date: now.addingTimeInterval(-hoursAgo * 3600), milligrams: mg)],
-                                  limits: Self.limits(limits, unit: unit),
+                                  limits: limits,
                                   updatedAt: now.addingTimeInterval(-updatedHoursAgo * 3600))
             return WidgetTimelinePlanner.entries(snapshot: s, now: now).first!
         }
@@ -49,18 +48,8 @@ struct WidgetGalleryView: View {
             Sample(id: "stale", caption: "Obsolète",
                    data: synthetic(160, hoursAgo: 1, updatedHoursAgo: CacheSnapshot.defaultWindowHours + 1)),
             Sample(id: "empty", caption: "Sans données", data: .empty(at: now)),
-            Sample(id: "mgL-ok", caption: "mg/L", data: synthetic(90, hoursAgo: 1.5, unit: .milligramsPerLitre)),
-            Sample(id: "mgL-high", caption: "mg/L · trop haut", data: synthetic(320, hoursAgo: 0.75, unit: .milligramsPerLitre)),
-            Sample(id: "accented", caption: "Teinté (approximation)",
-                   data: synthetic(160, hoursAgo: 1, unit: .milligramsPerLitre), accented: true),
+            Sample(id: "accented", caption: "Teinté (approximation)", data: synthetic(160, hoursAgo: 1), accented: true),
         ]
-    }
-
-    /// Mêmes seuils, autre unité : `AssessmentLimits` est immuable, on la reconstruit.
-    private static func limits(_ l: AssessmentLimits, unit: DisplayUnit) -> AssessmentLimits {
-        AssessmentLimits(halfLifeHours: l.halfLifeHours, bedtime: l.bedtime, peakLimitMg: l.peakLimitMg,
-                         dailyLimitMg: l.dailyLimitMg, bedtimeLimitMg: l.bedtimeLimitMg,
-                         distributionLitres: l.distributionLitres, complicationUnit: unit)
     }
 
     var body: some View {

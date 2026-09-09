@@ -40,18 +40,6 @@ private func freshDefaults() -> UserDefaults {
     #expect(loaded.effectiveBedtime == ClockTime(hour: 22, minute: 30))
 }
 
-@Test func profileRoundTripKeepsComplicationUnit() throws {
-    let store = ProfileStore(defaults: freshDefaults())
-    var p = UserProfile.default
-    p.complicationUnit = .milligramsPerLitre
-    p.manualWeightKg = 65
-    try store.save(p)
-    let loaded = store.loadProfile()
-    #expect(loaded == p)
-    #expect(loaded.complicationUnit == .milligramsPerLitre)
-    #expect(loaded.distributionLitres == 44.0)   // 0,67 × 65 = 43,55 → 44 (pas de 2 L)
-}
-
 @Test func customDrinksRoundTrip() throws {
     let store = ProfileStore(defaults: freshDefaults())
     let drink = Drink(id: "custom-abc", name: "Cold brew", milligrams: 200, volumeML: 300, symbol: "mug.fill", isCustom: true)

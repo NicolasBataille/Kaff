@@ -106,11 +106,7 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showStatusDetail) {
             NavigationStack {
-                StatusDetailSheet(assessment: shown, profile: model.profile) {
-                    // Badge « poids estimé » : la feuille se ferme, les Réglages s'ouvrent (spec §9).
-                    showStatusDetail = false
-                    model.path.append(.settings)
-                }
+                StatusDetailSheet(assessment: shown, profile: model.profile)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Fermer", systemImage: "xmark") { showStatusDetail = false }

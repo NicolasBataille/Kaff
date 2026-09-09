@@ -5,15 +5,13 @@ import SwiftUI
 extension WidgetEntryData {
     static let openAppLabel = "Ouvrir Kaff"
 
-    /// « — » sans snapshot, sinon le nombre dans l'unité choisie (spec §8) : mg entiers, ou mg/L à une décimale.
-    var valueText: String {
-        guard hasData else { return "—" }
-        return unit == .milligramsPerLitre ? Formatters.mgPerLitreValue(milligramsPerLitre) : Formatters.mgValue(milligrams)
-    }
-    /// « mg » / « mg/L », étiquette logée dans l'ouverture de l'anneau ou dans la jauge du coin.
-    var unitLabel: String { unit.label }
-    /// « 142 mg » / « 3,1 mg/L » pour les familles à une ligne (rectangulaire, inline).
-    var valueWithUnit: String { "\(valueText)\u{A0}\(unitLabel)" }   // insécable, comme `Formatters.mgPerLitre`
+    /// « — » sans snapshot, sinon le nombre entier de mg.
+    var valueText: String { hasData ? Formatters.mgValue(milligrams) : "—" }
+    /// Étiquette « mg » logée dans l'ouverture de l'anneau ou dans la jauge du coin.
+    var unitLabel: String { "mg" }
+    /// « 142 mg » pour les familles à une ligne (rectangulaire, inline) ; espace insécable : le nombre ne se sépare
+    /// jamais de son unité.
+    var valueWithUnit: String { "\(valueText)\u{A0}\(unitLabel)" }
     /// Gris « anneau vide » sans snapshot ou à zéro, sinon la couleur de statut (comme Home).
     var tint: Color { hasData && milligrams >= 0.5 ? status.color : Theme.idle }
     var ringProgress: Double { limitMg > 0 ? min(milligrams / limitMg, 1) : 0 }
@@ -24,6 +22,6 @@ extension WidgetEntryData {
     /// Suffixe de l'inline après les mg : le statut, ou « Ouvrir Kaff » quand le snapshot est obsolète.
     var inlineSuffix: String { isStale ? Self.openAppLabel : status.label }
     var accessibilityText: String {
-        hasData ? "\(valueText) \(unit.accessibilityLabel), \(status.accessibilityLabel), \(secondaryText)" : Self.openAppLabel
+        hasData ? "\(valueText) milligrammes, \(status.accessibilityLabel), \(secondaryText)" : Self.openAppLabel
     }
 }

@@ -2,9 +2,9 @@ import KaffCore
 import SwiftUI
 import WidgetKit
 
-/// Anneau de Home à l'échelle de la complication, nombre au centre, « mg » (ou « mg/L ») logé dans l'ouverture
-/// basse de l'arc, grain de café en filigrane derrière (v0.3). En mode `.accented` l'anneau et le grain prennent
-/// la teinte du cadran : piste, dégradé et grain restent lisibles par leurs opacités, le nombre reste blanc.
+/// Anneau de Home à l'échelle de la complication, nombre au centre, « mg » logé dans l'ouverture basse de l'arc,
+/// grain de café en filigrane derrière (v0.3). En mode `.accented` l'anneau et le grain prennent la teinte du
+/// cadran : piste, dégradé et grain restent lisibles par leurs opacités, le nombre reste blanc.
 struct CircularView: View {
     let data: WidgetEntryData
 

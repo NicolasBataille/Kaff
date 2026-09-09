@@ -76,7 +76,6 @@ struct RootView: View {
         case .customDrinks: CustomDrinkEditorView()
         case .bedtime: BedtimePickerView()
         case .setting(let key): SettingDialView(key: key)
-        case .complicationUnit: ComplicationUnitPickerView()
         }
     }
 }

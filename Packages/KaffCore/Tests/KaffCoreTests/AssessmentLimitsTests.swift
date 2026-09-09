@@ -42,6 +42,18 @@ import Testing
     #expect(decoded == AssessmentLimits(profile: profile))
 }
 
+/// Invariant App Group (spec §2, décision du 2026-09-09) : rien de dérivé du poids ne quitte l'app hormis `peakLimitMg`.
+/// Le snapshot ne porte ni volume de distribution ni unité — exactement ces cinq clés, quel que soit le profil.
+@Test func limitsEncodeExactlyTheFiveThresholdKeys() throws {
+    var profile = UserProfile.default
+    profile.manualWeightKg = 81.5
+    profile.usesHealthBedtime = true
+    profile.healthBedtime = ClockTime(hour: 22, minute: 30)
+    let data = try JSONEncoder().encode(AssessmentLimits(profile: profile))
+    let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    #expect(Set(json.keys) == ["halfLifeHours", "bedtime", "peakLimitMg", "dailyLimitMg", "bedtimeLimitMg"])
+}
+
 @Test func assessorFromLimitsMatchesAssessorFromProfile() {
     var profile = UserProfile.default
     profile.manualWeightKg = 55
@@ -58,50 +70,17 @@ import Testing
     #expect(abs(fromLimits.limits.peakLimitMg - 146.2) < 0.1)
 }
 
-// MARK: - Volume de distribution et unité (M7.1, spec §5.3)
+// MARK: - Concentration (spec §5.3) — réservé, non affiché en v0.3 (idée en backlog)
 
-/// Le widget reçoit `distributionLitres` (0,67 × poids arrondi à 0,5 L) et l'unité choisie — jamais le poids brut.
-@Test func limitsCarryDistributionVolumeAndComplicationUnit() {
-    var profile = UserProfile.default
-    profile.manualWeightKg = 72
-    profile.complicationUnit = .milligramsPerLitre
-    let limits = AssessmentLimits(profile: profile)
-    #expect(limits.distributionLitres == 48.0)
-    #expect(limits.distributionLitres == profile.distributionLitres)
-    #expect(limits.complicationUnit == .milligramsPerLitre)
-    #expect(limits.peakLimitMgPerLitre == limits.peakLimitMg / 48.0)
-    #expect(limits.bedtimeLimitMgPerLitre == 35 / 48.0)
-    #expect(limits.peakLimitMgPerLitre == profile.peakLimitMgPerLitre)
-    #expect(limits.bedtimeLimitMgPerLitre == profile.bedtimeLimitMgPerLitre)
-}
-
-/// Le poids est flouté par l'arrondi à 2 L : 81,5 kg → 54,605 → 54 L ; c'est ce volume, pas le poids, qui traverse
-/// l'App Group (spec §2, invariant M5.4 révisé).
-@Test func limitsExposeRoundedVolumeInsteadOfWeight() throws {
-    var profile = UserProfile.default
-    profile.healthKitWeightKg = 81.5
-    let json = String(decoding: try JSONEncoder().encode(AssessmentLimits(profile: profile)), as: UTF8.self)
-    #expect(json.contains("\"distributionLitres\":54,") || json.contains("\"distributionLitres\":54}"))
-    #expect(!json.contains("81.5"))
-    #expect(json.contains("\"complicationUnit\":\"milligrams\""))
-}
-
-@Test func memberwiseLimitsDefaultToFallbackVolumeAndMilligrams() {
-    let limits = AssessmentLimits(halfLifeHours: 5, bedtime: ClockTime(hour: 23, minute: 0),
-                                  peakLimitMg: 180, dailyLimitMg: 400, bedtimeLimitMg: 35)
-    #expect(limits.distributionLitres == 46.0)
-    #expect(limits.distributionLitres == UserProfile.default.distributionLitres)
-    #expect(limits.complicationUnit == .milligrams)
-}
-
-/// `LevelAssessment` convertit ses mg en mg/L avec le volume qu'on lui passe (fonction pure, rien de stocké).
+/// `LevelAssessment` convertit ses mg en mg/L avec le volume qu'on lui passe (fonction pure, rien de stocké :
+/// le volume vient du profil, jamais des `limits`).
 @Test func assessmentConvertsMilligramsToConcentration() {
     var profile = UserProfile.default
     profile.manualWeightKg = 60   // 40 L
     let assessor = LevelAssessor(profile: profile, calendar: TestClock.calendar)
     let doses = [CaffeineDose(date: TestClock.date(9), milligrams: 150)]
     let a = assessor.assess(doses: doses, at: TestClock.date(10))
-    let litres = assessor.limits.distributionLitres
+    let litres = profile.distributionLitres
     #expect(litres == 40)
     #expect(a.currentMgPerLitre(litres: litres) == a.currentMg / 40)
     #expect(a.projectedBedtimeMgPerLitre(litres: litres) == a.projectedBedtimeMg / 40)

@@ -12,6 +12,4 @@ enum Route: Hashable {
     case bedtime
     /// Réglage numérique (cadran couronne).
     case setting(SettingKey)
-    /// Unité de la complication, mg ou mg/L (liste à coche).
-    case complicationUnit
 }

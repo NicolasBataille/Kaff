@@ -1,7 +1,7 @@
 import KaffCore
 import SwiftUI
 
-/// Réglages : poids, modèle, sommeil, notifications, limites, affichage, boissons personnalisées, mention non médicale.
+/// Réglages : poids, modèle, sommeil, notifications, limites, boissons personnalisées, mention non médicale.
 /// Les valeurs numériques s'ouvrent sur un cadran couronne (`SettingDialView`) : un `Stepper` inline
 /// capture la couronne dès qu'il défile au centre de l'écran et modifie la valeur à l'insu de l'utilisateur.
 struct SettingsView: View {
@@ -59,7 +59,6 @@ struct SettingsView: View {
             Section("Limites") {
                 SettingRowLink(key: .dailyLimit)
             }
-            DisplaySettingsSection()
             Section {
                 NavigationLink(value: Route.customDrinks) {
                     Label("Boissons personnalisées", systemImage: "mug.fill")

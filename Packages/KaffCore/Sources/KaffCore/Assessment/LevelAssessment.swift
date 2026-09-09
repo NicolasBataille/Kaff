@@ -25,8 +25,9 @@ public struct LevelAssessment: Hashable, Sendable {
 
     public var isSleepReady: Bool { sleepReadyAt <= now }
 
-    // Concentration plasmatique estimée (spec §5.3) : C = A / V, avec V = `AssessmentLimits.distributionLitres`.
-    // Fonctions pures : l'évaluation reste en mg, le volume est fourni par l'appelant.
+    // Concentration plasmatique estimée (spec §5.3) : C = A / V, le volume V étant fourni par l'appelant
+    // (`UserProfile.distributionLitres`) ; l'évaluation reste en mg. Fonctions pures, réservées : non affichées
+    // en v0.3 (idée en backlog, 2026-09-09).
 
     /// Concentration actuelle (mg/L) pour un volume de distribution `litres`.
     public func currentMgPerLitre(litres: Double) -> Double { currentMg / litres }
