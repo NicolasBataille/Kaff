@@ -3169,6 +3169,9 @@ grossesse, mineurs, ka par véhicule, app iPhone, RelevanceKit (à envisager apr
 
 ## M7 — v0.3 : concentration mg/L, unité de la complication, grain de café (ajouté le 2026-09-08)
 
+> **Révision du 2026-09-09** : l'utilisateur met le mg/L de côté (« juste en idée ») et refuse tout volume dérivé du poids
+> dans l'App Group. M7.1–M7.5 ont été livrés puis l'affichage retiré (tâche M7.6) ; v0.3 = grain de café + correctifs.
+
 Cadre : spec §2 (ligne « Concentration (v0.3) », décision d'agent à confirmer : `distributionLitres` entre dans
 l'App Group), §5.3, §7.5 (Affichage), §8 (unité, grain), §9. Branche `feat/v0.3` (depuis `feat/v0.2`, non taguée),
 `MARKETING_VERSION 0.3.0`, builds à partir de (6). Science : `docs/science/2026-09-04-fact-check.md` addendum
@@ -3219,7 +3222,12 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 - [x] **Step 1** : simulateur — bascule d'unité et rendu de la complication (galerie + snapshot `distributionLitres`), AX5. *(Fait en M7.4 sur Series 11 46/42 mm : parcours dose → feuille → Affichage → mg/L, galerie mg/mg/L/grain/accentué, AX5 ; snapshot vérifié par test core plutôt que plist.)*
 - [x] **Step 2** : agents `code-reviewer` + `security-reviewer` (nouveau champ dans l'App Group : vérifier que seul `distributionLitres` arrondi y entre) ; corriger CRITICAL/HIGH. *(0 CRITICAL ; sécurité HIGH : arrondi 0,5 L inversible au kilo → 2 L ; MEDIUM : unité inconnue faisait tomber snapshot/profil → décodage tolérant ; code MEDIUM : VoiceOver « poids estimé » + action Réglages ; LOW : constantes de toxicité dans KaffCore, insécable, test d'identité C/C_lim = A/A_lim.)*
 - [x] **Step 3** : couverture core ≥ 90 %, app non-vue ≥ 80 % ; docs (README « et en mg/L ? », PRIVACY : volume de distribution dans l'instantané, ROADMAP, plan). *(core 99,4 % lignes, 143 tests ; app 54 tests, `AppModel` 96 %.)*
-- [ ] **Step 4** : `CURRENT_PROJECT_VERSION 6`, `make testflight` — sert aussi de nouvel envoi après le délai `BETA_CONTRACT_MISSING` (voir journal 2026-09-08) ; soumission du groupe externe ; tag `v0.3.0` après validation sur la montre (v0.2.0 non taguée, fusionnée d'un bloc).
+- [x] **Step 4** : `CURRENT_PROJECT_VERSION 6`, `make testflight` — envoyé le 2026-09-08 (build (6), avec mg/L) ; ~~soumission du groupe externe~~ (bloquée `BETA_CONTRACT_MISSING`, réessai le 2026-09-10) ; tag `v0.3.0` après validation sur la montre.
+
+### Task M7.6 : retrait de l'affichage mg/L (décision utilisateur du 2026-09-09)
+
+- [ ] **Step 1** : supprimer `DisplayUnit`, `UserProfile.complicationUnit`, `AssessmentLimits.distributionLitres/complicationUnit`, `WidgetEntryData.milligramsPerLitre/unit`, Réglages › Affichage, lignes mg/L et note de la feuille de statut, unité des complications ; garder le grain de café et les calculs purs (`distributionLitres`, `peakLimitMgPerLitre`, `ConcentrationReference`) testés dans KaffCore ; test : `AssessmentLimits` n'encode que ses cinq clés historiques.
+- [ ] **Step 2** : `make test` vert, build 0.3.0 (7) TestFlight ; ROADMAP, spec, README, PRIVACY, science alignés.
 
 ---
 
