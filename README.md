@@ -65,7 +65,7 @@ te dit si c'est OK, élevé ou trop haut, à quelle heure tu pourras dormir tran
 
 Un grand nombre, un anneau coloré, une pastille de statut. Le nombre décroît en direct. Tourne la couronne
 pour remonter 12 h en arrière ou te projeter 6 h en avant sur la courbe ; tape la pastille pour voir les trois
-jauges et la raison du statut. « OK pour dormir à 21:19 » te dit quand le niveau sera repassé sous le seuil.
+jauges et la raison du statut. « OK pour dormir à 23:26 » te dit quand le niveau sera repassé sous le seuil.
 
 ### Enregistrer une boisson
 
@@ -134,39 +134,40 @@ t½ = 5 h            par défaut, réglable de 2 à 10 h
 ### 2 · Les boissons s'additionnent
 
 Chaque prise a sa propre courbe ; ce que tu as dans le corps, c'est la somme. Kaff relit toutes les doses de
-Santé et les superpose. Voici une journée : deux espressos le matin, un thé vert l'après-midi.
+Santé et les superpose. Voici une journée : deux espressos le matin, un thé noir à 16:30.
 
 <div align="center">
-<img src="docs/figures/journee-type.svg" width="840" alt="Journée type : deux espressos et un thé vert, courbe totale, projection au coucher, statut affiché">
+<img src="docs/figures/journee-type.svg" width="840" alt="Journée type : deux espressos et un thé noir, courbe totale, 37 mg projetés au coucher, statut élevé · coucher de 16:30 à 23:26">
 </div>
 
-Le bandeau du haut est ce que la montre affiche. Dès le thé de 15:30, le statut passe à « élevé · coucher » :
-non pas parce que le niveau est haut maintenant, mais parce qu'il en restera 28 mg à 23:00. Kaff indique alors
-l'heure à partir de laquelle le niveau sera passé sous le seuil.
+Le bandeau du haut est ce que la montre affiche. Dès le thé de 16:30, le statut passe à « élevé · coucher » :
+non pas parce que le niveau est haut maintenant, mais parce qu'il en restera 37 mg à 23:00, au-dessus des 35 mg
+retenus. Kaff indique alors l'heure à partir de laquelle le niveau sera passé sous ce seuil, 23:26 : à cet instant
+le statut coucher redevient OK, les deux messages disent la même chose. Le thé une heure plus tôt, et tout restait OK.
 
 ### 3 · Trois questions, chaque minute
 
 <div align="center">
-<img src="docs/figures/trois-seuils.svg" width="800" alt="Trois jauges : pic 71 mg sur 181 OK, journée 154 mg sur 400 OK, coucher 28 mg sur 35 élevé">
+<img src="docs/figures/trois-seuils.svg" width="800" alt="Trois jauges à 17:00 : pic 81 mg sur 181 OK, journée 173 mg sur 400 OK, coucher 37 mg projetés, élevé dès 35 mg, trop haut dès 100 mg">
 </div>
 
 | Question | Ce qui est comparé | Limite par défaut | « Élevé » dès |
 |---|---|---|---|
 | **Pic** · est-ce beaucoup, là maintenant ? | mg dans l'organisme | ce qu'atteint une dose unique de 3 mg/kg, plafond 200 mg, soit ≈ 181 mg | 60 % |
 | **Journée** · ai-je trop bu aujourd'hui ? | mg ingérés depuis 04:00 | 400 mg | 75 % |
-| **Coucher** · vais-je bien dormir ? | mg qu'il restera à l'heure du coucher | 35 mg | 60 % |
+| **Coucher** · vais-je bien dormir ? | mg qu'il restera à l'heure du coucher | 35 mg, « trop haut » dès 100 mg | dès la limite |
 
 ```mermaid
 flowchart LR
     D[Doses dans Santé] --> P["Pic : mg maintenant<br/>vs ≈ 181 mg"]
     D --> J["Journée : mg bus depuis 04:00<br/>vs 400 mg"]
-    D --> C["Coucher : mg projetés à 23:00<br/>vs 35 mg"]
+    D --> C["Coucher : mg projetés à 23:00<br/>vs 35 mg (100 mg = trop haut)"]
     P --> W{le pire des trois}
     J --> W
     C --> W
     W -->|"toutes les jauges sous leur seuil « élevé »"| OK([OK])
     W -->|"au moins une jauge au-delà de son seuil « élevé »"| EL(["Élevé · raison"])
-    W -->|"au moins une jauge à 100 %"| HI(["Trop haut · raison"])
+    W -->|"au moins une jauge à sa limite haute"| HI(["Trop haut · raison"])
 ```
 
 ### 4 · Ta demi-vie change tout

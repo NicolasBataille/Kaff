@@ -27,7 +27,7 @@ confrontée à la littérature :
 | Affiche des mg dans l'organisme, le poids sert aux seuils | A(t) ne dépend pas du volume de distribution ; les seuils EFSA sont en mg/kg | ✅ conforme |
 | Dose unique 3 mg/kg plafonnée à 200 mg | EFSA 2015 : 200 mg ≈ 3 mg/kg | ✅ valeur conforme, **objet comparé corrigé** |
 | 400 mg par jour | EFSA 2015 (« consommés au cours de la journée »), FDA | ✅ conforme |
-| Charge corporelle projetée au coucher | Approche validée par Gardiner 2023 et Drake 2013 | ✅ approche conforme, **valeur corrigée** |
+| Charge corporelle projetée au coucher | Approche validée par Gardiner 2023 et Drake 2013 ; 100 mg près du coucher perturbe le sommeil (EFSA 2015) | ✅ approche conforme, **valeur corrigée** ; depuis le 2026-09-09 « élevé » dès 35 mg et « trop haut » dès 100 mg |
 
 ## Ce que la revue a changé dans l'app
 

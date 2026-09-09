@@ -22,9 +22,10 @@ OUT = Path(__file__).parent
 KA = 5.0                       # h⁻¹
 HALF_LIFE = 5.0                # h
 DAILY_LIMIT = 400.0            # mg, élevé à 75 %
-BEDTIME_LIMIT = 35.0           # mg, élevé à 60 %
+BEDTIME_LIMIT = 35.0           # mg, « élevé » dès cette valeur (Gardiner 2023)
+BEDTIME_HIGH = 100.0           # mg, « trop haut » (EFSA 2015 : 100 mg près du coucher perturbe le sommeil)
 SINGLE_DOSE_LIMIT = 200.0      # mg ingérés (3 mg/kg plafonné)
-ELEVATED = {"peak": 0.6, "daily": 0.75, "bedtime": 0.6}
+ELEVATED = {"peak": 0.6, "daily": 0.75, "bedtime": BEDTIME_LIMIT / BEDTIME_HIGH}   # coucher : 35 / 100
 BEDTIME_H = 23.0
 
 # --- Palette (KaffUI/Theme.swift) --------------------------------------------------------------
@@ -81,6 +82,11 @@ def status(value: float, limit: float, elevated_at: float) -> int:
     return 2 if ratio >= 1 else 1 if ratio >= elevated_at else 0
 
 
+def bedtime_status(projected: float) -> int:
+    """Même règle que `LevelAssessor.bedtimeStatus` : ok < 35 mg, élevé dès 35, trop haut dès 100."""
+    return 2 if projected >= BEDTIME_HIGH else 1 if projected >= BEDTIME_LIMIT else 0
+
+
 STATUS_COLOR = {0: OK, 1: ELEV, 2: HIGH}
 STATUS_NAME = {0: "OK", 1: "élevé", 2: "trop haut"}
 
@@ -133,7 +139,8 @@ def fig_single_dose() -> None:
 
 
 # --- Figure 2 : une journée type -----------------------------------------------------------------
-DAY = [(7.5, 63.0, "espresso 63 mg"), (9.5, 63.0, "espresso 63 mg"), (15.5, 28.0, "thé vert 28 mg")]
+# Journée type : deux espressos le matin, un thé noir à 16:30 → ≈ 37 mg projetés à 23:00 (élevé dès 35 mg).
+DAY = [(7.5, 63.0, "espresso 63 mg"), (9.5, 63.0, "espresso 63 mg"), (16.5, 47.0, "thé noir 47 mg")]
 
 
 def day_status(t: float) -> tuple[int, str]:
@@ -141,7 +148,7 @@ def day_status(t: float) -> tuple[int, str]:
     peak = status(total(doses, t), PEAK_LIMIT, ELEVATED["peak"])
     daily = status(sum(mg for _, mg in doses), DAILY_LIMIT, ELEVATED["daily"])
     projected = total(doses, max(t, BEDTIME_H))
-    bed = status(projected, BEDTIME_LIMIT, ELEVATED["bedtime"])
+    bed = bedtime_status(projected)
     worst = max(peak, daily, bed)
     reason = "pic" if peak == worst else "coucher" if bed == worst else "journée"
     return worst, reason if worst else ""
@@ -192,13 +199,13 @@ def fig_day() -> None:
     ax.text(BEDTIME_H + 0.15, 100, "coucher\n23:00", color=SLEEP, fontsize=8.5, va="top")
     proj = total(doses, BEDTIME_H)
     ax.plot([BEDTIME_H], [proj], "o", color=SLEEP, ms=6)
-    ax.annotate(f"{proj:.0f} mg projetés au coucher\n→ « élevé · coucher » dès le thé",
-                (BEDTIME_H, proj), xytext=(17.3, 70), color=SLEEP, fontsize=8.5,
+    ax.annotate(f"{proj:.0f} mg projetés au coucher (≥ 35)\n→ « élevé · coucher » dès le thé",
+                (BEDTIME_H, proj), xytext=(16.8, 78), color=SLEEP, fontsize=8.5,
                 arrowprops=dict(arrowstyle="-", color=SLEEP, lw=0.8))
     last_peak = DAY[-1][0] + tmax()
     ready = sleep_ready(doses, last_peak)
     ax.plot([ready], [BEDTIME_LIMIT], "*", color=SLEEP, ms=12)
-    ax.annotate(f"« OK pour dormir à {hhmm(ready)} »", (ready, BEDTIME_LIMIT), xytext=(12.6, 47),
+    ax.annotate(f"« OK pour dormir à {hhmm(ready)} »\n(le statut coucher redevient OK)", (ready, BEDTIME_LIMIT), xytext=(18.3, 12),
                 color=SLEEP, fontsize=8.5, arrowprops=dict(arrowstyle="-", color=SLEEP, lw=0.8))
     ax.set_xticks(range(6, 27, 2))
     ax.set_xticklabels([hhmm(h) for h in range(6, 27, 2)])
@@ -212,15 +219,15 @@ def fig_day() -> None:
 
 # --- Figure 3 : les trois jauges -----------------------------------------------------------------
 def fig_gauges() -> None:
-    at = 16.0
+    at = 17.0
     doses = [(t0, mg) for t0, mg, _ in DAY if t0 <= at]
     rows = [
         ("Pic — mg dans l'organisme maintenant", total(doses, at), PEAK_LIMIT, ELEVATED["peak"],
          f"limite {PEAK_LIMIT:.0f} mg = Cmax d'une dose de 200 mg"),
         ("Journée — mg ingérés depuis 04:00", sum(mg for _, mg in doses), DAILY_LIMIT, ELEVATED["daily"],
          "limite 400 mg (EFSA)"),
-        ("Coucher — mg projetés à 23:00", total(doses, BEDTIME_H), BEDTIME_LIMIT, ELEVATED["bedtime"],
-         "limite 35 mg (Gardiner 2023)"),
+        ("Coucher — mg projetés à 23:00", total(doses, BEDTIME_H), BEDTIME_HIGH, ELEVATED["bedtime"],
+         "élevé dès 35 mg (Gardiner 2023), trop haut dès 100 mg (EFSA)"),
     ]
     fig, axes = plt.subplots(3, 1, figsize=(8.0, 4.2))
     for ax, (title, value, limit, elevated_at, note) in zip(axes, rows):

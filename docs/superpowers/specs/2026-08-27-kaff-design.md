@@ -142,11 +142,13 @@ est le pire des trois, et la raison est affichée.
 |---|---|---|---|---|
 | Pic ponctuel | `A_total(now)` | `peakLimitMg` = `min(3 mg/kg × poids, 200 mg) × peakFraction(t½)` — Cmax d'une dose unique à la limite EFSA (§5.1.3 : les prises répétées ne doivent pas dépasser la concentration maximale d'une dose de 200 mg) ; ≈ 180 mg pour 200 mg à t½ 5 h | ≥ 60 % | ≥ 100 % |
 | Cumul journalier | Σ doses ingérées depuis 04:00 local | 400 mg (EFSA 2015 « au cours de la journée », FDA) | ≥ 75 % | ≥ 100 % |
-| Coucher | `A_total(heure de coucher)` projeté | 35 mg — résidu, avec ce modèle à t½ 5 h, des cut-offs de Gardiner 2023 (107 mg à 8,8 h → 32,5 mg ; 217,5 mg à 13,2 h → 35,9 mg) ; borne absolue : 100 mg près du coucher perturbe le sommeil (EFSA 2015) | ≥ 60 % | ≥ 100 % |
+| Coucher | `A_total(heure de coucher)` projeté | 35 mg — résidu, avec ce modèle à t½ 5 h, des cut-offs de Gardiner 2023 (107 mg à 8,8 h → 32,5 mg ; 217,5 mg à 13,2 h → 35,9 mg) | ≥ 100 % (dès la limite : au-delà, perte de sommeil mesurable) | ≥ 100 mg absolus (EFSA 2015 : 100 mg près du coucher perturbe le sommeil ; `LevelAssessor.bedtimeHighMg`), ou ≥ la limite si elle est réglée au-dessus |
 
 Tous les seuils sont réglables ; la limite ingérée (« dose unique max ») reste celle
 affichée dans Réglages, la conversion en charge corporelle est interne. Les fractions
-« élevé » et la borne 04:00 sont des choix produit sans base littéraire. Poids : `bodyMass` HealthKit, sinon surcharge
+« élevé » du pic et de la journée, et la borne 04:00, sont des choix produit sans base littéraire.
+Le coucher n'a pas de fraction (révision du 2026-09-09) : « élevé » dès la limite et « trop haut » dès
+100 mg, pour que « OK pour dormir » (niveau < limite) et le statut coucher disent toujours la même chose. Poids : `bodyMass` HealthKit, sinon surcharge
 manuelle, sinon 70 kg avec badge « poids estimé » sur Home.
 
 Dérivés affichés :

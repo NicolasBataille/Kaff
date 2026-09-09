@@ -5,7 +5,11 @@ public struct LevelAssessor: Sendable {
     /// Source: choix produit, sans base littéraire — pré-alerte avant le dépassement.
     public static let elevatedPeakFraction = 0.6
     public static let elevatedDailyFraction = 0.75
-    public static let elevatedBedtimeFraction = 0.6
+    /// Coucher : « élevé » dès la limite (35 mg, Gardiner 2023 : au-delà, perte de sommeil mesurable), « trop haut »
+    /// dès `bedtimeHighMg`. Ainsi « OK pour dormir » (niveau < limite) et le statut coucher disent la même chose
+    /// (revue des figures du 2026-09-09 : avant, le statut restait « élevé » à 60 % de la limite après « OK pour dormir »).
+    /// Source: EFSA 2015 — 100 mg près du coucher perturbe le sommeil (borne absolue).
+    public static let bedtimeHighMg = 100.0
     /// Horizon de recherche de `sleepReadyAt`.
     /// Source: borne de recherche généreuse, pas une constante physiologique ; au-delà on retourne la borne.
     static let sleepSearchHorizonHours = 72.0
@@ -103,7 +107,7 @@ public struct LevelAssessor: Sendable {
             projectedBedtimeMg: projected,
             peakStatus: Self.status(current, limit: limits.peakLimitMg, elevatedAt: Self.elevatedPeakFraction),
             dailyStatus: Self.status(dailyTotal, limit: limits.dailyLimitMg, elevatedAt: Self.elevatedDailyFraction),
-            bedtimeStatus: Self.status(projected, limit: limits.bedtimeLimitMg, elevatedAt: Self.elevatedBedtimeFraction)
+            bedtimeStatus: Self.bedtimeStatus(projected, limit: limits.bedtimeLimitMg)
         )
     }
 
@@ -111,6 +115,14 @@ public struct LevelAssessor: Sendable {
     private static func status(_ value: Double, limit: Double, elevatedAt: Double) -> LevelStatus {
         guard limit > 0 else { return .ok }
         return LevelStatus(ratio: value / limit, elevatedAt: elevatedAt)
+    }
+
+    /// Coucher : OK sous la limite, élevé à partir d'elle, trop haut à partir de `max(bedtimeHighMg, limite)`
+    /// (une limite réglée au-dessus de 100 mg garde un palier « élevé » avant « trop haut »).
+    static func bedtimeStatus(_ projected: Double, limit: Double) -> LevelStatus {
+        guard limit > 0 else { return .ok }
+        if projected >= max(bedtimeHighMg, limit) { return .high }
+        return projected >= limit ? .elevated : .ok
     }
 
     /// Instant à partir duquel la courbe ne fait que décroître : `now`, ou le pic de la dernière dose s'il est à venir.

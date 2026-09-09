@@ -3229,6 +3229,11 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 - [x] **Step 1** : supprimer `DisplayUnit`, `UserProfile.complicationUnit`, `AssessmentLimits.distributionLitres/complicationUnit`, `WidgetEntryData.milligramsPerLitre/unit`, Réglages › Affichage, lignes mg/L et note de la feuille de statut, unité des complications ; garder le grain de café et les calculs purs (`distributionLitres`, `peakLimitMgPerLitre`, `ConcentrationReference`) testés dans KaffCore ; test : `AssessmentLimits` n'encode que ses cinq clés historiques.
 - [x] **Step 2** : `make test` vert, build 0.3.0 (7) TestFlight ; ROADMAP, spec, README, PRIVACY, science alignés. *(Fait le 2026-09-09 : commit `54746cf`, 130 tests core / 54 app ; snapshot v3 n'encode que ses cinq clés, un blob intermédiaire avec les clés retirées se relit.)*
 
+### Task M7.7 : cohérence « OK pour dormir » / statut coucher (revue des figures du 2026-09-09)
+
+- [x] **Step 1** : `LevelAssessor.bedtimeStatus` — ok < limite, élevé dès la limite (35 mg, Gardiner 2023), trop haut dès `bedtimeHighMg = 100` (EFSA 2015) ou dès la limite si elle est réglée au-dessus ; `elevatedBedtimeFraction` supprimée ; tests : accord minute par minute entre `isSleepReady` et le statut coucher jusqu'à 04:00, cut-off Gardiner → ok, 8 h → élevé, borne 100, timeline figée recalculée (08:07 apparaît, 14:15 tombe sur la grille).
+- [x] **Step 2** : `make_figures.py` aligné (`bedtime_status`, jauge coucher 0–35–100), figures régénérées ; spec §5, README, science README, ROADMAP ; build 0.3.0 (8).
+
 ---
 
 ## Auto-revue du plan (faite le 2026-08-27)

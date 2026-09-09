@@ -72,8 +72,8 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(a.dailyStatus == .high)
     // 140 × 1,0285 × (e^(−0,13863×12) + e^(−0,13863×10) + e^(−0,13863×8)) ≈ 110,8 mg / 180,6 = 0,61 ≥ 0,6
     #expect(a.peakStatus == .elevated)
-    #expect(a.bedtimeStatus == .elevated)        // ≈ 74 mg / 100
-    #expect(a.reason == .daily)                  // seul .high ; le pic et le coucher ne sont qu'élevés
+    #expect(a.bedtimeStatus == .ok)              // ≈ 74 mg projetés < limite réglée à 100 mg
+    #expect(a.reason == .daily)                  // seul .high ; le pic n'est qu'élevé
 }
 
 @Test func bedtimeProjectionAndSleepReady() {
@@ -90,24 +90,27 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
     #expect(!a.isSleepReady)
 }
 
-/// Seuil de coucher 35 mg calé sur Gardiner 2023 (café 107 mg ≥ 8,8 h avant le coucher).
-@Test func coffeeAtGardinerCutoffIsElevatedNotHigh() {
-    // 107 × 1,0285 × e^(−0,13863 × 8,8) ≈ 32,5 mg → 32,5/35 = 0,93 : élevé, pas haut.
+/// Seuil de coucher 35 mg calé sur Gardiner 2023 (café 107 mg ≥ 8,8 h avant le coucher) : au cut-off, pas de perte de
+/// sommeil mesurable → OK, cohérent avec « OK pour dormir » (< 35 mg).
+@Test func coffeeAtGardinerCutoffIsOK() {
+    // 107 × 1,0285 × e^(−0,13863 × 8,8) ≈ 32,5 mg < 35 mg : OK.
     let bedtime = TestClock.date(23)
     let dose = CaffeineDose(date: bedtime.addingTimeInterval(-8.8 * 3600), milligrams: 107)
     let a = assessor().assess(doses: [dose], at: TestClock.date(15))
     #expect(a.bedtime == bedtime)
     #expect(abs(a.projectedBedtimeMg - 32.5) < 0.2)
-    #expect(a.bedtimeStatus == .elevated)
+    #expect(a.bedtimeStatus == .ok)
+    #expect(a.status == .ok)
 }
 
-@Test func coffeeEightHoursBeforeBedIsHigh() {
-    // 107 × 1,0285 × e^(−0,13863 × 8) ≈ 36,3 mg > 35 mg.
+@Test func coffeeEightHoursBeforeBedIsElevated() {
+    // 107 × 1,0285 × e^(−0,13863 × 8) ≈ 36,3 mg ≥ 35 mg (élevé) mais < 100 mg (EFSA) : pas « trop haut ».
     let bedtime = TestClock.date(23)
     let dose = CaffeineDose(date: bedtime.addingTimeInterval(-8 * 3600), milligrams: 107)
     let a = assessor().assess(doses: [dose], at: TestClock.date(16))
     #expect(abs(a.projectedBedtimeMg - 36.3) < 0.2)
-    #expect(a.bedtimeStatus == .high)
+    #expect(a.bedtimeStatus == .elevated)
+    #expect(a.reason == .bedtime)
 }
 
 /// Drake 2013 : 400 mg 6 h avant le coucher réduit le sommeil total de plus d'une heure.
@@ -142,15 +145,15 @@ private func assessor(_ mutate: (inout UserProfile) -> Void = { _ in }) -> Level
 }
 
 @Test func bedtimeTakesPriorityOverDailyWhenPeakIsNotHigh() {
-    // Limite de pic 180,6 mg (M5.6) → peakStatus reste .ok sous 108,4 mg. Les trois 140 mg valent ≈ 83,9 mg à
-    // 22:00 ; 35 mg à 21:30 ajoutait ≈ 30,6 mg (114,5 → 0,63, élevé) : on baisse la dernière dose à 20 mg
-    // (≈ 17,5 mg → 101,5 mg, ratio 0,56). Coucher : ≈ 89,8 mg projetés à 23:00 ≫ 35 mg ; journée 440 mg ≥ 400.
-    let now = TestClock.date(22)
+    // Limite de pic 180,6 mg → peakStatus reste .ok sous 108,4 mg ; coucher « trop haut » dès 100 mg projetés (EFSA).
+    // À 22:55 : trois 140 mg (08/10/12 h) ≈ 73,9 mg + 38 mg pris à 21:30 ≈ 32,1 mg → 106 mg, ratio 0,587 (ok) ;
+    // projetés à 23:00 ≈ 104,8 mg ≥ 100 (trop haut) ; journée 458 mg ≥ 400 (trop haut) → la raison retient le coucher.
+    let now = TestClock.date(22, 55)
     let doses = [
         CaffeineDose(date: TestClock.date(8), milligrams: 140),
         CaffeineDose(date: TestClock.date(10), milligrams: 140),
         CaffeineDose(date: TestClock.date(12), milligrams: 140),
-        CaffeineDose(date: TestClock.date(21, 30), milligrams: 20),
+        CaffeineDose(date: TestClock.date(21, 30), milligrams: 38),
     ]
     let a = assessor().assess(doses: doses, at: now)
     #expect(a.peakStatus == .ok)
@@ -264,3 +267,33 @@ func dayContextValidUntilFollowsWallClockAcrossDST(month: Int, day: Int, realHou
     let earlier = a.dayContext(at: afternoon)
     #expect(earlier.validUntil == paris.date(from: DateComponents(year: 2026, month: month, day: day, hour: 23)))
 }
+
+/// Cohérence des messages (revue des figures, 2026-09-09) : dès que « OK pour dormir » est vrai (niveau < limite),
+/// le statut coucher est OK — et réciproquement, le statut coucher est élevé exactement quand le niveau projeté
+/// atteint la limite. Balayage à la minute sur une soirée.
+@Test func sleepReadyAndBedtimeStatusAgree() {
+    let a = assessor()
+    let doses = [CaffeineDose(date: TestClock.date(19), milligrams: 150)]
+    // Jusqu'à 04:00 exclu : ensuite la journée caféine suivante vise déjà le coucher du lendemain.
+    for minute in stride(from: 0, to: 8 * 60, by: 5) {
+        let now = TestClock.date(20).addingTimeInterval(Double(minute) * 60)
+        let assessment = a.assess(doses: doses, at: now)
+        let underLimit = assessment.projectedBedtimeMg < UserProfile.default.bedtimeLimitMg
+        #expect((assessment.bedtimeStatus == .ok) == underLimit, "minute \(minute)")
+        if now >= TestClock.date(23) {   // coucher passé : projection = niveau courant
+            #expect(assessment.isSleepReady == (assessment.bedtimeStatus == .ok), "minute \(minute)")
+        }
+    }
+}
+
+/// Borne haute EFSA : 100 mg au coucher → trop haut ; une limite réglée à 150 mg garde « élevé » entre 150 et 150.
+@Test func bedtimeHighBoundIsEFSAHundredMilligrams() {
+    #expect(LevelAssessor.bedtimeHighMg == 100)
+    #expect(LevelAssessor.bedtimeStatus(99, limit: 35) == .elevated)
+    #expect(LevelAssessor.bedtimeStatus(100, limit: 35) == .high)
+    #expect(LevelAssessor.bedtimeStatus(34.9, limit: 35) == .ok)
+    // Limite au-dessus de la borne : « trop haut » seulement à partir de la limite.
+    #expect(LevelAssessor.bedtimeStatus(120, limit: 150) == .ok)
+    #expect(LevelAssessor.bedtimeStatus(150, limit: 150) == .high)
+}
+
