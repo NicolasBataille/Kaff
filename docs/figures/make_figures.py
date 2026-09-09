@@ -321,8 +321,8 @@ def fig_widget_timeline() -> None:
     ax.axhline(PEAK_LIMIT, color=HIGH, lw=0.8, ls="-.")
     ax.text(end - 0.1, PEAK_LIMIT - 12, f"limite de pic {PEAK_LIMIT:.0f} mg", color=HIGH, fontsize=8.5, ha="right")
     ax.axhline(PEAK_LIMIT * ELEVATED["peak"], color=ELEV, lw=0.8, ls="-.")
-    ax.text(end - 0.1, PEAK_LIMIT * ELEVATED["peak"] + 4, f"élevé dès {PEAK_LIMIT * ELEVATED['peak']:.0f} mg",
-            color=ELEV, fontsize=8.5, ha="right")
+    ax.text(16.2, PEAK_LIMIT * ELEVATED["peak"] + 4, f"élevé dès {PEAK_LIMIT * ELEVATED['peak']:.0f} mg",
+            color=ELEV, fontsize=8.5, ha="left")
     ax.set_xticks(range(13, 22))
     ax.set_xticklabels([hhmm(h) for h in range(13, 22)])
     ax.set_ylim(0, 260)
