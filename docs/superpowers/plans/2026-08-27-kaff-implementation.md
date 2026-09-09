@@ -3226,8 +3226,8 @@ du 2026-09-08 (Vd, conversion, repères de toxicité).
 
 ### Task M7.6 : retrait de l'affichage mg/L (décision utilisateur du 2026-09-09)
 
-- [ ] **Step 1** : supprimer `DisplayUnit`, `UserProfile.complicationUnit`, `AssessmentLimits.distributionLitres/complicationUnit`, `WidgetEntryData.milligramsPerLitre/unit`, Réglages › Affichage, lignes mg/L et note de la feuille de statut, unité des complications ; garder le grain de café et les calculs purs (`distributionLitres`, `peakLimitMgPerLitre`, `ConcentrationReference`) testés dans KaffCore ; test : `AssessmentLimits` n'encode que ses cinq clés historiques.
-- [ ] **Step 2** : `make test` vert, build 0.3.0 (7) TestFlight ; ROADMAP, spec, README, PRIVACY, science alignés.
+- [x] **Step 1** : supprimer `DisplayUnit`, `UserProfile.complicationUnit`, `AssessmentLimits.distributionLitres/complicationUnit`, `WidgetEntryData.milligramsPerLitre/unit`, Réglages › Affichage, lignes mg/L et note de la feuille de statut, unité des complications ; garder le grain de café et les calculs purs (`distributionLitres`, `peakLimitMgPerLitre`, `ConcentrationReference`) testés dans KaffCore ; test : `AssessmentLimits` n'encode que ses cinq clés historiques.
+- [x] **Step 2** : `make test` vert, build 0.3.0 (7) TestFlight ; ROADMAP, spec, README, PRIVACY, science alignés. *(Fait le 2026-09-09 : commit `54746cf`, 130 tests core / 54 app ; snapshot v3 n'encode que ses cinq clés, un blob intermédiaire avec les clés retirées se relit.)*
 
 ---
 
