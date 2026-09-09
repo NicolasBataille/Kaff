@@ -107,7 +107,7 @@ flowchart LR
 ```
 
 Les doses et le poids vivent dans Santé, sauvegardés avec ton iPhone et réutilisables par n'importe quelle autre
-app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, un volume de distribution arrondi mais jamais le poids exact) dans l'App Group ;
+app. Kaff écrit un instantané léger (doses récentes, seuils déjà calculés, jamais le poids) dans l'App Group ;
 la complication ne lit que ça et ne touche jamais HealthKit. Kaff n'envoie rien nulle part : pas de réseau, pas de statistiques.
 
 ### 5 bis. Et le sommeil ? (v0.2)
@@ -122,18 +122,13 @@ coucher (jamais après 04:00), et **« Dernière prise avant le coucher »**, ca
 le dernier instant où la prendre laisse encore le niveau sous le seuil à l'heure du coucher. Un espresso
 (63 mg) avec un seuil de 35 mg et une demi-vie de 5 h, c'est environ 4 h 30 avant.
 
-### 5 ter. Et en mg/L ? (v0.3)
+### 5 ter. Et en mg/L ? (idée, mise de côté)
 
-Kaff affiche d'abord des **mg dans l'organisme**, parce que c'est ce que le modèle calcule sans dépendre de
-ta corpulence. Mais une concentration parle davantage à certains : Kaff donne aussi la **concentration
-plasmatique estimée**, `C = A / (0,67 L/kg × poids)`. Pour 70 kg, l'organisme « dilue » la caféine dans
-≈ 46 L : 180 mg font ≈ 3,9 mg/L. Ce sont les **mêmes seuils** vus autrement, puisque la limite se divise par
-le même volume : l'anneau et le statut ne changent pas, seul le nombre change. Le cumul de la journée reste
-en mg (c'est une quantité bue, pas une concentration). Les repères de toxicité de la littérature
-(symptômes à partir de 15 mg/L, toxique au-delà de 50, létal au-delà de 80) sont affichés à titre
-indicatif dans la feuille de statut : le statut « trop haut » se déclenche bien avant. L'unité de la
-complication se choisit dans Réglages › Affichage. Détail et sources dans
-[docs/science/](docs/science/2026-09-04-fact-check.md) §7.
+Une concentration plasmatique estimée (`C = A / (0,67 L/kg × poids)`, ≈ 3,9 mg/L pour 180 mg à 70 kg) a été
+étudiée et sourcée (voir [docs/science/](docs/science/2026-09-04-fact-check.md) §7) : ce seraient les mêmes
+seuils vus autrement, l'anneau ne changerait pas. Elle n'est pas affichée pour l'instant : l'afficher sur le
+cadran obligerait à transmettre un volume dérivé du poids à la complication, et Kaff préfère ne rien stocker de
+tel dans l'espace partagé. Les calculs restent dans `KaffCore`, prêts si l'idée revient.
 
 ### 6. La complication sait déjà tout
 

@@ -121,7 +121,11 @@ espresso 48–322 mg selon le café (Crozier 2012, Ludwig 2014), cappuccino 85�
 - Clark & Landolt 2017, Nehlig 2018, Koenig 2013 : résumés seulement. Fredholm 1999, Landolt 1995 : non
   consultés en ligne.
 
-## 7. Addendum du 2026-09-08 — concentration plasmatique estimée (v0.3)
+## 7. Addendum du 2026-09-08 — concentration plasmatique estimée (étudiée, non affichée)
+
+> Décision utilisateur du 2026-09-09 : l'affichage en mg/L est mis de côté (« juste en idée »), pour ne rien
+> transmettre de dérivé du poids à la complication. Les formules et repères ci-dessous restent implémentés et
+> testés dans `KaffCore` sans usage dans l'interface.
 
 Demande utilisateur : afficher « la mesure par litre » en plus des mg, « avec les seuils recommandés pour
 cette métrique », et laisser choisir l'unité de la complication.
